@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Controle do Evento – 15 Anos da Larah</title>
+    <style>
+        :root {
+            /* Apple UI Colors & Design Tokens */
+            --system-gray-1: #8E8E93;
+            --system-gray-2: #AEAEB2;
+            --system-gray-3: #C7C7CC;
+            --system-gray-4: #D1D1D6;
+            --system-gray-5: #E5E5EA;
+            --system-gray-6: #F2F2F7;
+
+            --apple-blue: #0071E3;
+            /* Cor de ação principal */
+            --apple-blue-hover: #0077ED;
+
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868B;
+            --background: #F5F5F7;
+            /* Branco Quente */
+            --card-bg: #FFFFFF;
+
+            /* Apple Shapes & Shadows */
+            --radius-card: 24px;
+            --radius-pill: 9999px;
+            --radius-input: 12px;
+            --shadow-subtle: 0 4px 14px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02);
+            --shadow-float: 0 10px 30px rgba(0, 0, 0, 0.08);
+            /* Para hero section ou destaque */
+
+            /* Typography Fallback para San Francisco */
+            --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--background);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Nav Glassmorphism fixa */
+        .glass-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 52px;
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .glass-nav-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 90px 24px 60px 24px;
+            /* O top-padding compensa a nav */
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 56px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 40px;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+            letter-spacing: -0.015em;
+        }
+
+        /* Botões Call to Action estilo Pílula */
+        button.btn-primary {
+            background: var(--apple-blue);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-pill);
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button.btn-primary:hover {
+            background: #0077ED;
+            transform: scale(1.02);
+        }
+
+        button.btn-del {
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            border-radius: var(--radius-pill);
+            width: 36px;
+            height: 36px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button.btn-del:hover {
+            background: rgba(255, 59, 48, 0.1);
+            /* Um vermelho bem translúcido no hover */
+            color: #FF3B30;
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-card);
+            padding: 32px;
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-float);
+            transform: translateY(-4px);
+        }
+
+        .card-title {
+            font-size: 15px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .card-value {
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .accent-blue {
+            color: var(--apple-blue);
+        }
+
+        /* Sections Cards */
+        section {
+            background: var(--card-bg);
+            border-radius: var(--radius-card);
+            padding: 40px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-subtle);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        section:nth-child(even) {
+            animation-delay: 0.1s;
+        }
+
+        section:nth-child(odd) {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Overview Form Grid */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        /* Inputs & Selects */
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--system-gray-4);
+            border-radius: var(--radius-input);
+            font-size: 16px;
+            /* 16px evita zoom automático no iOS */
+            font-family: inherit;
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+            box-sizing: border-box;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--apple-blue);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
+        }
+
+        /* Clean Tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: var(--radius-input);
+            border: 1px solid var(--system-gray-5);
+            background: #FFFFFF;
+            margin-top: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            border-bottom: 1px solid var(--system-gray-5);
+            background: var(--system-gray-6);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--system-gray-6);
+            vertical-align: middle;
+        }
+
+        tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: var(--background);
+            /* Efeito hover super limpo */
+        }
+
+        tr.row-entering {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Total Box Minimalista */
+        .total-box {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--system-gray-5);
+            font-weight: 500;
+            font-size: 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 16px;
+            color: var(--text-secondary);
+        }
+
+        .total-box span {
+            color: var(--text-primary);
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* Status Pills (RSVP) */
+        .status-pill {
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-confirmado {
+            background: rgba(52, 199, 89, 0.1);
+            color: #34C759;
+        }
+
+        .status-pendente {
+            background: rgba(255, 149, 0, 0.1);
+            color: #FF9500;
+        }
+
+        .status-recusado {
+            background: rgba(255, 59, 48, 0.1);
+            color: #FF3B30;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 40px;
+                margin-bottom: 32px;
+            }
+
+            section {
+                padding: 24px;
+            }
+
+            .card {
+                padding: 24px;
+            }
+
+            .card-value {
+                font-size: 32px;
+            }
+
+            .total-box {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Glassmorphism Navigation -->
+    <nav class="glass-nav">
+        <div class="glass-nav-title">App de Controle Pessoal</div>
+        <div id="save-indicator"
+            style="position: absolute; right: 24px; font-size: 13px; font-weight: 500; color: var(--apple-blue); opacity: 0; transition: opacity 0.3s; pointer-events: none;">
+            ✓ Salvo</div>
+    </nav>
+
+    <div class="container">
+        <h1>15 Anos da Larah</h1>
+
+        <!-- Dashboard Cards (Tiles) -->
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-title">Orçamento Total Usado</div>
+                <div class="card-value" id="dash-orcamento">R$ 0,00</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Contagem Regressiva</div>
+                <div class="card-value accent-blue" id="dash-dias">--</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Convidados Confirmados</div>
+                <div class="card-value" id="dash-convidados">0 / 0</div>
+            </div>
+        </div>
+
+        <!-- Visão Geral -->
+        <section>
+            <h2>Visão Geral</h2>
+            <div class="overview-grid">
+                <div class="input-group">
+                    <label>Local do Evento</label>
+                    <input id="local" placeholder="Ex: Salão Imperial">
+                </div>
+                <div class="input-group">
+                    <label>Data</label>
+                    <input type="date" id="data">
+                </div>
+                <div class="input-group" style="grid-column: 1 / -1;">
+                    <label>Observações Editoriais</label>
+                    <textarea id="obs" rows="3" placeholder="Informações gerais, contratos, inspirações..."></textarea>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lista de Convidados -->
+        <section>
+            <h2>Lista de Convidados</h2>
+            <div class="table-responsive">
+                <table id="convidados-table">
+                    <thead>
+                        <tr>
+                            <th>Nome do Convidado</th>
+                            <th>Status RSVP</th>
+                            <th>Mesa/Grupo</th>
+                            <th style="width: 50px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <button type="button" class="btn-primary" onclick="addConvidado()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
+                </svg>
+                Novo Convidado
+            </button>
+        </section>
+
+        <!-- Orçamento -->
+        <section>
+            <h2>Orçamento e Custos</h2>
+            <div class="table-responsive">
+                <table id="orcamento-table">
+                    <thead>
+                        <tr>
+                            <th>Categoria / Fornecedor</th>
+                            <th>Estimado (R$)</th>
+                            <th>Valor Fechado (R$)</th>
+                            <th style="width: 50px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <button type="button" class="btn-primary" onclick="addOrcamento()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
+                </svg>
+                Lançar Custo
+            </button>
+            <div class="total-box">Total Fechado <span id="total-orcamento">R$ 0,00</span></div>
+        </section>
+
+        <!-- Cronograma -->
+        <section>
+            <h2>Cronograma e Atividades</h2>
+            <div class="table-responsive">
+                <table id="cronograma-table">
+                    <thead>
+                        <tr>
+                            <th>Atividade / Protocolo</th>
+                            <th>Início</th>
+                            <th>Término</th>
+                            <th>Responsável</th>
+                            <th style="width: 50px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <button type="button" class="btn-primary" onclick="addCronograma()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
+                </svg>
+                Nova Atividade
+            </button>
+        </section>
+
+        <!-- Compras -->
+        <section>
+            <h2>Itens e Compras</h2>
+            <div class="table-responsive">
+                <table id="compras-table">
+                    <thead>
+                        <tr>
+                            <th>Item a Comprar</th>
+                            <th>Qtd</th>
+                            <th>Loja / Fornecedor</th>
+                            <th>Custo Estimado</th>
+                            <th style="width: 50px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <button type="button" class="btn-primary" onclick="addCompra()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
+                </svg>
+                Adicionar Item
+            </button>
+        </section>
+
+        <!-- Equipe -->
+        <section>
+            <h2>Staff e Equipe de Apoio</h2>
+            <div class="table-responsive">
+                <table id="equipe-table">
+                    <thead>
+                        <tr>
+                            <th>Função</th>
+                            <th>Qtd Profissionais</th>
+                            <th>Observações / Contato</th>
+                            <th style="width: 50px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <button type="button" class="btn-primary" onclick="addEquipe()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
+                </svg>
+                Novo Profissional
+            </button>
+        </section>
+
+    </div> <!-- End Container -->
+
+    <script>
+        // Utils & Componentes React-like simples
+        function createInput(type = 'text', placeholder = '', value = '', customClass = '') {
+            const i = document.createElement('input');
+            i.type = type;
+            if (placeholder) i.placeholder = placeholder;
+            if (value !== null && value !== undefined) i.value = value;
+            if (customClass) i.className = customClass;
+            i.addEventListener('input', () => {
+                if (type === 'number' || customClass.includes('calc')) updateDashboard(); // Trigger rápido
+                saveState();
+            });
+            return i;
+        }
+
+        function createSelect(options, value = '', onChangeFn = null) {
+            const s = document.createElement('select');
+            options.forEach(opt => {
+                const o = document.createElement('option');
+                o.value = opt.value;
+                o.textContent = opt.label;
+                s.appendChild(o);
+            });
+            if (value) s.value = value;
+
+            // Estilização colorida da select baseada no valor (Apple style feedback)
+            const updateColor = () => {
+                s.className = `status-pill status-${s.value}`;
+            };
+            updateColor();
+
+            s.addEventListener('change', () => {
+                updateColor();
+                if (onChangeFn) onChangeFn();
+                saveState();
+            });
+            return s;
+        }
+
+        // Builder da Linha da Tabela
+        function appendRow(tableId, cols) {
+            const tbody = document.querySelector(`#${tableId} tbody`);
+            const tr = document.createElement('tr');
+            tr.className = 'row-entering';
+
+            cols.forEach(el => {
+                const td = document.createElement('td');
+                td.appendChild(el);
+                tr.appendChild(td);
+            });
+
+            // Botão de Exclusão Clean
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'btn-del';
+            delBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+            delBtn.title = 'Remover linha';
+            delBtn.onclick = () => {
+                tr.style.opacity = '0';
+                tr.style.transform = 'translateY(-10px)';
+                tr.style.transition = 'all 0.2s ease';
+                delBtn.disabled = true;
+                setTimeout(() => {
+                    tr.remove();
+                    updateDashboard();
+                    saveState();
+                }, 200);
+            };
+
+            const tdDel = document.createElement('td');
+            tdDel.appendChild(delBtn);
+            tdDel.style.textAlign = 'center';
+            tr.appendChild(tdDel);
+
+            tbody.appendChild(tr);
+            return tr;
+        }
+
+        // Dashboard Centralizado (Estado)
+        function updateDashboard() {
+            // Cálculo do Orçamento
+            let totalVal = 0;
+            document.querySelectorAll('#orcamento-table tbody tr').forEach(row => {
+                const inputVal = row.cells[2]?.querySelector('input')?.value || 0;
+                totalVal += Number(inputVal);
+            });
+
+            const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+            const valFormatted = formatter.format(totalVal);
+            document.getElementById('total-orcamento').textContent = valFormatted;
+            document.getElementById('dash-orcamento').textContent = valFormatted;
+
+            // Cálculo de Convidados
+            let guestsTotal = 0;
+            let guestsConfirmed = 0;
+            document.querySelectorAll('#convidados-table tbody tr').forEach(row => {
+                guestsTotal++;
+                const selectVal = row.cells[1]?.querySelector('select')?.value;
+                if (selectVal === 'confirmado') guestsConfirmed++;
+            });
+            document.getElementById('dash-convidados').textContent = `${guestsConfirmed} / ${guestsTotal}`;
+
+            // Cálculo Contagem Regressiva
+            const dataStr = document.getElementById('data').value;
+            const dashDias = document.getElementById('dash-dias');
+            if (dataStr) {
+                const dateParts = dataStr.split('-');
+                const eventDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+                eventDate.setHours(0, 0, 0, 0);
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const diffTime = eventDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays > 0) dashDias.textContent = `${diffDays} Dias`;
+                else if (diffDays === 0) dashDias.textContent = "Hoje!";
+                else dashDias.textContent = "Já passou";
+            } else {
+                dashDias.textContent = "--";
+            }
+        }
+
+        // Injeção de Dados/Linhas nas Tabelas
+        function addConvidado(data = null) {
+            const evtArgs = data instanceof Event ? null : data;
+            const options = [
+                { value: 'pendente', label: 'Pendente' },
+                { value: 'confirmado', label: 'Confirmado' },
+                { value: 'recusado', label: 'Não Irá' }
+            ];
+            appendRow('convidados-table', [
+                createInput('text', 'Nome e Sobrenome', evtArgs ? evtArgs[0] : ''),
+                createSelect(options, evtArgs ? evtArgs[1] : 'pendente', updateDashboard),
+                createInput('text', 'Ex: Mesa 1, Família', evtArgs ? evtArgs[2] : '')
+            ]);
+            updateDashboard();
+            if (!evtArgs) saveState();
+        }
+
+        function addOrcamento(data = null) {
+            const evtArgs = data instanceof Event ? null : data;
+            appendRow('orcamento-table', [
+                createInput('text', 'Serviço / Fornecedor', evtArgs ? evtArgs[0] : ''),
+                createInput('number', '0.00', evtArgs ? evtArgs[1] : ''),
+                createInput('number', '0.00', evtArgs ? evtArgs[2] : '', 'calc') // .calc para forçar update
+            ]);
+            updateDashboard();
+            if (!evtArgs) saveState();
+        }
+
+        function addCronograma(data = null) {
+            const evtArgs = data instanceof Event ? null : data;
+            appendRow('cronograma-table', [
+                createInput('text', 'Atividade', evtArgs ? evtArgs[0] : ''),
+                createInput('time', '', evtArgs ? evtArgs[1] : ''),
+                createInput('time', '', evtArgs ? evtArgs[2] : ''),
+                createInput('text', 'Acompanhante', evtArgs ? evtArgs[3] : '')
+            ]);
+            if (!evtArgs) saveState();
+        }
+
+        function addCompra(data = null) {
+            const evtArgs = data instanceof Event ? null : data;
+            appendRow('compras-table', [
+                createInput('text', 'Nome do Item', evtArgs ? evtArgs[0] : ''),
+                createInput('number', 'Qtd', evtArgs ? evtArgs[1] : ''),
+                createInput('text', 'Loja', evtArgs ? evtArgs[2] : ''),
+                createInput('number', 'Valor', evtArgs ? evtArgs[3] : '')
+            ]);
+            if (!evtArgs) saveState();
+        }
+
+        function addEquipe(data = null) {
+            const evtArgs = data instanceof Event ? null : data;
+            appendRow('equipe-table', [
+                createInput('text', 'Cargo', evtArgs ? evtArgs[0] : ''),
+                createInput('number', 'Quantidade', evtArgs ? evtArgs[1] : ''),
+                createInput('text', 'Detalhes', evtArgs ? evtArgs[2] : '')
+            ]);
+            if (!evtArgs) saveState();
+        }
+
+        let saveTimeout = null;
+
+        // Core: LocalStorage Logic
+        function saveState() {
+            const state = {
+                overview: {
+                    local: document.getElementById('local').value,
+                    data: document.getElementById('data').value,
+                    obs: document.getElementById('obs').value
+                },
+                convidados: getTableData('convidados-table'),
+                orcamento: getTableData('orcamento-table'),
+                cronograma: getTableData('cronograma-table'),
+                compras: getTableData('compras-table'),
+                equipe: getTableData('equipe-table')
+            };
+
+            try {
+                localStorage.setItem('applePlannerState', JSON.stringify(state));
+
+                // Feedback Visual de Salvamento (Apenas se o app já estiver carregado)
+                if (isAppLoaded) {
+                    const indicator = document.getElementById('save-indicator');
+                    if (indicator) {
+                        indicator.style.opacity = '1';
+                        clearTimeout(saveTimeout);
+                        saveTimeout = setTimeout(() => {
+                            indicator.style.opacity = '0';
+                        }, 1500);
+                    }
+                }
+            } catch (e) {
+                console.error("Erro ao salvar no LocalStorage. Pode ser falta de permissão:", e);
+            }
+        }
+
+        function getTableData(tableId) {
+            const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+            return Array.from(rows).map(row => {
+                return Array.from(row.cells).slice(0, -1).map(cell => {
+                    const el = cell.firstElementChild; // input or select
+                    return el ? el.value : '';
+                });
+            });
+        }
+
+        let isAppLoaded = false;
+
+        function loadState() {
+            const saved = localStorage.getItem('applePlannerState');
+            if (saved) {
+                try {
+                    const state = JSON.parse(saved);
+
+                    // Load Visão Geral
+                    if (state.overview) {
+                        if (state.overview.local) document.getElementById('local').value = state.overview.local;
+                        if (state.overview.data) document.getElementById('data').value = state.overview.data;
+                        if (state.overview.obs) document.getElementById('obs').value = state.overview.obs;
+                    }
+
+                    // Load Tabelas
+                    if (state.convidados?.length > 0) state.convidados.forEach(row => addConvidado(row));
+                    else addConvidado();
+
+                    if (state.orcamento?.length > 0) state.orcamento.forEach(row => addOrcamento(row));
+                    else addOrcamento();
+
+                    if (state.cronograma?.length > 0) state.cronograma.forEach(row => addCronograma(row));
+                    if (state.compras?.length > 0) state.compras.forEach(row => addCompra(row));
+                    if (state.equipe?.length > 0) state.equipe.forEach(row => addEquipe(row));
+
+                } catch (e) {
+                    console.error("Erro no Parse do LocalStorage:", e);
+                    initDefaultRows();
+                }
+            } else {
+                initDefaultRows();
+            }
+            updateDashboard();
+
+            // Ativa o feedback visual apenas depois de carregar para não piscar no start
+            setTimeout(() => { isAppLoaded = true; }, 500);
+        }
+
+        function initDefaultRows() {
+            addConvidado();
+            addOrcamento();
+        }
+
+        // Start App Effect
+        window.onload = () => {
+            loadState();
+
+            // Listeners for static fields
+            document.getElementById('local').addEventListener('input', saveState);
+            document.getElementById('data').addEventListener('change', () => {
+                updateDashboard();
+                saveState();
+            });
+            document.getElementById('obs').addEventListener('input', saveState);
+        };
+    </script>
+
+</body>
+
+</html>
