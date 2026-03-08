@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Controle do Evento – 15 Anos</title>
+    <style>
+        :root {
+            /* Apple UI Colors */
+            --system-gray-1: #8E8E93;
+            --system-gray-2: #AEAEB2;
+            --system-gray-3: #C7C7CC;
+            --system-gray-4: #D1D1D6;
+            --system-gray-5: #E5E5EA;
+            --system-gray-6: #F2F2F7;
+            
+            --indigo: #5E5CE6;
+            --indigo-light: #7D7AFF;
+            --blue: #0A84FF;
+            --text-primary: #1C1C1E;
+            --text-secondary: #8E8E93;
+            --background: #F2F2F7; /* System Gray 6 */
+            --card-bg: #FFFFFF;
+            
+            --radius-main: 12px;
+            --radius-btn: 8px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+            --transition: all 0.2s ease-in-out;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--background);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 24px;
+            line-height: 1.5;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 24px;
+        }
+
+        h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--system-gray-5);
+            padding-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-main);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--indigo);
+            letter-spacing: -0.5px;
+        }
+
+        /* Sections */
+        section {
+            background: var(--card-bg);
+            border-radius: var(--radius-main);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        /* Overview Form Grid */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        /* Inputs & Buttons */
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--system-gray-4);
+            border-radius: var(--radius-btn);
+            font-size: 15px;
+            font-family: inherit;
+            color: var(--text-primary);
+            background: #FAFAFA;
+            transition: var(--transition);
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--indigo);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(94, 92, 230, 0.2);
+        }
+
+        button.btn-add {
+            background: var(--indigo);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-btn);
+            padding: 12px 18px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(94, 92, 230, 0.2);
+        }
+
+        button.btn-add:hover {
+            background: var(--indigo-light);
+            transform: translateY(-1px);
+        }
+
+        button.btn-del {
+            background: #FF3B30;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button.btn-del:hover {
+            background: #FF6961;
+            transform: scale(1.05);
+        }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 8px;
+            min-width: 600px;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--system-gray-5);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--system-gray-5);
+            vertical-align: middle;
+        }
+
+        tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: var(--system-gray-6);
+        }
+
+        tr.row-entering {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .total-box {
+            margin-top: 16px;
+            padding: 16px;
+            background: var(--system-gray-6);
+            border-radius: var(--radius-btn);
+            font-weight: 600;
+            font-size: 18px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-primary);
+        }
+
+        .total-box span {
+            color: var(--indigo);
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .card-value {
+                font-size: 28px;
+            }
+            h1 {
+                font-size: 26px;
+            }
+            .total-box {
+                justify-content: space-between;
+                font-size: 16px;
+            }
+            .total-box span {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Controle de Evento – 15 Anos</h1>
+
+<!-- Dashboard -->
+<div class="dashboard">
+    <div class="card">
+        <div class="card-title">Orçamento Total Usado</div>
+        <div class="card-value" id="dash-orcamento">R$ 0,00</div>
+    </div>
+    <div class="card">
+        <div class="card-title">Dias para o Evento</div>
+        <div class="card-value" id="dash-dias">--</div>
+    </div>
+    <div class="card">
+        <div class="card-title">Convidados (Confirmados / Total)</div>
+        <div class="card-value" id="dash-convidados">0 / 0</div>
+    </div>
+</div>
+
+<!-- Visão Geral -->
+<section>
+    <h2>Visão Geral</h2>
+    <div class="overview-grid">
+        <div class="input-group">
+            <label>Local do Evento</label>
+            <input id="local" placeholder="Ex: Salão Imperial">
+        </div>
+        <div class="input-group">
+            <label>Data</label>
+            <input type="date" id="data" onchange="updateDashboard()">
+        </div>
+        <div class="input-group" style="grid-column: 1 / -1;">
+            <label>Observações</label>
+            <textarea id="obs" rows="2" placeholder="Informações gerais e notas importantes..."></textarea>
+        </div>
+    </div>
+</section>
+
+<!-- Lista de Convidados -->
+<section>
+    <h2>Lista de Convidados</h2>
+    <div class="table-responsive">
+        <table id="convidados-table">
+            <thead>
+                <tr>
+                    <th>Nome do Convidado</th>
+                    <th>Status RSVP</th>
+                    <th>Mesa/Grupo</th>
+                    <th style="width: 50px;"></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <button class="btn-add" onclick="addConvidado()"><span>+</span> Novo Convidado</button>
+</section>
+
+<!-- Orçamento -->
+<section>
+    <h2>Orçamento e Custos</h2>
+    <div class="table-responsive">
+        <table id="orcamento-table">
+            <thead>
+                <tr>
+                    <th>Categoria/Item</th>
+                    <th>Estimado (R$)</th>
+                    <th>Valor Fechado (R$)</th>
+                    <th style="width: 50px;"></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <button class="btn-add" onclick="addOrcamento()"><span>+</span> Adicionar Custos</button>
+    <div class="total-box">Total Fechado: <span id="total-orcamento">R$ 0,00</span></div>
+</section>
+
+<!-- Cronograma -->
+<section>
+    <h2>Cronograma e Atividades</h2>
+    <div class="table-responsive">
+        <table id="cronograma-table">
+            <thead>
+                <tr>
+                    <th>Atividade</th>
+                    <th>Hora Início</th>
+                    <th>Hora Fim</th>
+                    <th>Responsável</th>
+                    <th style="width: 50px;"></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <button class="btn-add" onclick="addCronograma()"><span>+</span> Adicionar Atividade</button>
+</section>
+
+<!-- Compras -->
+<section>
+    <h2>Lista de Compras</h2>
+    <div class="table-responsive">
+        <table id="compras-table">
+            <thead>
+                <tr>
+                    <th>Item a Comprar</th>
+                    <th>Quantidade</th>
+                    <th>Fornecedor/Loja</th>
+                    <th>Custo Estimado</th>
+                    <th style="width: 50px;"></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <button class="btn-add" onclick="addCompra()"><span>+</span> Novo Item</button>
+</section>
+
+<!-- Equipe -->
+<section>
+    <h2>Equipe de Apoio e Staff</h2>
+    <div class="table-responsive">
+        <table id="equipe-table">
+            <thead>
+                <tr>
+                    <th>Função / Papel</th>
+                    <th>Quantidade</th>
+                    <th>Observações / Contato</th>
+                    <th style="width: 50px;"></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <button class="btn-add" onclick="addEquipe()"><span>+</span> Adicionar Staff</button>
+</section>
+
+<script>
+    // Utils & Helpers
+    function createInput(type = 'text', placeholder = '', onInputFn = null) {
+        const i = document.createElement('input');
+        i.type = type;
+        if(placeholder) i.placeholder = placeholder;
+        if(onInputFn) i.addEventListener('input', onInputFn);
+        return i;
+    }
+
+    function createSelect(options, onInputFn = null) {
+        const s = document.createElement('select');
+        options.forEach(opt => {
+            const o = document.createElement('option');
+            o.value = opt.value;
+            o.textContent = opt.label;
+            s.appendChild(o);
+        });
+        if(onInputFn) s.addEventListener('change', onInputFn);
+        return s;
+    }
+
+    function appendRow(tableId, cols) {
+        const tbody = document.querySelector(`#${tableId} tbody`);
+        const tr = document.createElement('tr');
+        tr.className = 'row-entering';
+        
+        cols.forEach(el => {
+            const td = document.createElement('td');
+            td.appendChild(el);
+            tr.appendChild(td);
+        });
+
+        // Delete Button
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-del';
+        delBtn.textContent = '✕';
+        delBtn.title = 'Remover item';
+        delBtn.onclick = () => {
+            tr.style.opacity = '0';
+            tr.style.transform = 'translateY(-10px)';
+            tr.style.transition = 'all 0.2s ease';
+            setTimeout(() => {
+                tr.remove();
+                updateDashboard();
+            }, 200);
+        };
+        
+        const tdDel = document.createElement('td');
+        tdDel.appendChild(delBtn);
+        tdDel.style.textAlign = 'center';
+        tr.appendChild(tdDel);
+
+        tbody.appendChild(tr);
+        return tr;
+    }
+
+    // Dashboard Updates
+    function updateDashboard() {
+        // Budget calculation
+        let totalVal = 0;
+        document.querySelectorAll('#orcamento-table tbody tr').forEach(row => {
+            const inputVal = row.cells[2]?.querySelector('input')?.value || 0;
+            totalVal += Number(inputVal);
+        });
+        
+        const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        const valFormatted = formatter.format(totalVal);
+        document.getElementById('total-orcamento').textContent = valFormatted;
+        document.getElementById('dash-orcamento').textContent = valFormatted;
+
+        // Guests calculation
+        let guestsTotal = 0;
+        let guestsConfirmed = 0;
+        document.querySelectorAll('#convidados-table tbody tr').forEach(row => {
+            guestsTotal++;
+            const selectVal = row.cells[1]?.querySelector('select')?.value;
+            if(selectVal === 'confirmado') guestsConfirmed++;
+        });
+        document.getElementById('dash-convidados').textContent = `${guestsConfirmed} / ${guestsTotal}`;
+
+        // Days to Event calculation
+        const dataStr = document.getElementById('data').value;
+        const dashDias = document.getElementById('dash-dias');
+        if (dataStr) {
+            // Adjust for local timezone to handle date correctly without offset issues
+            const dateParts = dataStr.split('-');
+            const eventDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+            eventDate.setHours(0,0,0,0);
+            
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            
+            const diffTime = eventDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays > 0) dashDias.textContent = diffDays;
+            else if (diffDays === 0) dashDias.textContent = "Hoje!";
+            else dashDias.textContent = "Já passou";
+        } else {
+            dashDias.textContent = "--";
+        }
+    }
+
+    // Handlers for adding rows
+    function addConvidado() {
+        const options = [
+            {value: 'pendente', label: 'Pendente'},
+            {value: 'confirmado', label: 'Confirmado'},
+            {value: 'recusado', label: 'Não comparecerá'}
+        ];
+        appendRow('convidados-table', [
+            createInput('text', 'Nome Completo'),
+            createSelect(options, updateDashboard),
+            createInput('text', 'Ex: Mesa 1, Família Silva')
+        ]);
+        updateDashboard();
+    }
+
+    function addOrcamento() {
+        appendRow('orcamento-table', [
+            createInput('text', 'Ex: Fotógrafo'),
+            createInput('number', '0.00'),
+            createInput('number', '0.00', updateDashboard)
+        ]);
+    }
+
+    function addCronograma() {
+        appendRow('cronograma-table', [
+            createInput('text', 'Ex: Chegada da aniversariante'),
+            createInput('time'),
+            createInput('time'),
+            createInput('text', 'Quem vai acompanhar?')
+        ]);
+    }
+
+    function addCompra() {
+        appendRow('compras-table', [
+            createInput('text', 'Ex: Lembrancinhas'),
+            createInput('number', 'Qtd'),
+            createInput('text', 'Ex: MercadoLivre'),
+            createInput('number', 'Valor')
+        ]);
+    }
+
+    function addEquipe() {
+        appendRow('equipe-table', [
+            createInput('text', 'Ex: Garçom, Segurança'),
+            createInput('number', 'Qtd'),
+            createInput('text', 'Observações')
+        ]);
+    }
+
+    // Initialize with one row in each for demonstration layout
+    window.onload = () => {
+        addConvidado();
+        addOrcamento();
+        updateDashboard();
+    };
+</script>
+
+</body>
+</html>
