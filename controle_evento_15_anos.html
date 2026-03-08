@@ -1390,22 +1390,34 @@
             if (!val) return alert("Cole o JSON de configuração!");
 
             try {
-                // Permite que a pessoa cole objeto solto extraindo apenas com eval se for JS sujo
-                // Ex do Console google: const firebaseConfig = { apiKey: "..." };
-                if (!val.startsWith('{')) val = val.substring(val.indexOf('{'), val.lastIndexOf('}') + 1);
+                // Nova técnica à prova de balas
+                // Extrair chaves essenciais na força bruta onde quer que estejam no texto colado
+                const apikeyMatch = val.match(/apiKey\s*:\s*["']([^"']+)["']/i);
+                const authDomainMatch = val.match(/authDomain\s*:\s*["']([^"']+)["']/i);
+                const projectIdMatch = val.match(/projectId\s*:\s*["']([^"']+)["']/i);
+                const storageBucketMatch = val.match(/storageBucket\s*:\s*["']([^"']+)["']/i);
+                const messagingSenderIdMatch = val.match(/messagingSenderId\s*:\s*["']([^"']+)["']/i);
+                const appIdMatch = val.match(/appId\s*:\s*["']([^"']+)["']/i);
 
-                // Format to strictly JSON handling unquoted keys from Firebase copy-paste
-                const obj = new Function("return " + val)();
-                const strictJSON = JSON.stringify(obj);
+                if (!apikeyMatch || !projectIdMatch || !appIdMatch) {
+                    return alert("Não encontrei as chaves obrigatórias no texto colado. Certeza que copiou tudo desde 'apiKey' até 'appId'?");
+                }
 
-                localStorage.setItem('firebase_config_15', strictJSON);
+                const cleanJsonObj = {
+                    apiKey: apikeyMatch[1],
+                    authDomain: authDomainMatch ? authDomainMatch[1] : "",
+                    projectId: projectIdMatch[1],
+                    storageBucket: storageBucketMatch ? storageBucketMatch[1] : "",
+                    messagingSenderId: messagingSenderIdMatch ? messagingSenderIdMatch[1] : "",
+                    appId: appIdMatch[1]
+                };
+
+                localStorage.setItem('firebase_config_15', JSON.stringify(cleanJsonObj));
                 closeCloudModal();
-
-                // Inicia o Cloud System
-                window.location.reload(); // Reload necessário para os módulos Import Firebase carragarem
+                window.location.reload();
 
             } catch (e) {
-                alert("JSON Inválido. Certifique-se de colar o bloco que abre com { e fecha com } com suas chaves Firebase.");
+                alert("Erro fatal ao processar chaves: " + e.message);
             }
         }
 
