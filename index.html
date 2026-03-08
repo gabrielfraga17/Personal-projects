@@ -1264,8 +1264,8 @@
             const local = document.getElementById('local').value || "Não definido";
             const obs = document.getElementById('obs').value || "Sem observações.";
 
-            // Usaremos o gemini-1.5-flash recomendadamente p/ chamadas rapidas REST JSON
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            // Usaremos o gemini-1.5-flash-latest recomendadamente p/ chamadas rapidas REST JSON
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
             const prompt = `
 Você é uma Assessora de Festas de 15 anos de Alto Padrão.
