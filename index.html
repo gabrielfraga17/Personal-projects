@@ -61,7 +61,8 @@
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            padding: 0 24px;
             z-index: 1000;
         }
 
@@ -70,6 +71,35 @@
             font-weight: 600;
             color: var(--text-primary);
             letter-spacing: -0.01em;
+        }
+
+        .cloud-status {
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 4px 8px;
+            border-radius: var(--radius-pill);
+        }
+
+        .cloud-status:hover {
+            background: var(--system-gray-6);
+        }
+
+        .cloud-local {
+            color: var(--text-secondary);
+        }
+
+        .cloud-syncing {
+            color: #FF9500;
+        }
+
+        .cloud-saved {
+            color: var(--apple-blue);
         }
 
         .container {
@@ -418,7 +448,6 @@
             color: var(--text-primary);
             cursor: pointer;
             list-style: none;
-            /* Hide default arrow */
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -483,7 +512,7 @@
             margin-bottom: 20px;
         }
 
-        /* Modal Overlay for AI */
+        /* Modal Overlay genérico */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -514,6 +543,8 @@
             box-shadow: var(--shadow-modal);
             transform: scale(0.95);
             transition: transform 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-overlay.active .modal-content {
@@ -590,6 +621,15 @@
                 align-items: flex-start;
                 gap: 12px;
             }
+
+            .group-header-box {
+                flex-direction: column;
+            }
+
+            .group-header-box input,
+            .group-header-box button {
+                width: 100% !important;
+            }
         }
     </style>
 </head>
@@ -598,9 +638,9 @@
 
     <nav class="glass-nav">
         <div class="glass-nav-title">App de Controle Pessoal</div>
-        <div id="save-indicator"
-            style="position: absolute; right: 24px; font-size: 13px; font-weight: 500; color: var(--apple-blue); opacity: 0; transition: opacity 0.3s; pointer-events: none;">
-            ✓ Salvo</div>
+        <div class="cloud-status cloud-local" id="cloud-indicator" onclick="openCloudModal()">
+            <span>☁️ Nuvem Desativada (Local)</span>
+        </div>
     </nav>
 
     <div class="container">
@@ -648,9 +688,7 @@
                     id="total-global-convidados">(0 total)</span>
             </h2>
 
-            <div id="grupos-container">
-                <!-- Os detalhes/grupos serão injetados aqui -->
-            </div>
+            <div id="grupos-container"></div>
 
             <div class="group-header-box" style="margin-top: 24px;">
                 <input type="text" id="novo-grupo-nome" placeholder="Nome do Novo Grupo (Ex: Família Materna)"
@@ -679,12 +717,7 @@
                     <tbody></tbody>
                 </table>
             </div>
-            <button type="button" class="btn-primary" onclick="addOrcamento()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14" />
-                </svg>
-                Lançar Custo Manual
-            </button>
+            <button type="button" class="btn-primary" onclick="addOrcamento()">Lançar Custo Manual</button>
             <div class="total-box">Total Fechado <span id="total-orcamento">R$ 0,00</span></div>
         </section>
 
@@ -754,12 +787,11 @@
         <div class="modal-content">
             <div class="modal-header">✨ Orçamento Inteligente</div>
             <div class="modal-desc">
-                Use sua conta Google Gemini Pro para estimar 10 categorias essenciais de gastos para esta festa
-                baseando-se nas observações atuais.
+                Use sua conta Google Gemini Pro para estimar 10 categorias essenciais de gastos.
             </div>
 
             <div class="input-group" style="margin-bottom: 16px;">
-                <label>Sua API Key Gemini (Salva apenas no seu PC local)</label>
+                <label>Sua API Key Gemini (Salva localmente)</label>
                 <input type="password" id="gemini-key" placeholder="AIzaSy...">
             </div>
 
@@ -785,13 +817,116 @@
         </div>
     </div>
 
+    <!-- Modal Conexão Firebase -->
+    <div class="modal-overlay" id="cloudModal">
+        <div class="modal-content">
+            <div class="modal-header">☁️ Conectar à Nuvem</div>
+            <div class="modal-desc">
+                Para sincronizar seus dados entre o Celular e o Computador gratuitamente, ative o Google Cloud
+                Firestore.
+                <br><a href="#"
+                    onclick="alert('1. Acesse console.firebase.google.com\n2. Crie um projeto\n3. Habilite o Firestore Database em modo teste\n4. Vá em Configurações > Adicionar Web App e copie o JSON de configuração.')"
+                    style="color:var(--apple-blue); font-size:12px;">Como criar meu banco gratuito?</a>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 16px;">
+                <label>Cole aqui o código de configuração JSON (firebaseConfig)</label>
+                <textarea id="firebase-config-input" rows="8"
+                    placeholder='{&#10;  "apiKey": "AIzaSy...",&#10;  "authDomain": "...",&#10;  "projectId": "...",&#10;  "storageBucket": "...",&#10;  "messagingSenderId": "...",&#10;  "appId": "..."&#10;}'
+                    style="font-family: monospace; font-size:13px;"></textarea>
+                <span style="font-size: 11px; color: var(--text-secondary)">Cole apenas as { chaves e valores } ou
+                    digite o JSON válido.</span>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="button" class="btn-secondary" onclick="closeCloudModal()">Cancelar</button>
+                <button type="button" class="btn-primary" id="btn-conectar-cloud" style="margin-top:0;"
+                    onclick="salvarFirebaseConfig()">
+                    Conectar Agora
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs (Modo Modular ES6) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // Variáveis Globais de Ecossistema Nuvem (Disponibilizadas no Window para as funcoes JS nativas poderem usar)
+        window.dbFirestore = null;
+        window.firebaseApp = null;
+        window.isCloudSyncActive = false;
+
+        window.tryInitFirebase = async function () {
+            const storedConfig = localStorage.getItem('firebase_config_15');
+            if (storedConfig) {
+                try {
+                    const firebaseConfig = JSON.parse(storedConfig);
+                    window.firebaseApp = initializeApp(firebaseConfig);
+                    window.dbFirestore = getFirestore(window.firebaseApp);
+                    window.isCloudSyncActive = true;
+
+                    // Cloud ativo! Busca o documento inicial da nuvem (ou usa o Local se a nuvem estiver vazia)
+                    const docRef = doc(window.dbFirestore, "plan15years", "mainState");
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        console.log("Baixando dados reais da nuvem...");
+                        window.applyStateToUI(docSnap.data());
+                    } else {
+                        // Se não tem na nuvem, manda o que tá local p/ inicializar
+                        window.triggerCloudSave();
+                    }
+
+                    // (Opcional) Poderíamos usar onSnapshot para realtime, mas pra não consumir cotas loucas da 
+                    // rede gratuita do Google, faremos read apenas no init, e write a cada digitacao!
+
+                    updateCloudStatus("Salvo na Nuvem", "cloud-saved");
+                } catch (error) {
+                    console.error("Erro ao inicializar Firebase Auth:", error);
+                    alert("Ocorreu um erro ao conectar no Firebase. Verifique se o JSON colado está correto.");
+                    localStorage.removeItem('firebase_config_15');
+                    window.isCloudSyncActive = false;
+                    updateCloudStatus("Nuvem Desativada", "cloud-local");
+                }
+            }
+        }
+
+        // Função assincrona de salvamento
+        window.salvarNaNuvem = async function (stateObj) {
+            if (!window.isCloudSyncActive || !window.dbFirestore) return;
+
+            try {
+                updateCloudStatus("Sincronizando...", "cloud-syncing");
+                const docRef = doc(window.dbFirestore, "plan15years", "mainState");
+                await setDoc(docRef, stateObj);
+                updateCloudStatus("Salvo na Nuvem", "cloud-saved");
+            } catch (e) {
+                console.error("Erro sync Firestore", e);
+                updateCloudStatus("Erro de Sync", "cloud-local");
+            }
+        }
+
+        function updateCloudStatus(text, className) {
+            const ind = document.getElementById('cloud-indicator');
+            if (!ind) return;
+            ind.className = `cloud-status ${className}`;
+            ind.innerHTML = `<span>☁️ ${text}</span>`;
+        }
+
+        // Inicializa se já tiver chave guardada localmente
+        window.tryInitFirebase();
+    </script>
+
+
     <script>
         /* =======================================
-           1. UTILS E CRIAÇÃO DE ELEMENTOS 
+           1. UTILS E CRIAÇÃO DE ELEMENTOS (MOTOR NATIVO)
            ======================================= */
         let saveTimeout = null;
         let isAppLoaded = false;
-        let convidadosGruposObj = {}; // { "Convidados Gerais": [ {nome, status, mesa} ] }
+        let convidadosGruposObj = {};
 
         function createInput(type = 'text', placeholder = '', value = '', customClass = '') {
             const i = document.createElement('input');
@@ -866,12 +1001,8 @@
         /* =======================================
            2. MÓDULO DE GRUPOS DE CONVIDADOS
            ======================================= */
-
-        // Renderiza a estrutura visual de um grupo
         function renderizarGrupoContainer(nomeGrupo, isAberto = true) {
             const containerHtmlId = 'grupo-' + nomeGrupo.replace(/\s+/g, '-').toLowerCase();
-
-            // Evita duplicatas visuais
             if (document.getElementById(containerHtmlId)) return document.getElementById(containerHtmlId);
 
             const details = document.createElement('details');
@@ -881,8 +1012,6 @@
             details.dataset.groupName = nomeGrupo;
 
             const summary = document.createElement('summary');
-
-            // Estrutura do Header do Grupo
             summary.innerHTML = `
             <div class="group-summary-left">
                 <svg class="group-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
@@ -897,7 +1026,6 @@
             const contentDiv = document.createElement('div');
             contentDiv.className = 'group-content';
 
-            // Tabela interna
             const table = document.createElement('table');
             table.className = `table-grupo`;
             table.innerHTML = `
@@ -912,7 +1040,6 @@
             <tbody></tbody>
         `;
 
-            // Botão de adicionar dentro do grupo
             const btnAdd = document.createElement('button');
             btnAdd.type = 'button';
             btnAdd.className = 'group-btn-action';
@@ -922,7 +1049,6 @@
 
             contentDiv.appendChild(table);
             contentDiv.appendChild(btnAdd);
-
             details.appendChild(summary);
             details.appendChild(contentDiv);
 
@@ -930,56 +1056,46 @@
             return details;
         }
 
-        // Adiciona uma linha (pessoa) a um grupo específico
         function addPessoaAoGrupo(nomeGrupo, dataArr = null) {
             const details = renderizarGrupoContainer(nomeGrupo);
             const table = details.querySelector('table');
-
             const options = [
                 { value: 'pendente', label: 'Pendente' },
                 { value: 'confirmado', label: 'Confirmado' },
                 { value: 'recusado', label: 'Não Irá' }
             ];
-
             appendRowGeneric(table, [
                 createInput('text', 'Nome', dataArr ? dataArr[0] : ''),
                 createSelect(options, dataArr ? dataArr[1] : 'pendente', updateDashboard),
                 createInput('text', 'Nota extra...', dataArr ? dataArr[2] : '')
             ]);
-
             if (!dataArr) {
-                details.open = true; // Abre se estiver fechado ao clicar em novo
+                details.open = true;
                 saveState();
                 updateDashboard();
             }
         }
 
-        // Cria um novo grupo na interface pelo Input
         function criarNovoGrupoUI() {
             const val = document.getElementById('novo-grupo-nome').value.trim();
-            if (!val) return alert("Digite um nome para o grupo (Ex: Família Materna).");
-
+            if (!val) return alert("Digite um nome para o grupo.");
             if (!convidadosGruposObj[val]) {
                 convidadosGruposObj[val] = [];
                 renderizarGrupoContainer(val, true);
-                addPessoaAoGrupo(val); // Inicia vazio mas com 1 field
+                addPessoaAoGrupo(val);
                 document.getElementById('novo-grupo-nome').value = '';
                 saveState();
-            } else {
-                alert("Este grupo já existe!");
-            }
+            } else alert("Este grupo já existe!");
         }
 
-        // Ações em Lote do Grupo
         function acaoGrupo(event, nomeGrupo, action) {
-            event.preventDefault(); // Impede o `details` de fechar/abrir
-
+            event.preventDefault();
             const detailsId = 'grupo-' + nomeGrupo.replace(/\s+/g, '-').toLowerCase();
             const container = document.getElementById(detailsId);
             if (!container) return;
 
             if (action === 'excluir') {
-                if (confirm(`Certeza que deseja deletar o grupo inteiro "${nomeGrupo}" e todas as pessoas dentro dele?`)) {
+                if (confirm(`Certeza que deseja deletar o grupo inteiro "${nomeGrupo}"?`)) {
                     container.remove();
                     delete convidadosGruposObj[nomeGrupo];
                     updateDashboard();
@@ -989,9 +1105,7 @@
                 const selects = container.querySelectorAll('tbody select');
                 selects.forEach(s => {
                     s.value = 'confirmado';
-                    // Trigger natural do change pra mudar a cor
-                    const ev = new Event('change');
-                    s.dispatchEvent(ev);
+                    s.dispatchEvent(new Event('change'));
                 });
             }
         }
@@ -999,7 +1113,6 @@
         /* =======================================
            3. OUTRAS TABELAS (ORÇAMENTO, ETC)
            ======================================= */
-
         function addOrcamento(data = null) {
             const evtArgs = data instanceof Event ? null : data;
             appendRowGeneric(document.getElementById('orcamento-table'), [
@@ -1009,7 +1122,6 @@
             ]);
             if (!evtArgs) { saveState(); updateDashboard(); }
         }
-
         function addCronograma(data = null) {
             const evtArgs = data instanceof Event ? null : data;
             appendRowGeneric(document.getElementById('cronograma-table'), [
@@ -1020,7 +1132,6 @@
             ]);
             if (!evtArgs) saveState();
         }
-
         function addCompra(data = null) {
             const evtArgs = data instanceof Event ? null : data;
             appendRowGeneric(document.getElementById('compras-table'), [
@@ -1031,7 +1142,6 @@
             ]);
             if (!evtArgs) saveState();
         }
-
         function addEquipe(data = null) {
             const evtArgs = data instanceof Event ? null : data;
             appendRowGeneric(document.getElementById('equipe-table'), [
@@ -1042,54 +1152,36 @@
             if (!evtArgs) saveState();
         }
 
-
         /* =======================================
-           4. DASHBOARD E MÓDULO SAVE (ENGINE)
+           4. DASHBOARD E ENGINE DE SAVE LOCAL E CLOUD
            ======================================= */
-
         function updateDashboard() {
             if (!isAppLoaded) return;
-
-            // 1. Orçamento
             let totalVal = 0;
             document.querySelectorAll('#orcamento-table tbody tr').forEach(row => {
                 const inputVal = row.cells[2]?.querySelector('input')?.value || 0;
                 totalVal += Number(inputVal);
             });
-
             const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
             const valFormatted = formatter.format(totalVal);
             document.getElementById('total-orcamento').textContent = valFormatted;
             document.getElementById('dash-orcamento').textContent = valFormatted;
 
-            // 2. Convidados com Grupos
             let globalTotal = 0;
             let globalConfirmed = 0;
-
             document.querySelectorAll('.group-container').forEach(details => {
-                let limitGrupo = 0;
-                let confGrupo = 0;
-
+                let limitGrupo = 0, confGrupo = 0;
                 details.querySelectorAll('tbody tr').forEach(row => {
-                    limitGrupo++;
-                    globalTotal++;
-
+                    limitGrupo++; globalTotal++;
                     const selectVal = row.cells[1]?.querySelector('select')?.value;
-                    if (selectVal === 'confirmado') {
-                        confGrupo++;
-                        globalConfirmed++;
-                    }
+                    if (selectVal === 'confirmado') { confGrupo++; globalConfirmed++; }
                 });
-
-                // Atualiza Label Parcial do grupo
                 const lblGrupo = details.querySelector('.counter-grupo');
                 if (lblGrupo) lblGrupo.textContent = `(${confGrupo} / ${limitGrupo} conf.)`;
             });
-
             document.getElementById('dash-convidados').textContent = `${globalConfirmed} / ${globalTotal}`;
             document.getElementById('total-global-convidados').textContent = `(Total: ${globalTotal})`;
 
-            // 3. Dias
             const dataStr = document.getElementById('data').value;
             const dashDias = document.getElementById('dash-dias');
             if (dataStr) {
@@ -1104,119 +1196,118 @@
                 if (diffDays > 0) dashDias.textContent = `${diffDays} Dias`;
                 else if (diffDays === 0) dashDias.textContent = "Hoje!";
                 else dashDias.textContent = "Já passou";
-            } else {
-                dashDias.textContent = "--";
-            }
+            } else dashDias.textContent = "--";
         }
 
         function parseTableSimples(tableId) {
             const rows = document.querySelectorAll(`#${tableId} tbody tr`);
             return Array.from(rows).map(row => {
-                return Array.from(row.cells).slice(0, -1).map(cell => {
-                    const el = cell.firstElementChild;
-                    return el ? el.value : '';
-                });
+                return Array.from(row.cells).slice(0, -1).map(c => c.firstElementChild ? c.firstElementChild.value : '');
             });
         }
 
-        function saveState() {
-            if (!isAppLoaded) return;
+        // Exported para ser chamado quando o Documento Cloud for encontrado e baixado.
+        window.applyStateToUI = function (state) {
+            if (!state) return;
 
-            // Monta o objeto dos grupos atuais lendo a tela
+            // Limpar tabelas da UI para recriar (para evitar duplicidade se sincronizar mid-session)
+            document.querySelectorAll('tbody').forEach(tbody => tbody.innerHTML = '');
+            document.getElementById('grupos-container').innerHTML = '';
+            convidadosGruposObj = {};
+
+            if (state.overview) {
+                if (state.overview.local) document.getElementById('local').value = state.overview.local;
+                if (state.overview.data) document.getElementById('data').value = state.overview.data;
+                if (state.overview.obs) document.getElementById('obs').value = state.overview.obs;
+            }
+
+            if (state.gruposConvidados && Object.keys(state.gruposConvidados).length > 0) {
+                convidadosGruposObj = state.gruposConvidados;
+                for (const [nomeGrupo, arrPessoas] of Object.entries(convidadosGruposObj)) {
+                    renderizarGrupoContainer(nomeGrupo, false);
+                    if (arrPessoas.length > 0) arrPessoas.forEach(p => addPessoaAoGrupo(nomeGrupo, p));
+                    else addPessoaAoGrupo(nomeGrupo);
+                }
+            } else if (state.convidados && state.convidados.length > 0) {
+                // Caso legado sem grupos
+                const DefaultG = "Convidados Gerais";
+                convidadosGruposObj[DefaultG] = state.convidados;
+                renderizarGrupoContainer(DefaultG, false);
+                state.convidados.forEach(p => addPessoaAoGrupo(DefaultG, p));
+            }
+
+            if (state.orcamento?.length > 0) state.orcamento.forEach(row => addOrcamento(row));
+            else addOrcamento();
+
+            if (state.cronograma?.length > 0) state.cronograma.forEach(row => addCronograma(row));
+            if (state.compras?.length > 0) state.compras.forEach(row => addCompra(row));
+            if (state.equipe?.length > 0) state.equipe.forEach(row => addEquipe(row));
+
+            isAppLoaded = true;
+            updateDashboard();
+        }
+
+        function getCurrentStateObject() {
             const gruposLidos = {};
             document.querySelectorAll('.group-container').forEach(details => {
                 const name = details.dataset.groupName;
                 const tableBodyRows = details.querySelectorAll('tbody tr');
-                const arrPessoas = Array.from(tableBodyRows).map(row => {
+                gruposLidos[name] = Array.from(tableBodyRows).map(row => {
                     return Array.from(row.cells).slice(0, -1).map(c => c.firstElementChild ? c.firstElementChild.value : '');
                 });
-                gruposLidos[name] = arrPessoas;
             });
 
-            const state = {
+            return {
                 overview: {
                     local: document.getElementById('local').value,
                     data: document.getElementById('data').value,
                     obs: document.getElementById('obs').value
                 },
-                gruposConvidados: gruposLidos, // Nova key hierárquica
-                // Convidados antiga fica depreciada
+                gruposConvidados: gruposLidos,
                 orcamento: parseTableSimples('orcamento-table'),
                 cronograma: parseTableSimples('cronograma-table'),
                 compras: parseTableSimples('compras-table'),
                 equipe: parseTableSimples('equipe-table')
             };
-
-            try {
-                localStorage.setItem('applePlannerState', JSON.stringify(state));
-
-                const indicator = document.getElementById('save-indicator');
-                if (indicator) {
-                    indicator.style.opacity = '1';
-                    clearTimeout(saveTimeout);
-                    saveTimeout = setTimeout(() => { indicator.style.opacity = '0'; }, 1500);
-                }
-            } catch (e) { console.error("Erro no LocalStorage", e); }
         }
 
-        function loadState() {
+        window.triggerCloudSave = function () {
+            if (window.salvarNaNuvem && window.isCloudSyncActive) {
+                window.salvarNaNuvem(getCurrentStateObject());
+            }
+        }
+
+        function saveState() {
+            if (!isAppLoaded) return;
+            const stateObj = getCurrentStateObject();
+
+            // Sempre salva Local primeiro backup
+            try { localStorage.setItem('applePlannerState', JSON.stringify(stateObj)); } catch (e) { }
+
+            // Se ativou cloud Firebase, envia assíncrono com delay debounced pra não spammar o banco do Google
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                if (window.isCloudSyncActive) window.salvarNaNuvem(stateObj);
+                else {
+                    // Se so local pisca o local antigo
+                    const indicator = document.getElementById('cloud-indicator');
+                    if (indicator && indicator.innerText.includes("Teclado")) { /* ignore */ }
+                }
+            }, 1500); // 1.5s pra mandar p nuvem (Debounce)
+        }
+
+        function loadStateLocalFallback() {
             const saved = localStorage.getItem('applePlannerState');
-            if (saved) {
+            if (saved && !window.isCloudSyncActive) {
                 try {
-                    const state = JSON.parse(saved);
-
-                    if (state.overview) {
-                        if (state.overview.local) document.getElementById('local').value = state.overview.local;
-                        if (state.overview.data) document.getElementById('data').value = state.overview.data;
-                        if (state.overview.obs) document.getElementById('obs').value = state.overview.obs;
-                    }
-
-                    // --------- Migração Elegante de Convidados (V1 para V2 com Grupos) ---------
-                    if (state.gruposConvidados && Object.keys(state.gruposConvidados).length > 0) {
-                        // Estado Novo (Hierarquico)
-                        convidadosGruposObj = state.gruposConvidados;
-                        for (const [nomeGrupo, arrPessoas] of Object.entries(convidadosGruposObj)) {
-                            renderizarGrupoContainer(nomeGrupo, false); // Restaura grupos fechados preferencialmente
-                            if (arrPessoas.length > 0) {
-                                arrPessoas.forEach(p => addPessoaAoGrupo(nomeGrupo, p));
-                            } else {
-                                addPessoaAoGrupo(nomeGrupo); // Garantir um field vazio se elegeu salvar vazio
-                            }
-                        }
-                    }
-                    else if (state.convidados && state.convidados.length > 0) {
-                        // Backward Compatibility: Usuário veio da versão V1 (array puro)
-                        const DefaultG = "Convidados Gerais (Migrado)";
-                        convidadosGruposObj[DefaultG] = state.convidados;
-                        renderizarGrupoContainer(DefaultG, true);
-                        state.convidados.forEach(p => addPessoaAoGrupo(DefaultG, p));
-                    }
-                    else {
-                        // Brand new user
-                        const G = "Família";
-                        convidadosGruposObj[G] = [];
-                        renderizarGrupoContainer(G, true);
-                        addPessoaAoGrupo(G);
-                    }
-
-                    // Restantes
-                    if (state.orcamento?.length > 0) state.orcamento.forEach(row => addOrcamento(row));
-                    else addOrcamento();
-
-                    if (state.cronograma?.length > 0) state.cronograma.forEach(row => addCronograma(row));
-                    if (state.compras?.length > 0) state.compras.forEach(row => addCompra(row));
-                    if (state.equipe?.length > 0) state.equipe.forEach(row => addEquipe(row));
-
+                    window.applyStateToUI(JSON.parse(saved));
                 } catch (e) {
-                    console.error("Erro Parser Initial", e);
+                    console.error("Erro Parser Initial Local", e);
                     initDefaultRows();
                 }
-            } else {
+            } else if (!saved && !window.isCloudSyncActive) {
                 initDefaultRows();
             }
-
-            isAppLoaded = true;
-            updateDashboard();
         }
 
         function initDefaultRows() {
@@ -1225,22 +1316,21 @@
             renderizarGrupoContainer(G, true);
             addPessoaAoGrupo(G);
             addOrcamento();
+            isAppLoaded = true;
+            updateDashboard();
         }
 
-
         /* =======================================
-           5. MÓDULO INTELIGÊNCIA (GEMINI API)
+           5. INTEGRAÇÕES: GEMINI & FIREBASE MODAIS
            ======================================= */
 
+        // IA Gemini Modal
         function openAIModal() {
             document.getElementById('aiModal').classList.add('active');
-            // Tenta pre-preencher a chave se já usou antes
             const cachedKey = localStorage.getItem('gemini_api_key_15');
             if (cachedKey) document.getElementById('gemini-key').value = cachedKey;
         }
-        function closeAIModal() {
-            document.getElementById('aiModal').classList.remove('active');
-        }
+        function closeAIModal() { document.getElementById('aiModal').classList.remove('active'); }
 
         async function gerarOrcamentoIA() {
             const apiKey = document.getElementById('gemini-key').value.trim();
@@ -1249,91 +1339,83 @@
             const spinner = document.getElementById('ai-spinner');
             const btnText = document.getElementById('ai-btn-text');
 
-            if (!apiKey) return alert("Por favor, informe sua API Key do Google Gemini.");
-
-            // Salvar chave para facilidade futura
+            if (!apiKey) return alert("Por favor, informe sua API Key.");
             localStorage.setItem('gemini_api_key_15', apiKey);
 
-            // UI de Loading
-            btn.disabled = true;
-            btnText.textContent = "Pensando...";
-            spinner.style.display = "inline-block";
+            btn.disabled = true; btnText.textContent = "Pensando..."; spinner.style.display = "inline-block";
 
-            // Coletar Insumos da Tela
             const numConvidados = document.getElementById('total-global-convidados').textContent.replace(/\D/g, '') || 100;
             const local = document.getElementById('local').value || "Não definido";
             const obs = document.getElementById('obs').value || "Sem observações.";
 
-            // Usaremos o gemini-2.5-flash (Mais recente do ecossistema Google)
             const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
-            const prompt = `
-Você é uma Assessora de Festas de 15 anos de Alto Padrão.
-O cliente fará uma festa com o seguinte perfil:
-- Total Convidados Esperados: ${numConvidados}
-- Local/Clima do evento: ${local}
-- Observações e Tema: ${obs}
-- Estilo do Orçamento: ${style}
-
-Sua tarefa: Gerar estimativas de custos realistas em REAIS (BRL) para 8 a 12 categorias vitais (ex: Buffet, Salão, DJ, Decoração, Fotografia, Bebidas, etc) que se adéquem a essa escala.
-
-IMPORTANTE: Você não deve retornar absolutamente nenhum texto markdown fora da estrutura. Você DEVE retornar APENAS um array JSON puro.
-Formato exato JSON esperado:
-[
-  { "fornecedor": "Nome da Categoria/Serviço", "valor_estimado": numero_inteiro },
-  { "fornecedor": "Decoração Completa", "valor_estimado": 15000 }
-]
-`;
-
-            const requestBody = {
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    temperature: 0.4,
-                    responseMimeType: "application/json" // Força o Gemini a retornar JSON nativo válido
-                }
-            };
+            const prompt = `Você é um Assessor de Festas de 15 anos. Perfil: ${numConvidados} convidados. Local: ${local}. Notas: ${obs}. Estilo: ${style}. Retorne um JSON ARRAY validado destas estimativas em R$. [{ "fornecedor": "Nome", "valor_estimado": numero_inteiro }]`;
 
             try {
                 const resp = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody)
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { temperature: 0.4, responseMimeType: "application/json" }
+                    })
                 });
-
                 const data = await resp.json();
-
-                if (data.error) {
-                    alert("Erro da API Gemini: " + data.error.message);
-                    throw new Error(data.error.message);
-                }
-
-                const jsonStr = data.candidates[0].content.parts[0].text;
-                const custosGerados = JSON.parse(jsonStr);
-
-                // Injetar os custos dinamicamente na tabela
+                if (data.error) throw new Error(data.error.message);
+                const custosGerados = JSON.parse(data.candidates[0].content.parts[0].text);
                 if (custosGerados && custosGerados.length > 0) {
-                    custosGerados.forEach(c => {
-                        // Parâmetros: [ Nome, ValorEstimado, ValorFechado ]
-                        addOrcamento([c.fornecedor + ' (IA)', c.valor_estimado, '']);
-                    });
-                    alert(`Sucesso! ${custosGerados.length} categorias estimadas foram adicionadas ao seu orçamento.`);
-                    closeAIModal();
+                    custosGerados.forEach(c => addOrcamento([c.fornecedor + ' (IA)', c.valor_estimado, '']));
+                    alert(`Sucesso!`); closeAIModal();
                 }
-
             } catch (error) {
-                console.error(error);
-                alert("Aconteceu um erro ao tentar processar o json gerado. Verifique o console ou a validade da sua API Key.");
+                console.error(error); alert("Erro ao tentar processar o json da IA.");
             } finally {
-                // Reestabelecer UI
-                btn.disabled = false;
-                btnText.textContent = "Gerar Estimativa";
-                spinner.style.display = "none";
+                btn.disabled = false; btnText.textContent = "Gerar Estimativa"; spinner.style.display = "none";
+            }
+        }
+
+        // CLOUD MODAL
+        function openCloudModal() {
+            document.getElementById('cloudModal').classList.add('active');
+            const config = localStorage.getItem('firebase_config_15');
+            if (config) {
+                document.getElementById('firebase-config-input').value = config;
+            }
+        }
+        function closeCloudModal() { document.getElementById('cloudModal').classList.remove('active'); }
+
+        function salvarFirebaseConfig() {
+            let val = document.getElementById('firebase-config-input').value.trim();
+            if (!val) return alert("Cole o JSON de configuração!");
+
+            try {
+                // Permite que a pessoa cole objeto solto extraindo apenas com eval se for JS sujo
+                // Ex do Console google: const firebaseConfig = { apiKey: "..." };
+                if (!val.startsWith('{')) val = val.substring(val.indexOf('{'), val.lastIndexOf('}') + 1);
+
+                // Format to strictly JSON (in case object keys dont have double quotes)
+                const strictJSON = val.replace(/(['"])?([a-z0-9A-Z_]+)(['"])?:/g, '"$2": ');
+                JSON.parse(strictJSON);
+
+                localStorage.setItem('firebase_config_15', strictJSON);
+                closeCloudModal();
+
+                // Inicia o Cloud System
+                window.location.reload(); // Reload necessário para os módulos Import Firebase carragarem
+
+            } catch (e) {
+                alert("JSON Inválido. Certifique-se de colar o bloco que abre com { e fecha com } com suas chaves Firebase.");
             }
         }
 
         // Inicialização Limpa
         window.onload = () => {
-            loadState();
+            // Fallback p arrancar se não tiver module de firebase executado
+            setTimeout(() => {
+                if (!window.isCloudSyncActive) loadStateLocalFallback();
+            }, 500);
+
             document.getElementById('local').addEventListener('input', saveState);
             document.getElementById('data').addEventListener('change', () => { updateDashboard(); saveState(); });
             document.getElementById('obs').addEventListener('input', saveState);
