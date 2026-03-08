@@ -1390,34 +1390,31 @@
             if (!val) return alert("Cole o JSON de configuração!");
 
             try {
-                // Nova técnica à prova de balas
-                // Extrair chaves essenciais na força bruta onde quer que estejam no texto colado
-                const apikeyMatch = val.match(/apiKey\s*:\s*["']([^"']+)["']/i);
-                const authDomainMatch = val.match(/authDomain\s*:\s*["']([^"']+)["']/i);
-                const projectIdMatch = val.match(/projectId\s*:\s*["']([^"']+)["']/i);
-                const storageBucketMatch = val.match(/storageBucket\s*:\s*["']([^"']+)["']/i);
-                const messagingSenderIdMatch = val.match(/messagingSenderId\s*:\s*["']([^"']+)["']/i);
-                const appIdMatch = val.match(/appId\s*:\s*["']([^"']+)["']/i);
+                // Isolando 100% à prova de falhas apenas o miolo de texto útil JSON
+                let startIndex = val.indexOf('{');
+                let endIndex = val.lastIndexOf('}');
 
-                if (!apikeyMatch || !projectIdMatch || !appIdMatch) {
-                    return alert("Não encontrei as chaves obrigatórias no texto colado. Certeza que copiou tudo desde 'apiKey' até 'appId'?");
+                if (startIndex === -1 || endIndex === -1) {
+                    return alert("Não encontrei as chaves { } no seu texto. Copie do site do Google exatamente o bloco 'const firebaseConfig = { ... };'");
                 }
 
-                const cleanJsonObj = {
-                    apiKey: apikeyMatch[1],
-                    authDomain: authDomainMatch ? authDomainMatch[1] : "",
-                    projectId: projectIdMatch[1],
-                    storageBucket: storageBucketMatch ? storageBucketMatch[1] : "",
-                    messagingSenderId: messagingSenderIdMatch ? messagingSenderIdMatch[1] : "",
-                    appId: appIdMatch[1]
-                };
+                // Pega todo o texto das chaves incluindo elas mesmas
+                let extractedObjString = val.substring(startIndex, endIndex + 1);
 
-                localStorage.setItem('firebase_config_15', JSON.stringify(cleanJsonObj));
+                // Usamos eval em um contexto seguro de Objeto Isolado pra forçar
+                // JavaScript a converter chaves não-citadas (apiKey:) para JSON Real ("apiKey":)
+                const convertToObj = new Function("return " + extractedObjString)();
+
+                if (!convertToObj.apiKey || !convertToObj.projectId) {
+                    return alert("As chaves de configuração do Google estão vazias ou inválidas. Tente copiar novamente!");
+                }
+
+                localStorage.setItem('firebase_config_15', JSON.stringify(convertToObj));
                 closeCloudModal();
                 window.location.reload();
 
             } catch (e) {
-                alert("Erro fatal ao processar chaves: " + e.message);
+                alert("Vixe, o código colado apresentou um formato que o sistema não conseguiu ler. Verifique se não cortou pelametade. Erro técnico: " + e.message);
             }
         }
 
