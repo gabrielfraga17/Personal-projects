@@ -867,25 +867,29 @@
                     window.dbFirestore = getFirestore(window.firebaseApp);
                     window.isCloudSyncActive = true;
 
-                    // Cloud ativo! Busca o documento inicial da nuvem (ou usa o Local se a nuvem estiver vazia)
-                    const docRef = doc(window.dbFirestore, "plan15years", "mainState");
-                    const docSnap = await getDoc(docRef);
+                    try {
+                        // Cloud ativo! Busca o documento inicial da nuvem (ou usa o Local se a nuvem estiver vazia)
+                        const docRef = doc(window.dbFirestore, "plan15years", "mainState");
+                        const docSnap = await getDoc(docRef);
 
-                    if (docSnap.exists()) {
-                        console.log("Baixando dados reais da nuvem...");
-                        window.applyStateToUI(docSnap.data());
-                    } else {
-                        // Se não tem na nuvem, manda o que tá local p/ inicializar
-                        window.triggerCloudSave();
+                        if (docSnap.exists()) {
+                            console.log("Baixando dados reais da nuvem...");
+                            window.applyStateToUI(docSnap.data());
+                        } else {
+                            // Se não tem na nuvem, manda o que tá local p/ inicializar
+                            window.triggerCloudSave();
+                        }
+                        updateCloudStatus("Salvo na Nuvem", "cloud-saved");
+                    } catch (dbError) {
+                        console.error("Erro de permissão ou banco ausente:", dbError);
+                        alert("⚠️ O App conectou ao Firebase com sucesso, mas o Banco de Dados recusou acesso.\n\nSua configuração está certa! O problema é lá no console do Google:\n1. Acesse o Firebase > Firestore Database\n2. Vá na aba 'Regras' (Rules)\n3. Troque a regra para: allow read, write: if true;\n4. Publique e recarregue essa página!\n\nErro técnico original: " + dbError.message);
+                        updateCloudStatus("Nuvem Bloqueada", "cloud-syncing");
+                        // NÃO removemos a chave porque ela é válida!
                     }
 
-                    // (Opcional) Poderíamos usar onSnapshot para realtime, mas pra não consumir cotas loucas da 
-                    // rede gratuita do Google, faremos read apenas no init, e write a cada digitacao!
-
-                    updateCloudStatus("Salvo na Nuvem", "cloud-saved");
                 } catch (error) {
                     console.error("Erro ao inicializar Firebase Auth:", error);
-                    alert("Ocorreu um erro ao conectar no Firebase. Verifique se o JSON colado está correto.");
+                    alert("As chaves coladas são inválidas ou há erro no JSON: " + error.message);
                     localStorage.removeItem('firebase_config_15');
                     window.isCloudSyncActive = false;
                     updateCloudStatus("Nuvem Desativada", "cloud-local");
