@@ -58,8 +58,9 @@
             bottom: -30px;
             background-image: url('assets/bg-larah.jpg');
             background-size: cover;
-            background-position: center;
-            filter: blur(20px) brightness(1.1);
+            background-position: center 20%;
+            filter: blur(14px) brightness(1.05);
+            /* Slight blur reduction so the silhouette is richer */
             z-index: -3;
         }
 
@@ -69,9 +70,31 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(245, 245, 247, 0.65);
-            /* Apple base color but 65% opaque */
+            background: rgba(245, 245, 247, 0.70);
+            /* Increased opacity to compensate for less blur and keep text readable */
             z-index: -2;
+        }
+
+        /* Apple Profile Hero */
+        .hero-profile-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 32px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .hero-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background-image: url('assets/bg-larah.jpg');
+            background-size: cover;
+            background-position: center 20%;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+            border: 4px solid rgba(255, 255, 255, 0.6);
+            margin-bottom: 16px;
         }
 
         /* Nav Glassmorphism fixa */
@@ -672,7 +695,11 @@
     </nav>
 
     <div class="container">
-        <h1>15 Anos da Larah</h1>
+
+        <div class="hero-profile-container">
+            <div class="hero-avatar"></div>
+            <h1 style="margin-bottom: 0;">15 Anos da Larah</h1>
+        </div>
 
         <div class="dashboard">
             <div class="card">
