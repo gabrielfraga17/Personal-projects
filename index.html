@@ -1394,9 +1394,9 @@
                 // Ex do Console google: const firebaseConfig = { apiKey: "..." };
                 if (!val.startsWith('{')) val = val.substring(val.indexOf('{'), val.lastIndexOf('}') + 1);
 
-                // Format to strictly JSON (in case object keys dont have double quotes)
-                const strictJSON = val.replace(/(['"])?([a-z0-9A-Z_]+)(['"])?:/g, '"$2": ');
-                JSON.parse(strictJSON);
+                // Format to strictly JSON handling unquoted keys from Firebase copy-paste
+                const obj = new Function("return " + val)();
+                const strictJSON = JSON.stringify(obj);
 
                 localStorage.setItem('firebase_config_15', strictJSON);
                 closeCloudModal();
