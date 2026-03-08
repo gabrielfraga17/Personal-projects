@@ -1206,7 +1206,9 @@
         function parseTableSimples(tableId) {
             const rows = document.querySelectorAll(`#${tableId} tbody tr`);
             return Array.from(rows).map(row => {
-                return Array.from(row.cells).slice(0, -1).map(c => c.firstElementChild ? c.firstElementChild.value : '');
+                const cellsData = Array.from(row.cells).slice(0, -1).map(c => c.firstElementChild ? c.firstElementChild.value : '');
+                // Firebase nested array workaround: wrap row data in an object
+                return { rowData: cellsData };
             });
         }
 
@@ -1225,11 +1227,14 @@
                 if (state.overview.obs) document.getElementById('obs').value = state.overview.obs;
             }
 
+            // Helper for backwards compatibility with old nested arrays
+            const extractData = (item) => Array.isArray(item) ? item : (item.rowData || []);
+
             if (state.gruposConvidados && Object.keys(state.gruposConvidados).length > 0) {
-                convidadosGruposObj = state.gruposConvidados;
-                for (const [nomeGrupo, arrPessoas] of Object.entries(convidadosGruposObj)) {
+                for (const [nomeGrupo, arrPessoas] of Object.entries(state.gruposConvidados)) {
+                    convidadosGruposObj[nomeGrupo] = arrPessoas;
                     renderizarGrupoContainer(nomeGrupo, false);
-                    if (arrPessoas.length > 0) arrPessoas.forEach(p => addPessoaAoGrupo(nomeGrupo, p));
+                    if (arrPessoas.length > 0) arrPessoas.forEach(p => addPessoaAoGrupo(nomeGrupo, extractData(p)));
                     else addPessoaAoGrupo(nomeGrupo);
                 }
             } else if (state.convidados && state.convidados.length > 0) {
@@ -1237,15 +1242,15 @@
                 const DefaultG = "Convidados Gerais";
                 convidadosGruposObj[DefaultG] = state.convidados;
                 renderizarGrupoContainer(DefaultG, false);
-                state.convidados.forEach(p => addPessoaAoGrupo(DefaultG, p));
+                state.convidados.forEach(p => addPessoaAoGrupo(DefaultG, extractData(p)));
             }
 
-            if (state.orcamento?.length > 0) state.orcamento.forEach(row => addOrcamento(row));
+            if (state.orcamento?.length > 0) state.orcamento.forEach(row => addOrcamento(extractData(row)));
             else addOrcamento();
 
-            if (state.cronograma?.length > 0) state.cronograma.forEach(row => addCronograma(row));
-            if (state.compras?.length > 0) state.compras.forEach(row => addCompra(row));
-            if (state.equipe?.length > 0) state.equipe.forEach(row => addEquipe(row));
+            if (state.cronograma?.length > 0) state.cronograma.forEach(row => addCronograma(extractData(row)));
+            if (state.compras?.length > 0) state.compras.forEach(row => addCompra(extractData(row)));
+            if (state.equipe?.length > 0) state.equipe.forEach(row => addEquipe(extractData(row)));
 
             isAppLoaded = true;
             updateDashboard();
@@ -1257,7 +1262,9 @@
                 const name = details.dataset.groupName;
                 const tableBodyRows = details.querySelectorAll('tbody tr');
                 gruposLidos[name] = Array.from(tableBodyRows).map(row => {
-                    return Array.from(row.cells).slice(0, -1).map(c => c.firstElementChild ? c.firstElementChild.value : '');
+                    const cellData = Array.from(row.cells).slice(0, -1).map(c => c.firstElementChild ? c.firstElementChild.value : '');
+                    // Firebase nested array workaround
+                    return { rowData: cellData };
                 });
             });
 
