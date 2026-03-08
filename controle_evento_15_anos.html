@@ -709,8 +709,13 @@
                     <thead>
                         <tr>
                             <th>Categoria / Fornecedor</th>
-                            <th>Estimado (R$)</th>
-                            <th>Valor Fechado (R$)</th>
+                            <th>Estimado (R$) <br><span id="soma-estimado"
+                                    style="font-size:16px; color:var(--text-primary); font-weight:700;">R$ 0,00</span>
+                            </th>
+                            <th>Valor Fechado (R$) <br><span id="soma-fechado"
+                                    style="font-size:16px; color:var(--apple-blue); font-weight:700;">R$ 0,00</span>
+                            </th>
+                            <th>Status Pagamento</th>
                             <th style="width: 50px;"></th>
                         </tr>
                     </thead>
@@ -729,9 +734,10 @@
                     <thead>
                         <tr>
                             <th>Atividade / Protocolo</th>
-                            <th>Início</th>
+                            <th>Data</th>
                             <th>Término</th>
                             <th>Responsável</th>
+                            <th>Status</th>
                             <th style="width: 50px;"></th>
                         </tr>
                     </thead>
@@ -750,7 +756,7 @@
                         <tr>
                             <th>Item a Comprar</th>
                             <th>Qtd</th>
-                            <th>Loja / Fornecedor</th>
+                            <th>Categoria Macro</th>
                             <th>Custo Estimado</th>
                             <th style="width: 50px;"></th>
                         </tr>
@@ -1122,7 +1128,11 @@
             appendRowGeneric(document.getElementById('orcamento-table'), [
                 createInput('text', 'Serviço / Fornecedor', evtArgs ? evtArgs[0] : ''),
                 createInput('number', '0.00', evtArgs ? evtArgs[1] : ''),
-                createInput('number', '0.00', evtArgs ? evtArgs[2] : '', 'calc')
+                createInput('number', '0.00', evtArgs ? evtArgs[2] : '', 'calc'),
+                createSelect([
+                    { value: 'pendente', label: 'A Pagar' },
+                    { value: 'confirmado', label: 'Pago' }
+                ], evtArgs ? evtArgs[3] : 'pendente', updateDashboard)
             ]);
             if (!evtArgs) { saveState(); updateDashboard(); }
         }
@@ -1130,9 +1140,13 @@
             const evtArgs = data instanceof Event ? null : data;
             appendRowGeneric(document.getElementById('cronograma-table'), [
                 createInput('text', 'Atividade', evtArgs ? evtArgs[0] : ''),
-                createInput('time', '', evtArgs ? evtArgs[1] : ''),
+                createInput('date', '', evtArgs ? evtArgs[1] : ''),
                 createInput('time', '', evtArgs ? evtArgs[2] : ''),
-                createInput('text', 'Acompanhante', evtArgs ? evtArgs[3] : '')
+                createInput('text', 'Acompanhante', evtArgs ? evtArgs[3] : ''),
+                createSelect([
+                    { value: 'pendente', label: 'Pendente' },
+                    { value: 'confirmado', label: 'Concluído' }
+                ], evtArgs ? evtArgs[4] : 'pendente')
             ]);
             if (!evtArgs) saveState();
         }
@@ -1141,7 +1155,14 @@
             appendRowGeneric(document.getElementById('compras-table'), [
                 createInput('text', 'Nome do Item', evtArgs ? evtArgs[0] : ''),
                 createInput('number', 'Qtd', evtArgs ? evtArgs[1] : ''),
-                createInput('text', 'Loja', evtArgs ? evtArgs[2] : ''),
+                createSelect([
+                    { value: 'Geral', label: 'Geral' },
+                    { value: 'Decoração', label: 'Decoração' },
+                    { value: 'Buffet', label: 'Buffet' },
+                    { value: 'Trajes', label: 'Trajes' },
+                    { value: 'Assessoria', label: 'Assessoria' },
+                    { value: 'Outros', label: 'Outros' }
+                ], evtArgs ? evtArgs[2] : 'Geral'),
                 createInput('number', 'Valor', evtArgs ? evtArgs[3] : '')
             ]);
             if (!evtArgs) saveState();
@@ -1162,14 +1183,26 @@
         function updateDashboard() {
             if (!isAppLoaded) return;
             let totalVal = 0;
+            let totalEstimado = 0;
             document.querySelectorAll('#orcamento-table tbody tr').forEach(row => {
+                const estVal = row.cells[1]?.querySelector('input')?.value || 0;
                 const inputVal = row.cells[2]?.querySelector('input')?.value || 0;
+                totalEstimado += Number(estVal);
                 totalVal += Number(inputVal);
             });
             const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-            const valFormatted = formatter.format(totalVal);
-            document.getElementById('total-orcamento').textContent = valFormatted;
-            document.getElementById('dash-orcamento').textContent = valFormatted;
+
+            const valFechado = formatter.format(totalVal);
+            const valEstimado = formatter.format(totalEstimado);
+
+            document.getElementById('total-orcamento').textContent = valFechado;
+            document.getElementById('dash-orcamento').textContent = valFechado;
+
+            const somaFechado = document.getElementById('soma-fechado');
+            if (somaFechado) somaFechado.textContent = valFechado;
+
+            const somaEstimado = document.getElementById('soma-estimado');
+            if (somaEstimado) somaEstimado.textContent = valEstimado;
 
             let globalTotal = 0;
             let globalConfirmed = 0;
