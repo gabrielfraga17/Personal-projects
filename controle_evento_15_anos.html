@@ -41,12 +41,37 @@
 
         body {
             font-family: var(--font-family);
-            background: var(--background);
+            background: transparent;
             color: var(--text-primary);
             margin: 0;
             padding: 0;
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
+        }
+
+        /* Apple Glassmorphism Photo Background */
+        .bg-photo-layer {
+            position: fixed;
+            top: -30px;
+            left: -30px;
+            right: -30px;
+            bottom: -30px;
+            background-image: url('assets/bg-larah.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: blur(20px) brightness(1.1);
+            z-index: -3;
+        }
+
+        .bg-overlay-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(245, 245, 247, 0.65);
+            /* Apple base color but 65% opaque */
+            z-index: -2;
         }
 
         /* Nav Glassmorphism fixa */
@@ -635,6 +660,9 @@
 </head>
 
 <body>
+
+    <div class="bg-photo-layer"></div>
+    <div class="bg-overlay-layer"></div>
 
     <nav class="glass-nav">
         <div class="glass-nav-title">App de Controle Pessoal</div>
