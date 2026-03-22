@@ -478,12 +478,14 @@
         if (preNome) document.getElementById('input-nome').value = preNome;
         if (preTel)  document.getElementById('input-tel').value  = preTel;
 
-        /* ── Read planner state (shared localStorage on same device) ── */
+        /* ── Read organizer number (URL param > localStorage) ── */
         let appState = null;
-        let organizerNum = '';
+        // Priority 1: &org= in URL (embedded by organizer's planner — works on any device)
+        let organizerNum = (params.get('org') || '').replace(/\D/g, '');
         try {
             appState = JSON.parse(localStorage.getItem('applePlannerState') || 'null');
-            organizerNum = (appState?.overview?.whatsapp || '').replace(/\D/g, '');
+            // Priority 2: localStorage (only works on organizer's own device)
+            if (!organizerNum) organizerNum = (appState?.overview?.whatsapp || '').replace(/\D/g, '');
         } catch (e) { /* offline / first visit */ }
 
         /* ── Acompanhantes ───────────────────────────────────── */

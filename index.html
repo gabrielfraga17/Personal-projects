@@ -1272,14 +1272,15 @@
             btn.innerHTML = '📲 Enviar link';
             btn.dataset.guestId = guestId;
             btn.onclick = () => {
-                const nome = nomeInput.value.trim() || 'Convidado';
-                const tel  = (telInput?.value || '').replace(/\D/g, '');
-                const base = window.location.href.replace(/\/[^/]*$/, '');
-                const link = `${base}/rsvp.html?guest_id=${guestId}&name=${encodeURIComponent(nome)}${tel ? '&tel=' + encodeURIComponent(tel) : ''}`;
-                const msg  = encodeURIComponent(`Olá, ${nome}! 🎉 Confirme sua presença no evento pelo link:\n\n${link}`);
-                const waUrl = tel
-                    ? `https://wa.me/${tel}?text=${msg}`   // abre direto no chat do convidado
-                    : `https://wa.me/?text=${msg}`;         // deixa escolher o contato
+                const nome   = nomeInput.value.trim() || 'Convidado';
+                const tel    = (telInput?.value || '').replace(/\D/g, '');
+                const org    = document.getElementById('whatsapp')?.value.replace(/\D/g, '') || '';
+                const base   = window.location.href.replace(/\/[^/]*$/, '');
+                const link   = `${base}/rsvp.html?guest_id=${guestId}&name=${encodeURIComponent(nome)}${tel ? '&tel=' + encodeURIComponent(tel) : ''}${org ? '&org=' + encodeURIComponent(org) : ''}`;
+                const msg    = encodeURIComponent(`Olá, ${nome}! 🎉 Confirme sua presença no evento pelo link:\n\n${link}`);
+                const waUrl  = tel
+                    ? `https://wa.me/${tel}?text=${msg}`
+                    : `https://wa.me/?text=${msg}`;
                 window.open(waUrl, '_blank', 'noopener');
             };
             return btn;
