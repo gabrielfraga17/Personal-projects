@@ -312,6 +312,7 @@
         <input type="hidden" name="form-name" value="rsvp-confirmacoes">
         <input type="text"   name="nome_convidado">
         <input type="text"   name="telefone">
+        <input type="text"   name="acompanhantes">
         <input type="text"   name="confirmado_em">
         <input type="text"   name="guest_id">
         <input type="text"   name="source">
@@ -341,6 +342,27 @@
                 <label class="field-label" for="input-tel">WhatsApp (opcional)</label>
                 <input type="tel" id="input-tel" placeholder="(11) 99999-0000" autocomplete="tel">
             </div>
+
+            <!-- Acompanhantes -->
+            <div class="form-group" style="margin-bottom:8px;">
+                <label class="field-label">👥 Vou acompanhado(a)? <span style="font-weight:400; font-size:13px;">(opcional)</span></label>
+                <div id="acomp-lista" style="display:flex; flex-direction:column; gap:8px; margin-top:6px;"></div>
+                <button type="button" onclick="adicionarAcompanhante()" style="
+                    background: rgba(0,113,227,0.08);
+                    border: 1px dashed rgba(0,113,227,0.35);
+                    border-radius: 12px;
+                    color: var(--apple-blue);
+                    font-size: 14px;
+                    padding: 10px;
+                    width: 100%;
+                    cursor: pointer;
+                    margin-top: 6px;
+                    transition: all 0.2s;
+                " id="btn-add-acomp">
+                    + Adicionar acompanhante
+                </button>
+            </div>
+
             <button class="btn-confirm" id="btn-confirm" onclick="submitRSVP()">
                 <span id="btn-text">🎉 Confirmar Presença</span>
                 <span class="spinner" id="spinner"></span>
@@ -407,6 +429,22 @@
             }
         } catch (e) { /* offline or first visit – fine */ }
 
+        /* ── Acompanhantes ───────────────────────────────────── */
+        let acompCount = 0;
+        window.adicionarAcompanhante = function () {
+            if (acompCount >= 6) return; // max 6 acompanhantes
+            acompCount++;
+            const lista = document.getElementById('acomp-lista');
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'display:flex; gap:8px; align-items:center;';
+            wrap.innerHTML = `
+                <input type="text" placeholder="Nome do acompanhante ${acompCount}" class="acomp-input" style="flex:1; padding:12px 16px; border:1.5px solid rgba(0,0,0,0.12); border-radius:var(--radius-input); font-size:15px; font-family:inherit; background:rgba(255,255,255,0.9);">
+                <button type="button" onclick="this.parentElement.remove(); acompCount--;" style="background:none; border:none; font-size:20px; cursor:pointer; color:var(--apple-red); line-height:1;">×</button>
+            `;
+            lista.appendChild(wrap);
+            if (acompCount >= 6) document.getElementById('btn-add-acomp').style.display = 'none';
+        };
+
         /* ── Submit ─────────────────────────────────────────── */
         window.submitRSVP = async function () {
             const nome = document.getElementById('input-nome').value.trim();
@@ -418,6 +456,10 @@
                 setTimeout(() => document.getElementById('input-nome').style.borderColor = '', 1500);
                 return;
             }
+
+            // Collect acompanhantes
+            const acompInputs = Array.from(document.querySelectorAll('.acomp-input'));
+            const acompNomes  = acompInputs.map(i => i.value.trim()).filter(Boolean);
 
             /* Loading state */
             const btn = document.getElementById('btn-confirm');
@@ -434,33 +476,31 @@
                 fd.append('form-name',       'rsvp-confirmacoes');
                 fd.append('nome_convidado',  nome);
                 fd.append('telefone',        tel);
+                fd.append('acompanhantes',   acompNomes.join(', '));
                 fd.append('confirmado_em',   confirmedAt);
                 fd.append('guest_id',        guestId);
-                fd.append('source',          'whatsapp_grupo_link');
+                fd.append('source',          'link_individual');
                 const resp = await fetch('/', { method: 'POST', body: fd });
                 netlifyOk = resp.ok;
             } catch (e) {
                 console.warn('Netlify Forms (expected when local):', e.message);
             }
 
-            /* 2 — Local rsvp_log (so planner can read it on same device) */
+            /* 2 — Local rsvp_log */
             try {
                 const log = JSON.parse(localStorage.getItem('rsvp_log') || '[]');
-                log.push({ guest_id: guestId, nome_convidado: nome, telefone: tel, confirmado_em: confirmedAt, source: 'whatsapp_grupo_link' });
+                log.push({ guest_id: guestId, nome_convidado: nome, telefone: tel, acompanhantes: acompNomes, confirmado_em: confirmedAt, source: 'link_individual' });
                 localStorage.setItem('rsvp_log', JSON.stringify(log));
 
-                /* 3 — Update matching guest in planner state (if name matches) */
+                /* 3 — Update matching guest in planner state */
                 if (appState?.gruposConvidados) {
                     let updated = false;
                     for (const grupo of Object.values(appState.gruposConvidados)) {
                         for (const pessoa of grupo) {
                             const rd = Array.isArray(pessoa) ? pessoa : (pessoa.rowData || []);
-                            const matchId   = rd[3] && rd[3] === params.get('guest_id');
+                            const matchId   = rd[4] && rd[4] === params.get('guest_id');
                             const matchName = rd[0] && rd[0].toLowerCase().trim() === nome.toLowerCase().trim();
-                            if (matchId || matchName) {
-                                rd[1] = 'confirmado';
-                                updated = true;
-                            }
+                            if (matchId || matchName) { rd[1] = 'confirmado'; updated = true; }
                         }
                     }
                     if (updated) localStorage.setItem('applePlannerState', JSON.stringify(appState));
@@ -468,37 +508,60 @@
             } catch (e) { console.warn('localStorage:', e.message); }
 
             /* Show success */
-            showSuccess(nome, tel, netlifyOk, whatsappNum);
+            const grupoNum = (appState?.overview?.whatsappGrupo || '').replace(/\D/g, '');
+            showSuccess(nome, tel, acompNomes, netlifyOk, grupoNum);
         };
 
-        function showSuccess(nome, tel, netlifyOk, waNum) {
+        function showSuccess(nome, tel, acompNomes, netlifyOk, grupoNum) {
             document.getElementById('form-state').style.display   = 'none';
             document.getElementById('event-header').style.display = 'none';
+            document.getElementById('success-state').style.display = 'flex';
 
-            const panel = document.getElementById('success-state');
-            panel.style.display = 'flex';
+            // Build confirmation message
+            const now = new Date().toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+            const telLine   = tel ? `\n📱 WhatsApp: ${tel}` : '';
+            const acompLine = acompNomes.length > 0 ? `\n👥 Acompanhantes: ${acompNomes.join(', ')}` : '';
+            const totalStr  = acompNomes.length > 0 ? ` (+ ${acompNomes.length} acompanhante(s))` : '';
 
             document.getElementById('success-desc').innerHTML =
-                `Que ótimo, <strong>${nome}</strong>! Sua presença foi registrada com sucesso. 🌟`;
+                `Que ótimo, <strong>${nome}</strong>!${totalStr ? ' <em style="font-size:14px;color:var(--text-secondary);">' + totalStr + '</em>' : ''}<br>Sua presença foi registrada. 🌟`;
 
-            // Primary CTA: send message to WhatsApp group (backup for organizer)
-            const now = new Date().toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-            const telDisplay = tel ? `\n📱 WhatsApp: ${tel}` : '';
-            const msg = encodeURIComponent(`✅ Confirmo minha presença no evento!\n\n👤 Nome: ${nome}${telDisplay}\n⏰ ${now}`);
+            const rawMsg = `✅ Confirmo minha presença no evento!\n\n👤 Nome: ${nome}${telLine}${acompLine}\n⏰ ${now}`;
+            const msg    = encodeURIComponent(rawMsg);
 
             const actionDiv = document.getElementById('action-area');
-            actionDiv.innerHTML = `
-                <a class="btn-wa" href="https://wa.me/?text=${msg}" target="_blank" rel="noopener" style="margin-top:16px;">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.849L0 24l6.335-1.508A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.659-.498-5.19-1.37l-.372-.217-3.76.896.948-3.668-.241-.388A9.963 9.963 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
-                    </svg>
-                    Enviar confirmação para o grupo
-                </a>
-                <p style="font-size:12px; color:var(--text-secondary); margin-top:12px;">
-                    Isso envia uma mensagem no WhatsApp para que o organizador veja sua confirmação no grupo do evento.
-                </p>
-            `;
+            const waSvg = `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.849L0 24l6.335-1.508A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.659-.498-5.19-1.37l-.372-.217-3.76.896.948-3.668-.241-.388A9.963 9.963 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>`;
+
+            if (grupoNum) {
+                // Auto-redirect with countdown
+                const waUrl = `https://wa.me/${grupoNum}?text=${msg}`;
+                let secs = 3;
+                actionDiv.innerHTML = `
+                    <p style="font-size:14px; color:var(--text-secondary); margin-top:8px;">
+                        Enviando confirmação para o grupo em <strong id="countdown">${secs}</strong>s…
+                    </p>
+                    <a class="btn-wa" href="${waUrl}" target="_blank" rel="noopener" style="margin-top:12px;" id="wa-group-btn">
+                        ${waSvg} Enviar agora para o grupo
+                    </a>`;
+                const timer = setInterval(() => {
+                    secs--;
+                    const cdEl = document.getElementById('countdown');
+                    if (cdEl) cdEl.textContent = secs;
+                    if (secs <= 0) {
+                        clearInterval(timer);
+                        window.location.href = waUrl;
+                    }
+                }, 1000);
+            } else {
+                // No group configured — show manual button
+                actionDiv.innerHTML = `
+                    <a class="btn-wa" href="https://wa.me/?text=${msg}" target="_blank" rel="noopener" style="margin-top:16px;">
+                        ${waSvg} Enviar confirmação para o grupo
+                    </a>
+                    <p style="font-size:12px; color:var(--text-secondary); margin-top:8px;">
+                        Selecione o grupo do evento no WhatsApp.
+                    </p>`;
+            }
 
             document.getElementById('hint-text').textContent = netlifyOk
                 ? '✅ Confirmação registrada no servidor.'

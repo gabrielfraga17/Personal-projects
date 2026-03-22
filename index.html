@@ -751,6 +751,10 @@
                     <label>📱 WhatsApp do Organizador (para RSVP)</label>
                     <input id="whatsapp" type="tel" placeholder="Ex: 5511999990000 (só números, com DDD e 55)">
                 </div>
+                <div class="input-group">
+                    <label>👥 WhatsApp do Grupo (para redirect pós-confirmação)</label>
+                    <input id="whatsapp-grupo" type="tel" placeholder="Ex: 5511999990000 (número do grupo ou de um membro)">
+                </div>
                 <div class="input-group" style="grid-column: 1 / -1;">
                     <label>Observações / Estilo Desejado</label>
                     <textarea id="obs" rows="3"
@@ -1264,20 +1268,19 @@
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'btn-rsvp-copy';
-            btn.title = 'Copiar link RSVP individual';
-            btn.innerHTML = '📋 Copiar link';
+            btn.title = 'Enviar link RSVP direto no WhatsApp do convidado';
+            btn.innerHTML = '📲 Enviar link';
             btn.dataset.guestId = guestId;
             btn.onclick = () => {
-                const nome = encodeURIComponent(nomeInput.value.trim() || 'Convidado');
-                const tel  = encodeURIComponent((telInput?.value || '').replace(/\D/g, ''));
+                const nome = nomeInput.value.trim() || 'Convidado';
+                const tel  = (telInput?.value || '').replace(/\D/g, '');
                 const base = window.location.href.replace(/\/[^/]*$/, '');
-                const link = `${base}/rsvp.html?guest_id=${guestId}&name=${nome}${tel ? '&tel=' + tel : ''}`;
-                navigator.clipboard.writeText(link).then(() => {
-                    btn.innerHTML = '✅ Copiado!';
-                    setTimeout(() => { btn.innerHTML = '📋 Copiar link'; }, 2000);
-                }).catch(() => {
-                    prompt('Copie o link RSVP:', link);
-                });
+                const link = `${base}/rsvp.html?guest_id=${guestId}&name=${encodeURIComponent(nome)}${tel ? '&tel=' + encodeURIComponent(tel) : ''}`;
+                const msg  = encodeURIComponent(`Olá, ${nome}! 🎉 Confirme sua presença no evento pelo link:\n\n${link}`);
+                const waUrl = tel
+                    ? `https://wa.me/${tel}?text=${msg}`   // abre direto no chat do convidado
+                    : `https://wa.me/?text=${msg}`;         // deixa escolher o contato
+                window.open(waUrl, '_blank', 'noopener');
             };
             return btn;
         }
@@ -1286,9 +1289,10 @@
             const details = renderizarGrupoContainer(nomeGrupo);
             const table = details.querySelector('table');
             const options = [
-                { value: 'pendente', label: 'Pendente' },
-                { value: 'confirmado', label: 'Confirmado' },
-                { value: 'recusado', label: 'Não Irá' }
+                { value: 'pendente',   label: 'Pendente' },
+                { value: 'confirmado', label: '✅ Confirmado' },
+                { value: 'whatsapp',   label: '💬 WhatsApp' },
+                { value: 'recusado',   label: 'Não Irá' }
             ];
             // dataArr layout: [0]=nome, [1]=status, [2]=nota, [3]=telefone, [4]=guestId
             const guestId   = (dataArr && dataArr[4]) ? dataArr[4] : generateUUID();
@@ -1487,6 +1491,7 @@
                 if (state.overview.data) document.getElementById('data').value = state.overview.data;
                 if (state.overview.obs) document.getElementById('obs').value = state.overview.obs;
                 if (state.overview.whatsapp) document.getElementById('whatsapp').value = state.overview.whatsapp;
+                if (state.overview.whatsappGrupo) document.getElementById('whatsapp-grupo').value = state.overview.whatsappGrupo;
             }
 
             // Helper for backwards compatibility with old nested arrays
@@ -1536,10 +1541,11 @@
 
             return {
                 overview: {
-                    local: document.getElementById('local').value,
-                    data: document.getElementById('data').value,
-                    obs: document.getElementById('obs').value,
-                    whatsapp: document.getElementById('whatsapp').value
+                    local:           document.getElementById('local').value,
+                    data:            document.getElementById('data').value,
+                    obs:             document.getElementById('obs').value,
+                    whatsapp:        document.getElementById('whatsapp').value,
+                    whatsappGrupo:   document.getElementById('whatsapp-grupo').value
                 },
                 gruposConvidados: gruposLidos,
                 orcamento: parseTableSimples('orcamento-table'),
@@ -1896,6 +1902,7 @@
             document.getElementById('data').addEventListener('change', () => { updateDashboard(); saveState(); });
             document.getElementById('obs').addEventListener('input', saveState);
             document.getElementById('whatsapp').addEventListener('input', saveState);
+            document.getElementById('whatsapp-grupo').addEventListener('input', saveState);
         };
 
     </script>
