@@ -9,165 +9,219 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Parisienne&display=swap');
 
         :root {
-            --pink-bg: #fdf2f8;
-            --pink-accent: #db2777;
-            --apple-blue: #007aff;
-            --apple-red: #ff3b30;
-            --radius-input: 14px;
+            --pink:       #db2777;
+            --pink-light: #fdf2f8;
+            --pink-mid:   #fbcfe8;
+            --radius:     14px;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: var(--pink-bg);
-            margin: 0; padding: 0;
-            overflow-x: hidden;
+            background: linear-gradient(160deg, #fff 0%, #fdf2f8 55%, #f0e6f6 100%);
+            min-height: 100vh;
             color: #1f2937;
         }
 
-        /* ── INVITATION CARD ─────────────────────────────────── */
-        .invitation-container {
+        /* ── CARD ───────────────────────────────────────────── */
+        .card {
+            max-width: 480px;
+            margin: 0 auto;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            background: linear-gradient(135deg, #ffffff 0%, #fdf2f8 60%, #cbd5e1 100%);
-        }
-
-        .invitation-card {
-            width: 100%;
-            max-width: 500px;
-            min-height: 100vh;
-            position: relative;
-            overflow: hidden;
+            background: white;
+            box-shadow: 0 0 60px rgba(219,39,119,0.08);
             display: flex;
             flex-direction: column;
-            background: white;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
 
-        /* Glitter & flare */
-        .glitter-layer {
-            position: absolute; inset: 0;
-            background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.6) 1px, transparent 1px);
-            background-size: 30px 30px;
-            opacity: 0.3; pointer-events: none; z-index: 5;
+        /* ── PHOTO BANNER ────────────────────────────────────── */
+        .photo-banner {
+            position: relative;
+            height: 280px;
+            background: #fce4ec;
+            overflow: hidden;
+            flex-shrink: 0;
         }
-        .silver-flare {
-            position: absolute; top: -15%; right: -15%;
-            width: 90%; height: 50%;
-            background: radial-gradient(circle, rgba(203,213,225,0.4) 0%, transparent 70%);
-            filter: blur(40px); z-index: 1;
-        }
-
-        /* ── PHOTOS ──────────────────────────────────────────── */
-        .photo-montage {
-            position: relative; height: 50vh; min-height: 380px;
-            width: 100%; z-index: 10; padding: 20px;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .photo-teen {
-            width: 75%; height: 90%;
+        .photo-banner img.main-photo {
+            width: 100%; height: 100%;
             object-fit: cover; object-position: center top;
-            border-radius: 12px; border: 6px solid white;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-            transform: rotate(2deg) translateX(12%);
-            z-index: 2; background-color: #fce4ec;
         }
-        .photo-child {
-            position: absolute; width: 50%; height: 42%;
-            bottom: 8%; left: 5%;
-            object-fit: cover; object-position: center center;
-            border-radius: 10px; border: 5px solid white;
-            box-shadow: 0 12px 25px rgba(0,0,0,0.25);
-            transform: rotate(-4deg) scale(1.2);
-            z-index: 3; background-color: #fce4ec;
+        .photo-banner .mini-photo {
+            position: absolute;
+            bottom: 16px; left: 16px;
+            width: 110px; height: 110px;
+            object-fit: cover; object-position: center;
+            border-radius: 12px;
+            border: 4px solid white;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            transform: rotate(-3deg);
         }
-        .overlay-pink {
+        .photo-banner .banner-overlay {
             position: absolute; inset: 0;
-            background: rgba(219,39,119,0.03);
-            pointer-events: none; z-index: 4; border-radius: inherit;
+            background: linear-gradient(to bottom, transparent 40%, rgba(219,39,119,0.12) 100%);
         }
 
-        /* ── TYPOGRAPHY ──────────────────────────────────────── */
-        .neon-text {
+        /* ── HEADER ──────────────────────────────────────────── */
+        .invite-header {
+            padding: 24px 28px 0;
+            text-align: center;
+        }
+        .eyebrow {
+            font-size: 10px; letter-spacing: 0.35em;
+            font-weight: 600; color: #ec4899;
+            text-transform: uppercase; margin-bottom: 4px;
+        }
+        .title-script {
             font-family: 'Parisienne', cursive;
-            color: #fff;
-            text-shadow: 0 0 7px #fff, 0 0 10px #f472b6, 0 0 21px #f472b6;
+            font-size: 52px;
+            color: var(--pink);
+            line-height: 1;
+            text-shadow: 0 2px 12px rgba(219,39,119,0.2);
+            margin-bottom: 6px;
+        }
+        .title-name {
+            font-size: 28px; font-weight: 800;
+            color: #1f2937; letter-spacing: -0.5px;
+            margin-bottom: 0;
         }
 
-        /* ── ACTION BUTTONS (event features) ─────────────────── */
-        .action-btn {
-            background: white; border: 1px solid #f472b6;
-            color: #db2777; padding: 16px; border-radius: 50px;
+        /* ── DIVIDER ─────────────────────────────────────────── */
+        .divider {
+            width: 40px; height: 2px;
+            background: linear-gradient(90deg, #f472b6, #db2777);
+            border-radius: 2px; margin: 16px auto;
+        }
+
+        /* ── EVENT INFO ──────────────────────────────────────── */
+        .event-info {
+            padding: 0 28px;
+            text-align: center;
+        }
+        .event-date {
+            font-size: 22px; font-weight: 800;
+            color: #111827; letter-spacing: -0.3px;
+        }
+        .event-time {
+            font-size: 13px; color: var(--pink);
+            font-weight: 600; letter-spacing: 0.12em;
+            text-transform: uppercase; margin-top: 4px;
+        }
+        .event-venue {
+            font-size: 17px; font-weight: 800;
+            color: #111827; text-transform: uppercase;
+            letter-spacing: 0.04em; margin-top: 14px;
+        }
+        .event-location {
+            font-size: 13px; color: #9ca3af;
+            font-style: italic; margin-top: 3px;
+        }
+        .event-location a {
+            color: var(--pink); text-decoration: none;
+            font-style: normal; font-weight: 600;
+        }
+        .event-location a:hover { text-decoration: underline; }
+
+        /* ── FEATURE BUTTONS (inline) ─────────────────────────── */
+        .feature-row {
+            display: flex; gap: 10px;
+            padding: 16px 24px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .feat-btn {
+            background: white;
+            border: 1.5px solid #f9a8d4;
+            color: var(--pink);
+            padding: 9px 16px;
+            border-radius: 50px;
             font-size: 12px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.1em;
-            width: 100%; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit;
+            text-transform: uppercase; letter-spacing: 0.06em;
+            cursor: pointer; transition: all 0.2s;
+            white-space: nowrap;
         }
-        .action-btn:active { transform: scale(0.98); background: #fdf2f8; }
+        .feat-btn:active { background: #fdf2f8; transform: scale(0.97); }
 
-        /* ── RSVP FORM SECTION ───────────────────────────────── */
-        .rsvp-section {
-            background: #fdf2f8;
-            border-top: 1px solid #fbcfe8;
-            padding: 28px 28px 16px;
-            position: relative; z-index: 10;
+        /* ── RSVP SECTION ────────────────────────────────────── */
+        .rsvp-wrap {
+            padding: 20px 24px 28px;
+            flex: 1;
         }
-        .rsvp-title {
-            font-size: 11px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.25em;
-            color: #db2777; text-align: center; margin-bottom: 20px;
+        .rsvp-callout {
+            background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+            border: 1px solid #f9a8d4;
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin-bottom: 18px;
+            text-align: center;
         }
+        .rsvp-callout p {
+            font-size: 13px; font-weight: 700;
+            color: var(--pink); line-height: 1.45;
+        }
+        .rsvp-callout small {
+            display: block; margin-top: 6px;
+            font-size: 11px; color: #9ca3af;
+            font-weight: 500;
+        }
+
         .field-label {
             display: block; font-size: 10px; font-weight: 700;
-            text-transform: uppercase; color: #db2777;
-            margin-left: 4px; margin-bottom: 5px; letter-spacing: 0.08em;
+            text-transform: uppercase; color: var(--pink);
+            letter-spacing: 0.1em; margin-bottom: 5px; margin-left: 2px;
         }
         .form-group { margin-bottom: 14px; }
         .form-input {
             width: 100%; padding: 13px 16px;
-            border: 1.5px solid rgba(219,39,119,0.25);
-            border-radius: var(--radius-input);
+            border: 1.5px solid #f9a8d4;
+            border-radius: var(--radius);
             font-family: inherit; font-size: 15px;
             background: white; color: #1f2937;
-            transition: border-color 0.2s;
-            outline: none;
+            transition: border-color 0.2s; outline: none;
         }
-        .form-input:focus { border-color: #db2777; }
+        .form-input:focus { border-color: var(--pink); }
 
         /* Acompanhantes */
         #acomp-lista { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
-        .btn-add-acomp {
-            background: rgba(219,39,119,0.06);
-            border: 1px dashed rgba(219,39,119,0.35);
-            border-radius: var(--radius-input);
-            color: #db2777; font-size: 13px; font-family: inherit;
-            padding: 10px; width: 100%; cursor: pointer; margin-top: 6px;
-            transition: all 0.2s;
-        }
+        .acomp-row { display: flex; gap: 8px; align-items: center; }
         .acomp-input {
             flex: 1; padding: 11px 14px;
-            border: 1.5px solid rgba(219,39,119,0.2);
-            border-radius: var(--radius-input);
-            font-size: 14px; font-family: inherit;
-            background: white;
+            border: 1.5px solid #f9a8d4;
+            border-radius: var(--radius);
+            font-size: 14px; font-family: inherit; background: white;
+        }
+        .acomp-remove {
+            background: none; border: none;
+            font-size: 22px; cursor: pointer;
+            color: #f43f5e; line-height: 1; padding: 0 4px;
+        }
+        .btn-add-acomp {
+            background: rgba(219,39,119,0.05);
+            border: 1.5px dashed #f9a8d4;
+            border-radius: var(--radius);
+            color: var(--pink); font-family: inherit;
+            font-size: 13px; font-weight: 600;
+            padding: 11px; width: 100%;
+            cursor: pointer; margin-top: 6px; transition: all 0.2s;
         }
 
         /* Confirm button */
         .btn-confirm {
-            width: 100%; padding: 16px;
+            width: 100%; padding: 17px;
             background: linear-gradient(135deg, #db2777, #ec4899);
             color: white; border: none;
             border-radius: 50px; font-size: 15px;
-            font-weight: 700; font-family: inherit;
-            cursor: pointer; margin-top: 8px;
-            box-shadow: 0 8px 20px rgba(219,39,119,0.35);
+            font-weight: 800; font-family: inherit;
+            cursor: pointer; margin-top: 10px;
+            box-shadow: 0 8px 24px rgba(219,39,119,0.3);
             transition: all 0.2s;
             display: flex; align-items: center; justify-content: center; gap: 8px;
+            letter-spacing: 0.02em;
         }
         .btn-confirm:active { transform: scale(0.98); }
-        .btn-confirm:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-confirm:disabled { opacity: 0.65; cursor: not-allowed; }
         .spinner {
             display: none; width: 18px; height: 18px;
             border: 2px solid rgba(255,255,255,0.4);
@@ -176,43 +230,54 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── SUCCESS STATE ───────────────────────────────────── */
+        .deadline-badge {
+            text-align: center; margin-top: 10px;
+            font-size: 11px; font-weight: 700;
+            color: var(--pink); letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* ── FOOTER ──────────────────────────────────────────── */
+        .invite-footer {
+            padding: 16px 28px 24px;
+            border-top: 1px solid #fce7f3;
+            text-align: center;
+            background: rgba(253,242,248,0.5);
+        }
+        .footer-activities {
+            font-size: 10px; font-weight: 700;
+            color: #9ca3af; letter-spacing: 0.2em;
+            text-transform: uppercase; margin-bottom: 4px;
+        }
+        .footer-dress {
+            font-size: 12px; color: var(--pink);
+            font-weight: 600; text-transform: uppercase;
+        }
+
+        /* ── SUCCESS STATE ────────────────────────────────────── */
         .state-panel {
             display: none; flex-direction: column;
-            align-items: center; text-align: center; padding: 16px 0 8px;
+            align-items: center; text-align: center; padding: 8px 0;
         }
         .icon-big { font-size: 52px; margin-bottom: 8px; }
-        .state-title { font-size: 22px; font-weight: 700; color: #1f2937; margin-bottom: 6px; }
-        .state-desc { font-size: 15px; color: #6b7280; margin-bottom: 12px; line-height: 1.5; }
+        .state-title { font-size: 22px; font-weight: 800; color: #111827; margin-bottom: 6px; }
+        .state-desc { font-size: 15px; color: #6b7280; line-height: 1.5; margin-bottom: 14px; }
 
-        /* WhatsApp CTA */
         .btn-wa {
             display: inline-flex; align-items: center; gap: 10px;
             padding: 14px 28px;
             background: #25d366; color: white;
             border-radius: 50px; font-weight: 700;
             font-size: 14px; text-decoration: none;
+            font-family: inherit;
             box-shadow: 0 6px 20px rgba(37,211,102,0.35);
-            transition: all 0.2s;
         }
-        .btn-wa:active { transform: scale(0.97); }
-
         .hint-text {
             font-size: 11px; color: #9ca3af;
-            margin-top: 12px; text-align: center;
+            margin-top: 10px; text-align: center;
         }
 
-        /* ── FOOTER ──────────────────────────────────────────── */
-        .invite-footer {
-            padding: 24px 32px 28px;
-            background: rgba(255,255,255,0.5);
-            backdrop-filter: blur(8px);
-            text-align: center;
-            border-top: 1px solid #fce7f3;
-            position: relative; z-index: 10;
-        }
-
-        /* ── MODAIS ──────────────────────────────────────────── */
+        /* ── MODALS ──────────────────────────────────────────── */
         .modal {
             display: none; position: fixed; inset: 0;
             background: rgba(0,0,0,0.65);
@@ -220,396 +285,388 @@
             align-items: center; justify-content: center; padding: 20px;
         }
         .modal-content {
-            background: white; width: 100%; max-width: 400px;
+            background: white; width: 100%; max-width: 420px;
             padding: 28px; border-radius: 24px; text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
         }
-        .label-modal {
+        .modal-label {
             display: block; text-align: left; font-size: 10px;
             font-weight: 700; text-transform: uppercase;
-            color: #db2777; margin-left: 4px;
+            color: var(--pink); margin-left: 2px; margin-bottom: 4px;
         }
         .modal-input {
-            width: 100%; padding: 12px; border: 1px solid #fbcfe8;
-            border-radius: 12px; margin-top: 5px; margin-bottom: 12px;
+            width: 100%; padding: 12px 16px;
+            border: 1.5px solid #f9a8d4;
+            border-radius: 12px; margin-bottom: 14px;
             font-family: inherit; background: #fdf2f8; font-size: 14px;
+            outline: none;
         }
-        .submit-btn {
-            background: #db2777; color: white; padding: 14px;
-            border-radius: 12px; font-weight: 600;
-            width: 100%; font-family: inherit;
-            border: none; cursor: pointer; margin-top: 8px;
-            transition: all 0.2s;
+        .modal-input:focus { border-color: var(--pink); }
+        .modal-submit {
+            background: var(--pink); color: white; padding: 14px;
+            border-radius: 12px; font-weight: 700; font-size: 14px;
+            width: 100%; font-family: inherit; border: none;
+            cursor: pointer; margin-top: 4px; transition: all 0.2s;
         }
-        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        /* Netlify trap */
+        .modal-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+        .modal-back {
+            display: block; width: 100%; background: none; border: none;
+            margin-top: 16px; font-size: 11px; font-family: inherit;
+            color: #9ca3af; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.1em; cursor: pointer;
+        }
         .netlify-trap { display: none !important; }
     </style>
 </head>
 <body>
 
-    <!-- Netlify Forms detection -->
-    <form class="netlify-trap" name="rsvp-confirmacoes" netlify netlify-honeypot="bot-field" data-netlify="true">
-        <input type="hidden" name="form-name" value="rsvp-confirmacoes">
-        <input type="text" name="nome_convidado">
-        <input type="text" name="telefone">
-        <input type="text" name="acompanhantes">
-        <input type="text" name="confirmado_em">
-        <input type="text" name="guest_id">
-        <input type="text" name="source">
-        <input type="text" name="bot-field">
-    </form>
+<!-- Netlify form detection -->
+<form class="netlify-trap" name="rsvp-confirmacoes" netlify netlify-honeypot="bot-field" data-netlify="true">
+    <input type="hidden" name="form-name" value="rsvp-confirmacoes">
+    <input type="text" name="nome_convidado">
+    <input type="text" name="telefone">
+    <input type="text" name="acompanhantes">
+    <input type="text" name="confirmado_em">
+    <input type="text" name="guest_id">
+    <input type="text" name="source">
+    <input type="text" name="bot-field">
+</form>
 
-    <div class="invitation-container">
-        <div class="invitation-card">
-            <div class="glitter-layer"></div>
-            <div class="silver-flare"></div>
+<div class="card">
 
-            <!-- ── HEADER ─────────────────────────────────────── -->
-            <header class="pt-10 text-center relative z-10">
-                <h1 class="text-xs font-light tracking-[0.4em] text-pink-600 uppercase">Larah 15 Anos</h1>
-            </header>
+    <!-- ── PHOTO BANNER ──────────────────────────────────────── -->
+    <div class="photo-banner">
+        <img class="main-photo" src="assets/adolescente.jpg" alt="Larah">
+        <img class="mini-photo" src="assets/crianca.jpg" alt="Larah Criança">
+        <div class="banner-overlay"></div>
+    </div>
 
-            <!-- ── PHOTOS ─────────────────────────────────────── -->
-            <div class="photo-montage">
-                <div class="relative photo-teen overflow-hidden">
-                    <img src="assets/adolescente.jpg" alt="Larah Hoje" class="w-full h-full object-cover">
-                    <div class="overlay-pink"></div>
-                </div>
-                <div class="relative photo-child overflow-hidden">
-                    <img src="assets/crianca.jpg" alt="Larah Criança" class="w-full h-full object-cover">
-                    <div class="overlay-pink"></div>
-                </div>
+    <!-- ── HEADER ────────────────────────────────────────────── -->
+    <div class="invite-header">
+        <p class="eyebrow">Você está convidado(a)</p>
+        <p class="title-script">Larah</p>
+        <p class="title-name">15 Anos 🎉</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── EVENT INFO ─────────────────────────────────────────── -->
+    <div class="event-info">
+        <p class="event-date">19 de Abril de 2026</p>
+        <p class="event-time">Das 13h às 19h</p>
+        <p class="event-venue">Sítio das Zitas</p>
+        <p class="event-location">
+            Vargem Grande – Rio de Janeiro •
+            <a href="https://maps.app.goo.gl/6MBFTHXekWQ9pxEi8" target="_blank" rel="noopener">
+                📍 Ver no Mapa
+            </a>
+        </p>
+    </div>
+
+    <!-- ── FEATURE BUTTONS ────────────────────────────────────── -->
+    <div class="feature-row">
+        <button id="btnOpenMusic" class="feat-btn">🎵 Sugerir Música Playlist</button>
+        <button id="btnOpenScreen" class="feat-btn">💬 Mensagem para Larah</button>
+    </div>
+
+    <!-- ── RSVP SECTION ───────────────────────────────────────── -->
+    <div class="rsvp-wrap">
+
+        <!-- Callout -->
+        <div class="rsvp-callout">
+            <p>Sua confirmação é muito importante<br>para a organização do evento 🌸</p>
+            <small>Piscina • Vôlei • Futebol • Música</small>
+            <small style="color: var(--pink); font-weight:700; margin-top:2px;">Traje: leve + roupa de banho</small>
+        </div>
+
+        <!-- Form state -->
+        <div id="form-state">
+            <div class="form-group">
+                <label class="field-label" for="input-nome">Seu nome completo *</label>
+                <input type="text" id="input-nome" class="form-input" placeholder="Como você se chama?" autocomplete="given-name" required>
+            </div>
+            <div class="form-group">
+                <label class="field-label" for="input-tel">WhatsApp (opcional)</label>
+                <input type="tel" id="input-tel" class="form-input" placeholder="(21) 99999-0000" autocomplete="tel">
             </div>
 
-            <!-- ── EVENT INFO ─────────────────────────────────── -->
-            <main class="flex flex-col items-center justify-center text-center px-10 relative z-10 pb-6">
-                <h2 class="neon-text text-6xl mb-6">Happy Birthday</h2>
-                <div class="text-gray-700 space-y-1">
-                    <p class="text-2xl font-bold tracking-tight">19 de Abril de 2026</p>
-                    <p class="text-sm tracking-widest uppercase font-light text-pink-500">Das 13h às 19h</p>
-                    <div class="w-12 h-0.5 bg-pink-200 mx-auto my-5"></div>
-                    <p class="text-xl font-bold text-gray-800 uppercase tracking-tight">Sítio das Zitas</p>
-                    <p class="text-[12px] text-gray-400 italic">Vargem Grande – Rio de Janeiro</p>
-                </div>
-
-                <!-- Feature buttons -->
-                <div class="w-full mt-8 space-y-3">
-                    <button id="btnOpenMusic" class="action-btn shadow-sm">🎵 Sugerir Música Playlist</button>
-                    <button id="btnOpenScreen" class="action-btn shadow-sm">💬 Mensagem para o Telão</button>
-                </div>
-            </main>
-
-            <!-- ── RSVP SECTION ───────────────────────────────── -->
-            <div class="rsvp-section">
-                <p class="rsvp-title">✉️ Confirme sua Presença</p>
-
-                <!-- Form state -->
-                <div id="form-state">
-                    <div class="form-group">
-                        <label class="field-label" for="input-nome">Seu nome completo *</label>
-                        <input type="text" id="input-nome" class="form-input" placeholder="Como você se chama?" autocomplete="given-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="field-label" for="input-tel">WhatsApp (opcional)</label>
-                        <input type="tel" id="input-tel" class="form-input" placeholder="(21) 99999-0000" autocomplete="tel">
-                    </div>
-
-                    <!-- Acompanhantes -->
-                    <div class="form-group" style="margin-bottom:10px;">
-                        <label class="field-label">👥 Vou acompanhado(a)? <span style="font-weight:400;font-size:11px;">(opcional)</span></label>
-                        <div id="acomp-lista"></div>
-                        <button type="button" class="btn-add-acomp" id="btn-add-acomp" onclick="adicionarAcompanhante()">
-                            + Adicionar acompanhante
-                        </button>
-                    </div>
-
-                    <button class="btn-confirm" id="btn-confirm" onclick="submitRSVP()">
-                        <span id="btn-text">🎉 Confirmar Presença</span>
-                        <span class="spinner" id="spinner"></span>
-                    </button>
-                </div>
-
-                <!-- Success state -->
-                <div class="state-panel" id="success-state">
-                    <div class="icon-big">🎊</div>
-                    <div class="state-title">Presença confirmada!</div>
-                    <div class="state-desc" id="success-desc">Oba! Sua confirmação foi registrada.</div>
-                    <div id="action-area"></div>
-                    <p class="hint-text" id="hint-text"></p>
-                </div>
+            <!-- Acompanhantes -->
+            <div class="form-group" style="margin-bottom:10px;">
+                <label class="field-label">
+                    👥 Confirmar outro convidado? <span style="font-weight:400;font-size:11px;">(opcional)</span>
+                </label>
+                <div id="acomp-lista"></div>
+                <button type="button" class="btn-add-acomp" id="btn-add-acomp" onclick="adicionarAcompanhante()">
+                    + Adicionar convidado (nome completo)
+                </button>
             </div>
 
-            <!-- ── FOOTER ─────────────────────────────────────── -->
-            <footer class="invite-footer">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">Piscina • Vôlei • Futebol • Música</p>
-                <p class="text-[12px] text-pink-600 font-semibold mb-4 uppercase">Traje: leve + roupa de banho</p>
-                <div class="inline-block py-2 px-8 bg-pink-100 text-pink-600 rounded-full text-[11px] font-bold uppercase tracking-widest">
-                    Confirme até 30/03
-                </div>
-            </footer>
+            <button class="btn-confirm" id="btn-confirm" onclick="submitRSVP()">
+                <span id="btn-text">🎉 Clique aqui para confirmar</span>
+                <span class="spinner" id="spinner"></span>
+            </button>
+            <p class="deadline-badge">Confirme até 30/03</p>
         </div>
+
+        <!-- Success state -->
+        <div class="state-panel" id="success-state">
+            <div class="icon-big">🎊</div>
+            <div class="state-title">Presença confirmada!</div>
+            <div class="state-desc" id="success-desc">Obrigada por confirmar!</div>
+            <div id="action-area"></div>
+            <p class="hint-text" id="hint-text"></p>
+        </div>
+
     </div>
 
-    <!-- ── MODAL: Música ──────────────────────────────────────── -->
-    <div id="modalMusic" class="modal">
-        <div class="modal-content">
-            <h3 class="text-pink-600 font-bold mb-1 text-lg">Sugerir Música</h3>
-            <p class="text-[10px] text-gray-400 mb-4 uppercase tracking-wider">Qual o hit da festa?</p>
-            <span class="label-modal">Música e Artista</span>
-            <input type="text" id="musicInput" class="modal-input" placeholder="Ex: Dancing Queen - ABBA">
-            <button id="submitMusic" class="submit-btn">Enviar Sugestão</button>
-            <button id="closeMusic" class="mt-5 text-[10px] text-gray-400 uppercase font-bold tracking-widest hover:text-pink-400 transition-colors" style="display:block;width:100%;background:none;border:none;cursor:pointer;">Voltar</button>
-        </div>
+    <!-- ── FOOTER ─────────────────────────────────────────────── -->
+    <div class="invite-footer">
+        <p class="footer-activities">Piscina • Vôlei • Futebol • Música</p>
+        <p class="footer-dress">Traje: leve + roupa de banho</p>
     </div>
 
-    <!-- ── MODAL: Telão ───────────────────────────────────────── -->
-    <div id="modalScreen" class="modal">
-        <div class="modal-content">
-            <h3 class="text-pink-600 font-bold mb-1 text-lg">Recado no Telão</h3>
-            <p class="text-[10px] text-gray-400 mb-4 uppercase tracking-wider">Deixe seu carinho aqui</p>
-            <span class="label-modal">Seu Nome</span>
-            <input type="text" id="authorInput" class="modal-input" placeholder="Seu nome">
-            <span class="label-modal">Mensagem (máx 190 carac.)</span>
-            <textarea id="messageInput" class="modal-input" maxlength="190" rows="3" placeholder="Sua mensagem..."></textarea>
-            <span class="label-modal">Sugerir trilha para o recado? (opcional)</span>
-            <input type="text" id="screenMusicInput" class="modal-input" placeholder="Música - Artista">
-            <button id="submitScreen" class="submit-btn">Mandar para o Telão</button>
-            <button id="closeScreen" class="mt-5 text-[10px] text-gray-400 uppercase font-bold tracking-widest hover:text-pink-400 transition-colors" style="display:block;width:100%;background:none;border:none;cursor:pointer;">Voltar</button>
-        </div>
+</div>
+
+<!-- ── MODAL: Música ──────────────────────────────────────────── -->
+<div id="modalMusic" class="modal">
+    <div class="modal-content">
+        <h3 style="color:var(--pink);font-weight:800;font-size:18px;margin-bottom:4px;">Sugerir Música</h3>
+        <p style="font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.12em;margin-bottom:18px;">Qual o hit da festa?</p>
+        <span class="modal-label">Música e Artista</span>
+        <input type="text" id="musicInput" class="modal-input" placeholder="Ex: Dancing Queen - ABBA">
+        <button id="submitMusic" class="modal-submit">Enviar Sugestão</button>
+        <button class="modal-back" id="closeMusic">Voltar</button>
     </div>
+</div>
 
-    <!-- ── SCRIPTS ────────────────────────────────────────────── -->
+<!-- ── MODAL: Telão ───────────────────────────────────────────── -->
+<div id="modalScreen" class="modal">
+    <div class="modal-content">
+        <h3 style="color:var(--pink);font-weight:800;font-size:18px;margin-bottom:4px;">Mensagem para Larah</h3>
+        <p style="font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.12em;margin-bottom:18px;">Deixe seu carinho no telão</p>
+        <span class="modal-label">Seu Nome</span>
+        <input type="text" id="authorInput" class="modal-input" placeholder="Seu nome">
+        <span class="modal-label">Mensagem (máx 190 caracteres)</span>
+        <textarea id="messageInput" class="modal-input" maxlength="190" rows="3" placeholder="Sua mensagem..."></textarea>
+        <span class="modal-label">Trilha para o recado? (opcional)</span>
+        <input type="text" id="screenMusicInput" class="modal-input" placeholder="Música - Artista">
+        <button id="submitScreen" class="modal-submit">Mandar para o Telão</button>
+        <button class="modal-back" id="closeScreen">Voltar</button>
+    </div>
+</div>
 
-    <!-- Firebase (music/telao features) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+<!-- ── FIREBASE (música / telão) ─────────────────────────────── -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const toggleModal = (id, show) => {
-            const m = document.getElementById(id);
-            if (m) m.style.display = show ? 'flex' : 'none';
-        };
+    const toggleModal = (id, show) => {
+        const m = document.getElementById(id);
+        if (m) m.style.display = show ? 'flex' : 'none';
+    };
+    document.getElementById('btnOpenMusic').onclick  = () => toggleModal('modalMusic',  true);
+    document.getElementById('btnOpenScreen').onclick = () => toggleModal('modalScreen', true);
+    document.getElementById('closeMusic').onclick    = () => toggleModal('modalMusic',  false);
+    document.getElementById('closeScreen').onclick   = () => toggleModal('modalScreen', false);
 
-        document.getElementById('btnOpenMusic').onclick  = () => toggleModal('modalMusic', true);
-        document.getElementById('btnOpenScreen').onclick = () => toggleModal('modalScreen', true);
-        document.getElementById('closeMusic').onclick    = () => toggleModal('modalMusic', false);
-        document.getElementById('closeScreen').onclick   = () => toggleModal('modalScreen', false);
+    const fbCfg = {
+        apiKey: "AIzaSyCBoDIUR9nNhRi9baH87H8pHwqXk6mWASc",
+        authDomain: "plan15anos.firebaseapp.com", projectId: "plan15anos",
+        storageBucket: "plan15anos.firebasestorage.app",
+        messagingSenderId: "839344814995",
+        appId: "1:839344814995:web:7c968d334d12aeb3844666"
+    };
+    const cfg     = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : fbCfg;
+    const appId   = typeof __app_id         !== 'undefined' ? __app_id : 'plan15anos';
+    const app     = initializeApp(cfg);
+    const auth    = getAuth(app);
+    const db      = getFirestore(app);
+    let   curUser = null;
 
-        const userFirebaseConfig = {
-            apiKey: "AIzaSyCBoDIUR9nNhRi9baH87H8pHwqXk6mWASc",
-            authDomain: "plan15anos.firebaseapp.com",
-            projectId: "plan15anos",
-            storageBucket: "plan15anos.firebasestorage.app",
-            messagingSenderId: "839344814995",
-            appId: "1:839344814995:web:7c968d334d12aeb3844666"
-        };
-        const finalConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : userFirebaseConfig;
-        const finalAppId  = typeof __app_id !== 'undefined' ? __app_id : 'plan15anos';
-
-        const app  = initializeApp(finalConfig);
-        const auth = getAuth(app);
-        const db   = getFirestore(app);
-        let currentUser = null;
-
-        const initAuth = async () => {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else { await signInAnonymously(auth); }
-            } catch (e) { console.error('Auth:', e.message); }
-        };
-        onAuthStateChanged(auth, u => { currentUser = u; });
-        initAuth();
-
-        const saveData = async (collName, data, btnId) => {
-            if (!currentUser) { await initAuth(); await new Promise(r => setTimeout(r, 500)); }
-            if (!currentUser) { alert('Erro ao conectar.'); return; }
-
-            const btn = document.getElementById(btnId);
-            btn.disabled = true; btn.innerText = 'A enviar…';
-            try {
-                await addDoc(collection(db, `artifacts/${finalAppId}/public/data/${collName}`), {
-                    ...data, timestamp: serverTimestamp(), uid: currentUser.uid
-                });
-                btn.innerText = 'Sucesso! ✨'; btn.style.backgroundColor = '#10b981';
-                setTimeout(() => {
-                    btn.disabled = false; btn.innerText = btn.dataset.original || btn.innerText;
-                    btn.style.backgroundColor = '';
-                    toggleModal(btnId === 'submitMusic' ? 'modalMusic' : 'modalScreen', false);
-                    if (btnId === 'submitMusic') { document.getElementById('musicInput').value = ''; }
-                    else {
-                        document.getElementById('authorInput').value = '';
-                        document.getElementById('messageInput').value = '';
-                        document.getElementById('screenMusicInput').value = '';
-                    }
-                }, 2000);
-            } catch (err) {
-                alert('Erro: ' + err.message);
-                btn.innerText = 'Tentar novamente'; btn.style.backgroundColor = '#ef4444';
-                btn.disabled = false;
-            }
-        };
-
-        document.getElementById('submitMusic').onclick = () => {
-            const music = document.getElementById('musicInput').value;
-            if (music.trim()) saveData('playlist_suggestions', { suggestion: music }, 'submitMusic');
-        };
-        document.getElementById('submitScreen').onclick = () => {
-            const author = document.getElementById('authorInput').value;
-            const msg    = document.getElementById('messageInput').value;
-            const music  = document.getElementById('screenMusicInput').value;
-            if (author.trim() && msg.trim())
-                saveData('telao_messages', { author, message: msg, music: music || 'Nenhuma' }, 'submitScreen');
-        };
-    </script>
-
-    <!-- RSVP Logic (plain JS, reads URL params + localStorage) -->
-    <script>
-    (function () {
-        /* ── URL params ──────────────────────────────────────── */
-        const params  = new URLSearchParams(window.location.search);
-        const guestId = params.get('guest_id') || (crypto.randomUUID?.() || Date.now().toString(36));
-        const preNome = params.get('name') || '';
-        const preTel  = params.get('tel')  || '';
-
-        if (preNome) document.getElementById('input-nome').value = preNome;
-        if (preTel)  document.getElementById('input-tel').value  = preTel;
-
-        /* ── Read organizer number (URL param > localStorage) ── */
-        let appState = null;
-        // Priority 1: &org= in URL (embedded by organizer's planner — works on any device)
-        let rawOrg = (params.get('org') || '').replace(/\D/g, '');
+    const initAuth = async () => {
         try {
-            appState = JSON.parse(localStorage.getItem('applePlannerState') || 'null');
-            // Priority 2: localStorage (only works on organizer's own device)
-            if (!rawOrg) rawOrg = (appState?.overview?.whatsapp || '').replace(/\D/g, '');
-        } catch (e) { /* offline / first visit */ }
-        // Auto-add Brazil country code if number looks local (10-11 digits)
-        const organizerNum = rawOrg && rawOrg.length <= 11 ? '55' + rawOrg : rawOrg;
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token)
+                await signInWithCustomToken(auth, __initial_auth_token);
+            else await signInAnonymously(auth);
+        } catch (e) { console.error('Auth:', e.message); }
+    };
+    onAuthStateChanged(auth, u => { curUser = u; });
+    initAuth();
 
-        /* ── Acompanhantes ───────────────────────────────────── */
-        let acompCount = 0;
-        window.adicionarAcompanhante = function () {
-            if (acompCount >= 6) return;
-            acompCount++;
-            const lista = document.getElementById('acomp-lista');
-            const wrap  = document.createElement('div');
-            wrap.style.cssText = 'display:flex;gap:8px;align-items:center;';
-            wrap.innerHTML = `
-                <input type="text" placeholder="Nome do acompanhante ${acompCount}"
-                    class="acomp-input"
-                    style="flex:1;padding:11px 14px;border:1.5px solid rgba(219,39,119,0.2);border-radius:14px;font-size:14px;font-family:inherit;background:white;">
-                <button type="button" onclick="this.parentElement.remove();acompCount--;"
-                    style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--apple-red);line-height:1;">×</button>`;
-            lista.appendChild(wrap);
-            if (acompCount >= 6) document.getElementById('btn-add-acomp').style.display = 'none';
-        };
-
-        /* ── Submit ──────────────────────────────────────────── */
-        window.submitRSVP = async function () {
-            const nome = document.getElementById('input-nome').value.trim();
-            const tel  = document.getElementById('input-tel').value.trim();
-
-            if (!nome) {
-                const inp = document.getElementById('input-nome');
-                inp.style.borderColor = '#ef4444';
-                inp.focus();
-                setTimeout(() => inp.style.borderColor = '', 1500);
-                return;
-            }
-
-            const acompNomes = Array.from(document.querySelectorAll('.acomp-input'))
-                                    .map(i => i.value.trim()).filter(Boolean);
-
-            const btn = document.getElementById('btn-confirm');
-            btn.disabled = true;
-            document.getElementById('btn-text').textContent = 'Confirmando…';
-            document.getElementById('spinner').style.display = 'block';
-
-            const confirmedAt = new Date().toISOString();
-
-            /* Netlify Forms */
-            let netlifyOk = false;
-            try {
-                const fd = new FormData();
-                fd.append('form-name',      'rsvp-confirmacoes');
-                fd.append('nome_convidado', nome);
-                fd.append('telefone',       tel);
-                fd.append('acompanhantes',  acompNomes.join(', '));
-                fd.append('confirmado_em',  confirmedAt);
-                fd.append('guest_id',       guestId);
-                fd.append('source',         'link_individual');
-                const resp = await fetch('/', { method: 'POST', body: fd });
-                netlifyOk = resp.ok;
-            } catch (e) { console.warn('Netlify (expected local):', e.message); }
-
-            /* Local rsvp_log */
-            try {
-                const log = JSON.parse(localStorage.getItem('rsvp_log') || '[]');
-                log.push({ guest_id: guestId, nome_convidado: nome, telefone: tel, acompanhantes: acompNomes, confirmado_em: confirmedAt, source: 'link_individual' });
-                localStorage.setItem('rsvp_log', JSON.stringify(log));
-
-                /* Update planner guest status */
-                if (appState?.gruposConvidados) {
-                    let updated = false;
-                    for (const grp of Object.values(appState.gruposConvidados)) {
-                        for (const p of grp) {
-                            const rd = Array.isArray(p) ? p : (p.rowData || []);
-                            const matchId   = rd[4] && rd[4] === params.get('guest_id');
-                            const matchName = rd[0] && rd[0].toLowerCase().trim() === nome.toLowerCase().trim();
-                            if (matchId || matchName) { rd[1] = 'whatsapp'; updated = true; }
-                        }
-                    }
-                    if (updated) localStorage.setItem('applePlannerState', JSON.stringify(appState));
+    const saveData = async (col, data, btnId) => {
+        if (!curUser) { await initAuth(); await new Promise(r => setTimeout(r, 600)); }
+        if (!curUser) { alert('Erro de conexão.'); return; }
+        const btn = document.getElementById(btnId);
+        const orig = btn.innerText;
+        btn.disabled = true; btn.innerText = 'A enviar…';
+        try {
+            await addDoc(collection(db, `artifacts/${appId}/public/data/${col}`),
+                { ...data, timestamp: serverTimestamp(), uid: curUser.uid });
+            btn.innerText = 'Sucesso! ✨'; btn.style.background = '#10b981';
+            setTimeout(() => {
+                btn.disabled = false; btn.innerText = orig; btn.style.background = '';
+                toggleModal(btnId === 'submitMusic' ? 'modalMusic' : 'modalScreen', false);
+                if (btnId === 'submitMusic') {
+                    document.getElementById('musicInput').value = '';
+                } else {
+                    ['authorInput','messageInput','screenMusicInput'].forEach(id => document.getElementById(id).value = '');
                 }
-            } catch (e) { console.warn('localStorage:', e.message); }
+            }, 2000);
+        } catch (err) {
+            alert('Erro: ' + err.message);
+            btn.innerText = 'Tentar novamente'; btn.style.background = '#ef4444'; btn.disabled = false;
+        }
+    };
 
-            showSuccess(nome, tel, acompNomes, netlifyOk);
-        };
+    document.getElementById('submitMusic').onclick = () => {
+        const v = document.getElementById('musicInput').value;
+        if (v.trim()) saveData('playlist_suggestions', { suggestion: v }, 'submitMusic');
+    };
+    document.getElementById('submitScreen').onclick = () => {
+        const a = document.getElementById('authorInput').value;
+        const m = document.getElementById('messageInput').value;
+        const s = document.getElementById('screenMusicInput').value;
+        if (a.trim() && m.trim())
+            saveData('telao_messages', { author: a, message: m, music: s || 'Nenhuma' }, 'submitScreen');
+    };
+</script>
 
-        /* ── Success screen ──────────────────────────────────── */
-        function showSuccess(nome, tel, acompNomes, netlifyOk) {
-            document.getElementById('form-state').style.display = 'none';
-            document.getElementById('success-state').style.display = 'flex';
+<!-- ── RSVP LOGIC ─────────────────────────────────────────────── -->
+<script>
+(function () {
+    /* URL params */
+    const params  = new URLSearchParams(window.location.search);
+    const guestId = params.get('guest_id') || (crypto.randomUUID?.() || Date.now().toString(36));
+    const preNome = params.get('name') || '';
+    const preTel  = params.get('tel')  || '';
 
-            const totalStr  = acompNomes.length > 0 ? ` (+ ${acompNomes.length} acomp.)` : '';
-            document.getElementById('success-desc').innerHTML =
-                `Que ótimo, <strong>${nome}</strong>!${totalStr ? ' <em style="font-size:13px;color:#9ca3af;">' + totalStr + '</em>' : ''}<br>Sua presença está confirmada. 🌟`;
+    if (preNome) document.getElementById('input-nome').value = preNome;
+    if (preTel)  document.getElementById('input-tel').value  = preTel;
 
-            const now       = new Date().toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-            const telLine   = tel ? `\n📱 WhatsApp: ${tel}` : '';
-            const acompLine = acompNomes.length > 0 ? `\n👥 Acompanhantes: ${acompNomes.join(', ')}` : '';
-            const msg = encodeURIComponent(`✅ Confirmo minha presença!\n\n👤 Nome: ${nome}${telLine}${acompLine}\n⏰ ${now}`);
+    /* Organizer number — URL param first, then localStorage */
+    let rawOrg = (params.get('org') || '').replace(/\D/g, '');
+    let appState = null;
+    try {
+        appState = JSON.parse(localStorage.getItem('applePlannerState') || 'null');
+        if (!rawOrg) rawOrg = (appState?.overview?.whatsapp || '').replace(/\D/g, '');
+    } catch (e) {}
+    /* Auto-add Brazil country code if local format */
+    const organizerNum = rawOrg && rawOrg.length <= 11 ? '55' + rawOrg : rawOrg;
 
-            const waSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.849L0 24l6.335-1.508A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.659-.498-5.19-1.37l-.372-.217-3.76.896.948-3.668-.241-.388A9.963 9.963 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>`;
+    /* Acompanhantes */
+    let acompCount = 0;
+    window.adicionarAcompanhante = function () {
+        if (acompCount >= 6) return;
+        acompCount++;
+        const lista = document.getElementById('acomp-lista');
+        const row   = document.createElement('div');
+        row.className = 'acomp-row';
+        row.innerHTML = `
+            <input type="text" placeholder="Nome completo do convidado ${acompCount}" class="acomp-input">
+            <button type="button" class="acomp-remove" onclick="this.parentElement.remove(); acompCount--;">×</button>`;
+        lista.appendChild(row);
+        if (acompCount >= 6) document.getElementById('btn-add-acomp').style.display = 'none';
+    };
 
-            /* Use organizer number (direct chat) if configured, else picker */
-            const waUrl = organizerNum
-                ? `https://wa.me/${organizerNum}?text=${msg}`
-                : `https://wa.me/?text=${msg}`;
-            const btnLabel = organizerNum ? 'Avisar o organizador' : 'Compartilhar confirmação';
-
-            document.getElementById('action-area').innerHTML = `
-                <a class="btn-wa" href="${waUrl}" target="_blank" rel="noopener" style="margin-top:14px;">
-                    ${waSvg} ${btnLabel}
-                </a>
-                <p style="font-size:11px;color:#9ca3af;margin-top:10px;">
-                    ${organizerNum ? 'Abre direto no WhatsApp do organizador.' : 'Selecione o contato no WhatsApp.'}
-                </p>`;
-
-            document.getElementById('hint-text').textContent = netlifyOk
-                ? '✅ Confirmação registrada no servidor.'
-                : '✅ Confirmação registrada.';
+    /* Submit */
+    window.submitRSVP = async function () {
+        const nome = document.getElementById('input-nome').value.trim();
+        const tel  = document.getElementById('input-tel').value.trim();
+        if (!nome) {
+            const inp = document.getElementById('input-nome');
+            inp.style.borderColor = '#ef4444'; inp.focus();
+            setTimeout(() => inp.style.borderColor = '', 1500);
+            return;
         }
 
-        /* Enter key shortcut */
-        document.getElementById('input-nome').addEventListener('keydown', e => { if (e.key === 'Enter') submitRSVP(); });
-        document.getElementById('input-tel').addEventListener('keydown',  e => { if (e.key === 'Enter') submitRSVP(); });
-    })();
-    </script>
+        const acompNomes = Array.from(document.querySelectorAll('.acomp-input'))
+                                .map(i => i.value.trim()).filter(Boolean);
+
+        const btn = document.getElementById('btn-confirm');
+        btn.disabled = true;
+        document.getElementById('btn-text').textContent = 'Confirmando…';
+        document.getElementById('spinner').style.display = 'block';
+
+        const confirmedAt = new Date().toISOString();
+
+        /* Netlify Forms */
+        let netlifyOk = false;
+        try {
+            const fd = new FormData();
+            fd.append('form-name',      'rsvp-confirmacoes');
+            fd.append('nome_convidado', nome);
+            fd.append('telefone',       tel);
+            fd.append('acompanhantes',  acompNomes.join(', '));
+            fd.append('confirmado_em',  confirmedAt);
+            fd.append('guest_id',       guestId);
+            fd.append('source',         'link_individual');
+            const resp = await fetch('/', { method: 'POST', body: fd });
+            netlifyOk = resp.ok;
+        } catch (e) { console.warn('Netlify:', e.message); }
+
+        /* Local rsvp_log + planner state (same-device) */
+        try {
+            const log = JSON.parse(localStorage.getItem('rsvp_log') || '[]');
+            log.push({ guest_id: guestId, nome_convidado: nome, telefone: tel,
+                       acompanhantes: acompNomes, confirmado_em: confirmedAt, source: 'link_individual' });
+            localStorage.setItem('rsvp_log', JSON.stringify(log));
+
+            if (appState?.gruposConvidados) {
+                let updated = false;
+                for (const grp of Object.values(appState.gruposConvidados)) {
+                    for (const p of grp) {
+                        const rd = Array.isArray(p) ? p : (p.rowData || []);
+                        const byId   = rd[4] && rd[4] === params.get('guest_id');
+                        const byName = rd[0] && rd[0].toLowerCase().trim() === nome.toLowerCase().trim();
+                        if (byId || byName) { rd[1] = 'whatsapp'; updated = true; }
+                    }
+                }
+                if (updated) localStorage.setItem('applePlannerState', JSON.stringify(appState));
+            }
+        } catch (e) { console.warn('localStorage:', e.message); }
+
+        showSuccess(nome, tel, acompNomes, netlifyOk);
+    };
+
+    /* Success */
+    function showSuccess(nome, tel, acompNomes, netlifyOk) {
+        document.getElementById('form-state').style.display = 'none';
+        document.getElementById('success-state').style.display = 'flex';
+
+        const totalStr  = acompNomes.length > 0 ? ` (+ ${acompNomes.length} acomp.)` : '';
+        document.getElementById('success-desc').innerHTML =
+            `Que ótimo, <strong>${nome}</strong>!${totalStr ? ' <em style="font-size:13px;color:#9ca3af;">' + totalStr + '</em>' : ''}<br>Sua presença está confirmada. 🌟`;
+
+        const now       = new Date().toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        const telLine   = tel       ? `\n📱 WhatsApp: ${tel}` : '';
+        const acompLine = acompNomes.length > 0 ? `\n👥 Acompanhantes: ${acompNomes.join(', ')}` : '';
+        const msg = encodeURIComponent(`✅ Confirmo minha presença!\n\n👤 Nome: ${nome}${telLine}${acompLine}\n⏰ ${now}`);
+
+        const waSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.849L0 24l6.335-1.508A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.659-.498-5.19-1.37l-.372-.217-3.76.896.948-3.668-.241-.388A9.963 9.963 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>`;
+
+        const waUrl   = organizerNum ? `https://wa.me/${organizerNum}?text=${msg}` : `https://wa.me/?text=${msg}`;
+        const waLabel = organizerNum ? 'Avisar o organizador' : 'Compartilhar confirmação';
+
+        document.getElementById('action-area').innerHTML = `
+            <a class="btn-wa" href="${waUrl}" target="_blank" rel="noopener" style="margin-top:14px;">
+                ${waSvg} ${waLabel}
+            </a>
+            <p style="font-size:11px;color:#9ca3af;margin-top:10px;">
+                ${organizerNum ? 'Abre direto no WhatsApp do organizador. Toque em Enviar.' : 'Selecione o contato no WhatsApp.'}
+            </p>`;
+
+        document.getElementById('hint-text').textContent = netlifyOk
+            ? '✅ Confirmação registrada no servidor.'
+            : '✅ Confirmação registrada.';
+    }
+
+    /* Enter key */
+    ['input-nome','input-tel'].forEach(id =>
+        document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') submitRSVP(); })
+    );
+})();
+</script>
 
 </body>
 </html>
