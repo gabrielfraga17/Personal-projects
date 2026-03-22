@@ -508,17 +508,15 @@
             } catch (e) { console.warn('localStorage:', e.message); }
 
             /* Show success */
-            const grupoNum = (appState?.overview?.whatsappGrupo || '').replace(/\D/g, '');
-            showSuccess(nome, tel, acompNomes, netlifyOk, grupoNum);
+            showSuccess(nome, tel, acompNomes, netlifyOk);
         };
 
-        function showSuccess(nome, tel, acompNomes, netlifyOk, grupoNum) {
+        function showSuccess(nome, tel, acompNomes, netlifyOk) {
             document.getElementById('form-state').style.display   = 'none';
             document.getElementById('event-header').style.display = 'none';
             document.getElementById('success-state').style.display = 'flex';
 
-            // Build confirmation message
-            const now = new Date().toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+            const now       = new Date().toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
             const telLine   = tel ? `\n📱 WhatsApp: ${tel}` : '';
             const acompLine = acompNomes.length > 0 ? `\n👥 Acompanhantes: ${acompNomes.join(', ')}` : '';
             const totalStr  = acompNomes.length > 0 ? ` (+ ${acompNomes.length} acompanhante(s))` : '';
@@ -526,42 +524,17 @@
             document.getElementById('success-desc').innerHTML =
                 `Que ótimo, <strong>${nome}</strong>!${totalStr ? ' <em style="font-size:14px;color:var(--text-secondary);">' + totalStr + '</em>' : ''}<br>Sua presença foi registrada. 🌟`;
 
-            const rawMsg = `✅ Confirmo minha presença no evento!\n\n👤 Nome: ${nome}${telLine}${acompLine}\n⏰ ${now}`;
-            const msg    = encodeURIComponent(rawMsg);
+            const msg = encodeURIComponent(`✅ Confirmo minha presença no evento!\n\n👤 Nome: ${nome}${telLine}${acompLine}\n⏰ ${now}`);
 
-            const actionDiv = document.getElementById('action-area');
             const waSvg = `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.849L0 24l6.335-1.508A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.659-.498-5.19-1.37l-.372-.217-3.76.896.948-3.668-.241-.388A9.963 9.963 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>`;
 
-            if (grupoNum) {
-                // Auto-redirect with countdown
-                const waUrl = `https://wa.me/${grupoNum}?text=${msg}`;
-                let secs = 3;
-                actionDiv.innerHTML = `
-                    <p style="font-size:14px; color:var(--text-secondary); margin-top:8px;">
-                        Enviando confirmação para o grupo em <strong id="countdown">${secs}</strong>s…
-                    </p>
-                    <a class="btn-wa" href="${waUrl}" target="_blank" rel="noopener" style="margin-top:12px;" id="wa-group-btn">
-                        ${waSvg} Enviar agora para o grupo
-                    </a>`;
-                const timer = setInterval(() => {
-                    secs--;
-                    const cdEl = document.getElementById('countdown');
-                    if (cdEl) cdEl.textContent = secs;
-                    if (secs <= 0) {
-                        clearInterval(timer);
-                        window.location.href = waUrl;
-                    }
-                }, 1000);
-            } else {
-                // No group configured — show manual button
-                actionDiv.innerHTML = `
-                    <a class="btn-wa" href="https://wa.me/?text=${msg}" target="_blank" rel="noopener" style="margin-top:16px;">
-                        ${waSvg} Enviar confirmação para o grupo
-                    </a>
-                    <p style="font-size:12px; color:var(--text-secondary); margin-top:8px;">
-                        Selecione o grupo do evento no WhatsApp.
-                    </p>`;
-            }
+            document.getElementById('action-area').innerHTML = `
+                <a class="btn-wa" href="https://wa.me/?text=${msg}" target="_blank" rel="noopener" style="margin-top:16px;">
+                    ${waSvg} Compartilhar confirmação
+                </a>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:10px;">
+                    Escolha o contato ou grupo no WhatsApp.
+                </p>`;
 
             document.getElementById('hint-text').textContent = netlifyOk
                 ? '✅ Confirmação registrada no servidor.'
