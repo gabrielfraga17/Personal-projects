@@ -1270,8 +1270,8 @@
             btn.onclick = () => {
                 const nome = encodeURIComponent(nomeInput.value.trim() || 'Convidado');
                 const tel  = encodeURIComponent((telInput?.value || '').replace(/\D/g, ''));
-                const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
-                const link = `${base}/rsvp?guest_id=${guestId}&name=${nome}${tel ? '&tel=' + tel : ''}`;
+                const base = window.location.href.replace(/\/[^/]*$/, '');
+                const link = `${base}/rsvp.html?guest_id=${guestId}&name=${nome}${tel ? '&tel=' + tel : ''}`;
                 navigator.clipboard.writeText(link).then(() => {
                     btn.innerHTML = '✅ Copiado!';
                     setTimeout(() => { btn.innerHTML = '📋 Copiar link'; }, 2000);
@@ -1700,8 +1700,8 @@
            6. MÓDULO RSVP (GESTÃO DE CONFIRMAÇÕES)
            ======================================= */
         function getRsvpBaseUrl() {
-            const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
-            return base + '/rsvp';
+            const base = window.location.href.replace(/\/[^/]*$/, '');
+            return base + '/rsvp.html';
         }
 
         function initRsvpSection() {

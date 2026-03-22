@@ -1,0 +1,5 @@
+# Netlify Redirects
+# Serve rsvp.html directly at /rsvp.html without stripping extension
+# This preserves query params (guest_id, name, tel) on the URL
+/rsvp.html  /rsvp.html  200!
+/rsvp       /rsvp.html  200
