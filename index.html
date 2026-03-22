@@ -1905,6 +1905,16 @@
             document.getElementById('obs').addEventListener('input', saveState);
             document.getElementById('whatsapp').addEventListener('input', saveState);
             document.getElementById('whatsapp-grupo').addEventListener('input', saveState);
+
+            // Auto-sync when rsvp.html updates localStorage (same device, different tab)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'applePlannerState' && e.newValue) {
+                    try {
+                        const updated = JSON.parse(e.newValue);
+                        if (window.applyStateToUI) window.applyStateToUI(updated);
+                    } catch (err) { console.warn('storage sync:', err); }
+                }
+            });
         };
 
     </script>
