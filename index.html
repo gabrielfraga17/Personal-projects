@@ -641,6 +641,25 @@
             }
         }
 
+        /* RSVP Copy Button */
+        .btn-rsvp-copy {
+            background: rgba(0, 113, 227, 0.08);
+            color: var(--apple-blue);
+            border: 1px solid rgba(0, 113, 227, 0.2);
+            border-radius: var(--radius-pill);
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .btn-rsvp-copy:hover {
+            background: rgba(0, 113, 227, 0.15);
+            border-color: var(--apple-blue);
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 40px;
@@ -727,6 +746,10 @@
                 <div class="input-group">
                     <label>Data</label>
                     <input type="date" id="data">
+                </div>
+                <div class="input-group">
+                    <label>📱 WhatsApp do Organizador (para RSVP)</label>
+                    <input id="whatsapp" type="tel" placeholder="Ex: 5511999990000 (só números, com DDD e 55)">
                 </div>
                 <div class="input-group" style="grid-column: 1 / -1;">
                     <label>Observações / Estilo Desejado</label>
@@ -820,6 +843,113 @@
                 </table>
             </div>
             <button type="button" class="btn-primary" onclick="addCompra()">Adicionar Item</button>
+        </section>
+
+        <!-- RSVP e Confirmações -->
+        <section id="rsvp-section">
+            <h2>
+                RSVP – Confirmações de Presença
+                <button type="button" class="btn-secondary" onclick="rsvpRefresh()" style="font-size:13px; padding:8px 16px;">↻ Atualizar</button>
+            </h2>
+
+            <!-- Event link -->
+            <div style="
+                background: rgba(0,113,227,0.05);
+                border: 1.5px solid rgba(0,113,227,0.18);
+                border-radius: 16px;
+                padding: 20px 24px;
+                margin-bottom: 24px;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                flex-wrap: wrap;
+            ">
+                <div style="flex:1; min-width: 200px;">
+                    <div style="font-size:13px; font-weight:600; color:var(--text-secondary); margin-bottom:6px;">🔗 Link de Confirmação do Evento</div>
+                    <div id="rsvp-link-display" style="font-size:14px; color:var(--apple-blue); word-break:break-all; font-weight:500;">
+                        Carregando link...
+                    </div>
+                    <div style="font-size:12px; color:var(--text-secondary); margin-top:6px;">
+                        Compartilhe no grupo do WhatsApp. Os convidados confirmam o nome e são redirecionados para o WhatsApp.
+                    </div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:8px; align-self:flex-start;">
+                    <button type="button" class="btn-primary" id="btn-copy-rsvp" onclick="copiarLinkRsvp()" style="margin-top:0; padding:10px 20px; font-size:14px;">
+                        📋 Copiar Link
+                    </button>
+                    <a id="btn-preview-rsvp" href="#" target="_blank" rel="noopener"
+                        style="font-size:12px; color:var(--apple-blue); text-align:center; text-decoration:none;">
+                        👁 Visualizar tela
+                    </a>
+                </div>
+            </div>
+
+            <!-- Netlify API Sync -->
+            <div style="
+                background: rgba(52,199,89,0.06);
+                border: 1px solid rgba(52,199,89,0.22);
+                border-radius: 16px;
+                padding: 20px 24px;
+                margin-bottom: 24px;
+            ">
+                <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">
+                    ☁️ Sincronizar com Netlify Forms
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:12px; color:var(--text-secondary); font-weight:500; display:block; margin-bottom:4px;">Token Pessoal (User Settings → OAuth)</label>
+                        <input type="password" id="netlify-token" placeholder="netlify_pat_..." style="font-size:13px; padding:10px 12px; border-radius:10px; border:1px solid var(--system-gray-4); width:100%; background:rgba(255,255,255,0.8); font-family:monospace;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:var(--text-secondary); font-weight:500; display:block; margin-bottom:4px;">Site ID ou Nome do Site Netlify</label>
+                        <input type="text" id="netlify-site-id" placeholder="ex: my-site.netlify.app" style="font-size:13px; padding:10px 12px; border-radius:10px; border:1px solid var(--system-gray-4); width:100%; background:rgba(255,255,255,0.8);">
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                    <button type="button" class="btn-primary" id="btn-netlify-sync" onclick="sincronizarNetlify()" style="margin-top:0; padding:10px 20px; font-size:13px;">
+                        ↻ Sincronizar Confirmações
+                    </button>
+                    <span id="netlify-sync-status" style="font-size:13px; color:var(--text-secondary);"></span>
+                    <a href="https://app.netlify.com" target="_blank" rel="noopener" style="font-size:12px; color:var(--apple-blue); margin-left:auto;">Ver painel Netlify →</a>
+                </div>
+                <div style="font-size:11px; color:var(--text-secondary); margin-top:10px;">
+                    O token é salvo localmente (só neste dispositivo). As confirmações são cruzadas pelo <code>guest_id</code> único de cada link individual.
+                </div>
+            </div>
+
+            <!-- Local log list -->
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                <div style="font-size:15px; font-weight:600; color:var(--text-primary);">
+                    Confirmados neste dispositivo
+                    <span id="rsvp-count-badge" style="
+                        background: var(--apple-blue); color:#fff;
+                        padding: 2px 10px; border-radius: 9999px;
+                        font-size:13px; font-weight:700; margin-left:8px;
+                    ">0</span>
+                </div>
+                <button type="button" onclick="limparLogRsvp()" style="
+                    background:transparent; border:none; font-size:12px;
+                    color:var(--apple-red); cursor:pointer; padding:4px 8px;
+                ">🗑 Limpar lista local</button>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>WhatsApp</th>
+                            <th>Data / Hora</th>
+                            <th>Origem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rsvp-log-tbody">
+                        <tr><td colspan="4" style="text-align:center; color:var(--text-secondary); padding:32px; font-size:14px;">
+                            Nenhuma confirmação recebida ainda neste dispositivo.
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <!-- Equipe -->
@@ -1099,6 +1229,8 @@
                     <th>Nome do Convidado</th>
                     <th>Status RSVP</th>
                     <th>Subgrupo/Nota</th>
+                    <th>WhatsApp</th>
+                    <th style="width: 120px;">Link RSVP</th>
                     <th style="width: 50px;"></th>
                 </tr>
             </thead>
@@ -1121,6 +1253,35 @@
             return details;
         }
 
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                const r = Math.random() * 16 | 0;
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+        }
+
+        function criarBotaoRsvp(guestId, nomeInput, telInput) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-rsvp-copy';
+            btn.title = 'Copiar link RSVP individual';
+            btn.innerHTML = '📋 Copiar link';
+            btn.dataset.guestId = guestId;
+            btn.onclick = () => {
+                const nome = encodeURIComponent(nomeInput.value.trim() || 'Convidado');
+                const tel  = encodeURIComponent((telInput?.value || '').replace(/\D/g, ''));
+                const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+                const link = `${base}/rsvp?guest_id=${guestId}&name=${nome}${tel ? '&tel=' + tel : ''}`;
+                navigator.clipboard.writeText(link).then(() => {
+                    btn.innerHTML = '✅ Copiado!';
+                    setTimeout(() => { btn.innerHTML = '📋 Copiar link'; }, 2000);
+                }).catch(() => {
+                    prompt('Copie o link RSVP:', link);
+                });
+            };
+            return btn;
+        }
+
         function addPessoaAoGrupo(nomeGrupo, dataArr = null) {
             const details = renderizarGrupoContainer(nomeGrupo);
             const table = details.querySelector('table');
@@ -1129,11 +1290,23 @@
                 { value: 'confirmado', label: 'Confirmado' },
                 { value: 'recusado', label: 'Não Irá' }
             ];
+            // dataArr layout: [0]=nome, [1]=status, [2]=nota, [3]=telefone, [4]=guestId
+            const guestId   = (dataArr && dataArr[4]) ? dataArr[4] : generateUUID();
+            const nomeInput = createInput('text', 'Nome', dataArr ? dataArr[0] : '');
+            const telInput  = createInput('tel',  '5511...', dataArr ? dataArr[3] : '');
+            const rsvpBtn  = criarBotaoRsvp(guestId, nomeInput, telInput);
+            const rsvpCell = document.createElement('span');
+            rsvpCell.appendChild(rsvpBtn);
             appendRowGeneric(table, [
-                createInput('text', 'Nome', dataArr ? dataArr[0] : ''),
+                nomeInput,
                 createSelect(options, dataArr ? dataArr[1] : 'pendente', updateDashboard),
-                createInput('text', 'Nota extra...', dataArr ? dataArr[2] : '')
+                createInput('text', 'Nota extra...', dataArr ? dataArr[2] : ''),
+                telInput,
+                rsvpCell
             ]);
+            // Store guestId on the row for state serialization
+            const lastRow = table.querySelector('tbody tr:last-child');
+            if (lastRow) lastRow.dataset.guestId = guestId;
             if (!dataArr) {
                 details.open = true;
                 saveState();
@@ -1313,6 +1486,7 @@
                 if (state.overview.local) document.getElementById('local').value = state.overview.local;
                 if (state.overview.data) document.getElementById('data').value = state.overview.data;
                 if (state.overview.obs) document.getElementById('obs').value = state.overview.obs;
+                if (state.overview.whatsapp) document.getElementById('whatsapp').value = state.overview.whatsapp;
             }
 
             // Helper for backwards compatibility with old nested arrays
@@ -1350,7 +1524,11 @@
                 const name = details.dataset.groupName;
                 const tableBodyRows = details.querySelectorAll('tbody tr');
                 gruposLidos[name] = Array.from(tableBodyRows).map(row => {
-                    const cellData = Array.from(row.cells).slice(0, -1).map(c => c.firstElementChild ? c.firstElementChild.value : '');
+                    // Columns: [nome, status, nota, telefone, rsvpBtn(span)] + [del btn]
+                    // We want cells 0-3 (nome, status, nota, telefone) + guest_id from dataset
+                    const cellData = Array.from(row.cells).slice(0, 4).map(c => c.firstElementChild ? c.firstElementChild.value : '');
+                    const guestId = row.dataset.guestId || generateUUID();
+                    cellData.push(guestId); // index 4
                     // Firebase nested array workaround
                     return { rowData: cellData };
                 });
@@ -1360,7 +1538,8 @@
                 overview: {
                     local: document.getElementById('local').value,
                     data: document.getElementById('data').value,
-                    obs: document.getElementById('obs').value
+                    obs: document.getElementById('obs').value,
+                    whatsapp: document.getElementById('whatsapp').value
                 },
                 gruposConvidados: gruposLidos,
                 orcamento: parseTableSimples('orcamento-table'),
@@ -1517,16 +1696,206 @@
             }
         }
 
+        /* =======================================
+           6. MÓDULO RSVP (GESTÃO DE CONFIRMAÇÕES)
+           ======================================= */
+        function getRsvpBaseUrl() {
+            const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+            return base + '/rsvp';
+        }
+
+        function initRsvpSection() {
+            const rsvpUrl = getRsvpBaseUrl();
+            const linkEl  = document.getElementById('rsvp-link-display');
+            const previewEl = document.getElementById('btn-preview-rsvp');
+            if (linkEl)     linkEl.textContent = rsvpUrl;
+            if (previewEl)  previewEl.href = rsvpUrl;
+
+            // Restore saved Netlify credentials
+            const savedToken  = localStorage.getItem('netlify_token');
+            const savedSiteId = localStorage.getItem('netlify_site_id');
+            if (savedToken)  document.getElementById('netlify-token').value = savedToken;
+            if (savedSiteId) document.getElementById('netlify-site-id').value = savedSiteId;
+
+            rsvpRefresh();
+        }
+
+        function rsvpRefresh() {
+            const tbody = document.getElementById('rsvp-log-tbody');
+            const badge = document.getElementById('rsvp-count-badge');
+            if (!tbody) return;
+
+            let log = [];
+            try { log = JSON.parse(localStorage.getItem('rsvp_log') || '[]'); } catch (e) {}
+
+            if (badge) badge.textContent = log.length;
+
+            if (log.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-secondary); padding:32px; font-size:14px;">
+                    Nenhuma confirmação recebida ainda neste dispositivo.
+                </td></tr>`;
+                return;
+            }
+
+            // Sort newest first
+            const sorted = [...log].sort((a, b) => new Date(b.confirmado_em) - new Date(a.confirmado_em));
+            tbody.innerHTML = sorted.map(entry => {
+                const dt = new Date(entry.confirmado_em);
+                const formatted = dt.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+                const origem = entry.source === 'whatsapp_grupo_link' ? '🔗 Link Grupo' : '🔗 Link Individual';
+                return `<tr class="row-entering">
+                    <td><strong>${entry.nome_convidado || entry.guest_name || '—'}</strong></td>
+                    <td style="color:var(--text-secondary)">${entry.telefone || '—'}</td>
+                    <td style="color:var(--text-secondary)">${formatted}</td>
+                    <td><span class="status-pill status-confirmado">${origem}</span></td>
+                </tr>`;
+            }).join('');
+
+            // Update RSVP count badge in dashboard
+            const dashConv = document.getElementById('dash-convidados');
+            if (dashConv && log.length > 0) {
+                // Just update the count display note — the main count comes from the checkbox selects
+                const prevText = dashConv.textContent;
+                dashConv.title = `${log.length} confirmação(ões) via link RSVP`;
+            }
+        }
+
+        function copiarLinkRsvp() {
+            const url = getRsvpBaseUrl();
+            const btn = document.getElementById('btn-copy-rsvp');
+            navigator.clipboard.writeText(url).then(() => {
+                btn.textContent = '✅ Copiado!';
+                setTimeout(() => { btn.textContent = '📋 Copiar Link'; }, 2000);
+            }).catch(() => {
+                prompt('Copie o link do evento:', url);
+            });
+        }
+
+        function limparLogRsvp() {
+            if (confirm('Tem certeza? Isso apagará a lista de confirmações deste dispositivo. As confirmações no Netlify não serão afetadas.')) {
+                localStorage.removeItem('rsvp_log');
+                rsvpRefresh();
+            }
+        }
+
+        async function sincronizarNetlify() {
+            const token  = document.getElementById('netlify-token').value.trim();
+            const siteId = document.getElementById('netlify-site-id').value.trim();
+            const statusEl = document.getElementById('netlify-sync-status');
+            const btn = document.getElementById('btn-netlify-sync');
+
+            if (!token || !siteId) {
+                statusEl.textContent = '⚠️ Preencha o token e o site ID.';
+                statusEl.style.color = '#FF9500';
+                return;
+            }
+
+            // Persist credentials for convenience (never sent to any server, only stored locally)
+            localStorage.setItem('netlify_token', token);
+            localStorage.setItem('netlify_site_id', siteId);
+
+            btn.disabled = true;
+            statusEl.textContent = 'Buscando confirmações...';
+            statusEl.style.color = 'var(--text-secondary)';
+
+            try {
+                // 1. Find the form ID by listing forms for the site
+                const formsResp = await fetch(
+                    `https://api.netlify.com/api/v1/sites/${siteId}/forms`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                if (!formsResp.ok) throw new Error(`Erro Netlify API: ${formsResp.status} ${formsResp.statusText}. Verifique o token e o site ID.`);
+
+                const forms = await formsResp.json();
+                const rsvpForm = forms.find(f => f.name === 'rsvp-confirmacoes');
+                if (!rsvpForm) throw new Error('Formulário "rsvp-confirmacoes" não encontrado. O site foi publicado e alguém já confirmou presença?');
+
+                // 2. Fetch submissions (up to 100 most recent)
+                const subsResp = await fetch(
+                    `https://api.netlify.com/api/v1/forms/${rsvpForm.id}/submissions?per_page=100`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                if (!subsResp.ok) throw new Error(`Erro ao buscar submissions: ${subsResp.status}`);
+
+                const submissions = await subsResp.json();
+                if (submissions.length === 0) {
+                    statusEl.textContent = '✅ Nenhuma confirmação encontrada ainda no Netlify.';
+                    statusEl.style.color = 'var(--apple-green)';
+                    btn.disabled = false;
+                    return;
+                }
+
+                // 3. Merge into local rsvp_log (de-duplicate by guest_id)
+                let log = [];
+                try { log = JSON.parse(localStorage.getItem('rsvp_log') || '[]'); } catch (e) {}
+                const existingIds = new Set(log.map(e => e.guest_id));
+
+                let novos = 0;
+                for (const sub of submissions) {
+                    const d = sub.data || sub.body || {};
+                    const gid = d.guest_id || sub.id;
+                    if (!existingIds.has(gid)) {
+                        log.push({
+                            guest_id:        gid,
+                            nome_convidado:  d.nome_convidado || d.guest_name || '—',
+                            telefone:        d.telefone || '—',
+                            confirmado_em:   sub.created_at || new Date().toISOString(),
+                            source:          'netlify_sync'
+                        });
+                        existingIds.add(gid);
+                        novos++;
+                    }
+                }
+                localStorage.setItem('rsvp_log', JSON.stringify(log));
+
+                // 4. Match by guest_id and update planner guest statuses
+                let atualizados = 0;
+                const appState = JSON.parse(localStorage.getItem('applePlannerState') || 'null');
+                if (appState?.gruposConvidados) {
+                    const syncedIds = new Set(submissions.map(s => (s.data || {}).guest_id).filter(Boolean));
+                    for (const grupo of Object.values(appState.gruposConvidados)) {
+                        for (const pessoa of grupo) {
+                            const rd = Array.isArray(pessoa) ? pessoa : (pessoa.rowData || []);
+                            if (rd[4] && syncedIds.has(rd[4]) && rd[1] !== 'confirmado') {
+                                rd[1] = 'confirmado';
+                                atualizados++;
+                            }
+                        }
+                    }
+                    if (atualizados > 0) {
+                        localStorage.setItem('applePlannerState', JSON.stringify(appState));
+                        window.applyStateToUI(appState);
+                    }
+                }
+
+                rsvpRefresh();
+                statusEl.textContent = `✅ ${submissions.length} confirmações | ${novos} novas | ${atualizados} convidado(s) marcado(s) como Confirmado`;
+                statusEl.style.color = 'var(--apple-green)';
+
+            } catch (err) {
+                console.error('Netlify sync error:', err);
+                statusEl.textContent = `❌ ${err.message}`;
+                statusEl.style.color = 'var(--apple-red)';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Inicializa seção RSVP após carregamento
+        // (chamado dentro do window.onload abaixo para evitar double-fire)
+
         // Inicialização Limpa
         window.onload = () => {
             // Fallback p arrancar se não tiver module de firebase executado
             setTimeout(() => {
                 if (!window.isCloudSyncActive) loadStateLocalFallback();
-            }, 500);
+                initRsvpSection();
+            }, 600);
 
             document.getElementById('local').addEventListener('input', saveState);
             document.getElementById('data').addEventListener('change', () => { updateDashboard(); saveState(); });
             document.getElementById('obs').addEventListener('input', saveState);
+            document.getElementById('whatsapp').addEventListener('input', saveState);
         };
 
     </script>

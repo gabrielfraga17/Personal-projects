@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convite Larah 15 Anos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Parisienne&display=swap');
+
+        :root {
+            --pink-bg: #fdf2f8;
+            --pink-accent: #db2777;
+            --silver: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--pink-bg);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            color: #1f2937;
+        }
+
+        /* Container responsivo: Fullscreen em mobile, centrado em desktop */
+        .invitation-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            background: linear-gradient(135deg, #ffffff 0%, #fdf2f8 60%, #cbd5e1 100%);
+        }
+
+        .invitation-card {
+            width: 100%;
+            max-width: 500px;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Efeitos visuais */
+        .glitter-layer {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.6) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .silver-flare {
+            position: absolute;
+            top: -15%;
+            right: -15%;
+            width: 90%;
+            height: 50%;
+            background: radial-gradient(circle, rgba(203, 213, 225, 0.4) 0%, transparent 70%);
+            filter: blur(40px);
+            z-index: 1;
+        }
+
+        /* Montagem de Fotos */
+        .photo-montage {
+            position: relative;
+            height: 45vh;
+            min-height: 350px;
+            width: 100%;
+            z-index: 10;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .photo-teen {
+            width: 75%;
+            height: 85%;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 6px solid white;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transform: rotate(2deg);
+            z-index: 2;
+        }
+
+        .photo-child {
+            position: absolute;
+            width: 50%;
+            height: 45%;
+            bottom: 5%;
+            left: 5%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 5px solid white;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: rotate(-6deg);
+            z-index: 3;
+        }
+
+        .overlay-pink {
+            position: absolute;
+            inset: 0;
+            background: rgba(219, 39, 119, 0.1);
+            pointer-events: none;
+            z-index: 4;
+            border-radius: inherit;
+        }
+
+        .neon-text {
+            font-family: 'Parisienne', cursive;
+            color: #fff;
+            text-shadow:
+                0 0 7px #fff,
+                0 0 10px #f472b6,
+                0 0 21px #f472b6;
+        }
+
+        /* Modais */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #fbcfe8;
+            border-radius: 12px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            font-family: inherit;
+            background-color: #fdf2f8;
+        }
+
+        .action-btn {
+            background: white;
+            border: 1px solid #f472b6;
+            color: #db2777;
+            padding: 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+            background: #fdf2f8;
+        }
+
+        .submit-btn {
+            background: #db2777;
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="invitation-container">
+        <div class="invitation-card">
+            <div class="glitter-layer"></div>
+            <div class="silver-flare"></div>
+
+            <!-- Topo -->
+            <header class="pt-10 text-center relative z-10">
+                <h1 class="text-xs font-light tracking-[0.4em] text-pink-600 uppercase">Larah 15 Anos</h1>
+            </header>
+
+            <!-- Montagem de Fotos -->
+            <div class="photo-montage">
+                <div class="relative photo-teen overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&q=80&w=800"
+                        alt="Teen Photo" class="w-full h-full object-cover">
+                    <div class="overlay-pink"></div>
+                </div>
+                <div class="relative photo-child overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&q=80&w=600"
+                        alt="Child Photo" class="w-full h-full object-cover">
+                    <div class="overlay-pink"></div>
+                </div>
+            </div>
+
+            <!-- Informações Centrais -->
+            <main class="flex-grow flex flex-col items-center justify-center text-center px-10 relative z-10 pb-10">
+                <h2 class="neon-text text-6xl mb-8">Happy Birthday</h2>
+
+                <div class="text-gray-700 space-y-2">
+                    <p class="text-2xl font-bold tracking-tight">19 de Abril de 2026</p>
+                    <p class="text-sm tracking-widest uppercase font-light text-pink-500">Das 13h às 19h</p>
+
+                    <div class="w-12 h-0.5 bg-pink-200 mx-auto my-6"></div>
+
+                    <p class="text-xl font-bold text-gray-800 uppercase tracking-tight">Sítio das Zitas</p>
+                    <p class="text-[12px] text-gray-400 italic">Vargem Grande – Rio de Janeiro</p>
+                </div>
+
+                <!-- Botões de Interação -->
+                <div class="w-full mt-10 space-y-4">
+                    <button id="btnOpenMusic" class="action-btn shadow-sm">🎵 Sugerir Música Playlist</button>
+                    <button id="btnOpenScreen" class="action-btn shadow-sm">💬 Mensagem para o Telão</button>
+                </div>
+            </main>
+
+            <!-- Rodapé Fixo -->
+            <footer class="p-8 bg-white/50 backdrop-blur-md text-center relative z-10 border-t border-pink-50">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">Piscina • Vôlei • Futebol
+                    • Música</p>
+                <p class="text-[12px] text-pink-600 font-semibold mb-6 uppercase">Traje: leve + roupa de banho</p>
+
+                <div
+                    class="inline-block py-3 px-12 bg-pink-600 text-white rounded-full text-[11px] font-bold uppercase tracking-widest shadow-lg active:scale-95 transition-transform">
+                    Confirme até 30/03
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Modal Música -->
+    <div id="modalMusic" class="modal">
+        <div class="modal-content">
+            <h3 class="text-pink-600 font-bold mb-3 text-lg">Sugerir Música</h3>
+            <p class="text-xs text-gray-400 mb-6 uppercase tracking-wider">Deixe a festa com a sua cara!</p>
+            <input type="text" id="musicInput" placeholder="Nome da Música e Artista">
+            <button id="submitMusic" class="submit-btn">Enviar Sugestão</button>
+            <button id="closeMusic"
+                class="mt-6 text-[10px] text-gray-400 uppercase font-bold tracking-widest hover:text-pink-400 transition-colors">Voltar
+                ao Convite</button>
+        </div>
+    </div>
+
+    <!-- Modal Telão -->
+    <div id="modalScreen" class="modal">
+        <div class="modal-content">
+            <h3 class="text-pink-600 font-bold mb-3 text-lg">Recado no Telão</h3>
+            <p class="text-xs text-gray-400 mb-6 uppercase tracking-wider">Máximo 190 caracteres</p>
+            <input type="text" id="authorInput" placeholder="Seu Nome">
+            <textarea id="messageInput" maxlength="190" rows="3" placeholder="Sua mensagem carinhosa..."></textarea>
+            <button id="submitScreen" class="submit-btn">Mandar para o Telão</button>
+            <button id="closeScreen"
+                class="mt-6 text-[10px] text-gray-400 uppercase font-bold tracking-widest hover:text-pink-400 transition-colors">Voltar
+                ao Convite</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK e Lógica -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Configuração injetada pelo ambiente
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'larah-15-convite';
+
+        let currentUser = null;
+
+        // Regra 3: Autenticação obrigatória antes de qualquer operação
+        const initAuth = async () => {
+            try {
+                // Tenta entrar anonimamente para permitir gravações no Firestore
+                await signInAnonymously(auth);
+            } catch (err) {
+                console.error("Auth error:", err);
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+        });
+
+        initAuth();
+
+        // Gerenciamento dos Modais
+        const toggleModal = (id, show) => {
+            document.getElementById(id).style.display = show ? 'flex' : 'none';
+        };
+
+        document.getElementById('btnOpenMusic').onclick = () => toggleModal('modalMusic', true);
+        document.getElementById('btnOpenScreen').onclick = () => toggleModal('modalScreen', true);
+        document.getElementById('closeMusic').onclick = () => toggleModal('modalMusic', false);
+        document.getElementById('closeScreen').onclick = () => toggleModal('modalScreen', false);
+
+        // Lógica de Salvamento
+        const saveData = async (collName, data, btnId) => {
+            // Proteção obrigatória: verificar se usuário está logado
+            if (!currentUser) {
+                await initAuth();
+                if (!currentUser) return;
+            }
+
+            const btn = document.getElementById(btnId);
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "Enviando...";
+
+            try {
+                // Caminho obrigatório (Regra 1)
+                const path = `artifacts/${appId}/public/data/${collName}`;
+
+                await addDoc(collection(db, path), {
+                    ...data,
+                    timestamp: serverTimestamp(),
+                    userId: currentUser.uid
+                });
+
+                btn.innerText = "Enviado com Sucesso! ✨";
+                btn.style.backgroundColor = "#10b981"; // Verde sucesso
+
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = ""; // Volta ao original
+                    toggleModal(btnId === 'submitMusic' ? 'modalMusic' : 'modalScreen', false);
+
+                    // Limpar campos
+                    if (btnId === 'submitMusic') {
+                        document.getElementById('musicInput').value = '';
+                    } else {
+                        document.getElementById('authorInput').value = '';
+                        document.getElementById('messageInput').value = '';
+                    }
+                }, 2000);
+            } catch (err) {
+                console.error("Save error:", err);
+                btn.innerText = "Erro ao enviar. Tente de novo.";
+                btn.style.backgroundColor = "#ef4444"; // Vermelho erro
+                btn.disabled = false;
+            }
+        };
+
+        document.getElementById('submitMusic').onclick = () => {
+            const music = document.getElementById('musicInput').value;
+            if (music.trim()) {
+                saveData('playlist_suggestions', { suggestion: music }, 'submitMusic');
+            }
+        };
+
+        document.getElementById('submitScreen').onclick = () => {
+            const author = document.getElementById('authorInput').value;
+            const msg = document.getElementById('messageInput').value;
+            if (author.trim() && msg.trim()) {
+                saveData('telao_messages', { author, message: msg }, 'submitScreen');
+            }
+        };
+    </script>
+</body>
+
+</html>
