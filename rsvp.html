@@ -481,12 +481,14 @@
         /* ── Read organizer number (URL param > localStorage) ── */
         let appState = null;
         // Priority 1: &org= in URL (embedded by organizer's planner — works on any device)
-        let organizerNum = (params.get('org') || '').replace(/\D/g, '');
+        let rawOrg = (params.get('org') || '').replace(/\D/g, '');
         try {
             appState = JSON.parse(localStorage.getItem('applePlannerState') || 'null');
             // Priority 2: localStorage (only works on organizer's own device)
-            if (!organizerNum) organizerNum = (appState?.overview?.whatsapp || '').replace(/\D/g, '');
+            if (!rawOrg) rawOrg = (appState?.overview?.whatsapp || '').replace(/\D/g, '');
         } catch (e) { /* offline / first visit */ }
+        // Auto-add Brazil country code if number looks local (10-11 digits)
+        const organizerNum = rawOrg && rawOrg.length <= 11 ? '55' + rawOrg : rawOrg;
 
         /* ── Acompanhantes ───────────────────────────────────── */
         let acompCount = 0;

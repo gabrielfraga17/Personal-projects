@@ -1274,7 +1274,8 @@
             btn.onclick = () => {
                 const nome   = nomeInput.value.trim() || 'Convidado';
                 const tel    = (telInput?.value || '').replace(/\D/g, '');
-                const org    = document.getElementById('whatsapp')?.value.replace(/\D/g, '') || '';
+                const rawOrg = (document.getElementById('whatsapp')?.value || '').replace(/\D/g, '');
+                const org    = rawOrg.length <= 11 && rawOrg.length >= 10 ? '55' + rawOrg : rawOrg;
                 const base   = window.location.href.replace(/\/[^/]*$/, '');
                 const link   = `${base}/rsvp.html?guest_id=${guestId}&name=${encodeURIComponent(nome)}${tel ? '&tel=' + encodeURIComponent(tel) : ''}${org ? '&org=' + encodeURIComponent(org) : ''}`;
                 const msg    = encodeURIComponent(`Olá, ${nome}! 🎉 Confirme sua presença no evento pelo link:\n\n${link}`);
