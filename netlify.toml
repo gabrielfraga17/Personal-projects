@@ -1,0 +1,7 @@
+[build]
+  publish = "."
+
+# Firebase client-side keys are public by design (used in browser).
+# Netlify's smart detection flags them as secrets — instructing it to skip this value.
+[build.environment]
+  SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyCBoDIUR9nNhRi9baH87H8pHwqXk6mWASc"
