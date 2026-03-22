@@ -560,7 +560,7 @@
                             const rd = Array.isArray(p) ? p : (p.rowData || []);
                             const matchId   = rd[4] && rd[4] === params.get('guest_id');
                             const matchName = rd[0] && rd[0].toLowerCase().trim() === nome.toLowerCase().trim();
-                            if (matchId || matchName) { rd[1] = 'confirmado'; updated = true; }
+                            if (matchId || matchName) { rd[1] = 'whatsapp'; updated = true; }
                         }
                     }
                     if (updated) localStorage.setItem('applePlannerState', JSON.stringify(appState));

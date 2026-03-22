@@ -1864,8 +1864,8 @@
                     for (const grupo of Object.values(appState.gruposConvidados)) {
                         for (const pessoa of grupo) {
                             const rd = Array.isArray(pessoa) ? pessoa : (pessoa.rowData || []);
-                            if (rd[4] && syncedIds.has(rd[4]) && rd[1] !== 'confirmado') {
-                                rd[1] = 'confirmado';
+                            if (rd[4] && syncedIds.has(rd[4]) && rd[1] !== 'whatsapp' && rd[1] !== 'confirmado') {
+                                rd[1] = 'whatsapp';
                                 atualizados++;
                             }
                         }
