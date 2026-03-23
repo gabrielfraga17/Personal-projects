@@ -3,3 +3,6 @@
 # This preserves query params (guest_id, name, tel) on the URL
 /rsvp.html  /rsvp.html  200!
 /rsvp       /rsvp.html  200
+# Preserve query params on pdf.html (convite com link de confirmação)
+/pdf.html   /pdf.html   200!
+/pdf        /pdf.html   200

@@ -701,10 +701,14 @@
                     <label>Data</label>
                     <input type="date" id="data">
                 </div>
-                <div class="input-group" style="grid-column: 1 / -1;">
+                <div class="input-group">
                     <label>Observações / Estilo Desejado</label>
                     <textarea id="obs" rows="3"
                         placeholder="Ex: Festa luxuosa para 150 convidados, tema noite estrelada..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label>WhatsApp do Organizador (para o link de confirmação)</label>
+                    <input id="whatsapp" type="tel" placeholder="Ex: 21999990000 (só números, com DDD)">
                 </div>
             </div>
         </section>
@@ -1036,6 +1040,72 @@
             return tr;
         }
 
+        // Variante que aceita um TD extra personalizado (ex: botão de WhatsApp)
+        function appendRowGenericComTd(tableRef, cols, extraTd) {
+            const tbody = tableRef.querySelector('tbody');
+            const tr = document.createElement('tr');
+            tr.className = 'row-entering';
+
+            cols.forEach(el => {
+                const td = document.createElement('td');
+                td.appendChild(el);
+                tr.appendChild(td);
+            });
+
+            if (extraTd) tr.appendChild(extraTd);
+
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'btn-del';
+            delBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+            delBtn.onclick = () => {
+                tr.style.opacity = '0';
+                tr.style.transform = 'translateY(-10px)';
+                tr.style.transition = 'all 0.2s ease';
+                delBtn.disabled = true;
+                setTimeout(() => {
+                    tr.remove();
+                    updateDashboard();
+                    saveState();
+                }, 200);
+            };
+
+            const tdDel = document.createElement('td');
+            tdDel.appendChild(delBtn);
+            tdDel.style.textAlign = 'center';
+            tr.appendChild(tdDel);
+
+            tbody.appendChild(tr);
+            return tr;
+        }
+
+        /* Envio de convite via WhatsApp */
+        function enviarConviteWhatsApp(nomeInput, telInput) {
+            const nome = nomeInput.value.trim();
+            const tel  = (telInput.value || '').replace(/\D/g, '');
+            if (!nome) { alert('Preencha o nome do convidado antes de enviar o convite.'); nomeInput.focus(); return; }
+
+            // URL base do site (produção Netlify ou fallback local)
+            const siteBase = window.location.hostname === 'localhost' || window.location.protocol === 'file:'
+                ? 'https://larah15anos.netlify.app'
+                : window.location.origin;
+
+            const orgNum = (document.getElementById('whatsapp')?.value || '').replace(/\D/g, '');
+            const guestId = 'g_' + Date.now().toString(36);
+
+            const qs = new URLSearchParams();
+            qs.set('name',     nome);
+            qs.set('guest_id', guestId);
+            if (orgNum) qs.set('org', orgNum);
+            if (tel)    qs.set('tel', tel);
+
+            const conviteUrl = `${siteBase}/pdf.html?${qs.toString()}`;
+            const msgTexto   = encodeURIComponent(`Olá, ${nome}! 🌸\n\nVocê foi convidado(a) para a Festa de 15 Anos da Larah!\n\n✨ Clique no link abaixo para ver seu convite e confirmar a presença:\n${conviteUrl}`);
+
+            const waUrl = tel ? `https://wa.me/55${tel}?text=${msgTexto}` : `https://wa.me/?text=${msgTexto}`;
+            window.open(waUrl, '_blank');
+        }
+
         /* =======================================
            2. MÓDULO DE GRUPOS DE CONVIDADOS
            ======================================= */
@@ -1072,6 +1142,8 @@
                     <th>Nome do Convidado</th>
                     <th>Status RSVP</th>
                     <th>Subgrupo/Nota</th>
+                    <th>Telefone</th>
+                    <th>Convite</th>
                     <th style="width: 50px;"></th>
                 </tr>
             </thead>
@@ -1100,13 +1172,35 @@
             const options = [
                 { value: 'pendente', label: 'Pendente' },
                 { value: 'confirmado', label: 'Confirmado' },
-                { value: 'recusado', label: 'Não Irá' }
+                { value: 'recusado', label: 'Não Irá' },
+                { value: 'whatsapp', label: 'Confirmado (WA)' }
             ];
-            appendRowGeneric(table, [
-                createInput('text', 'Nome', dataArr ? dataArr[0] : ''),
-                createSelect(options, dataArr ? dataArr[1] : 'pendente', updateDashboard),
-                createInput('text', 'Nota extra...', dataArr ? dataArr[2] : '')
-            ]);
+
+            // Botão de enviar convite
+            const btnWa = document.createElement('button');
+            btnWa.type = 'button';
+            btnWa.title = 'Enviar convite por WhatsApp';
+            btnWa.style.cssText = 'background:none;border:none;font-size:18px;cursor:pointer;padding:2px 6px;opacity:0.85;transition:opacity 0.2s;';
+            btnWa.innerHTML = '📲';
+            btnWa.onmouseover = () => btnWa.style.opacity = '1';
+            btnWa.onmouseout  = () => btnWa.style.opacity = '0.85';
+
+            const nomeInput = createInput('text', 'Nome', dataArr ? dataArr[0] : '');
+            const statusSel = createSelect(options, dataArr ? dataArr[1] : 'pendente', updateDashboard);
+            const notaInput = createInput('text', 'Nota extra...', dataArr ? dataArr[2] : '');
+            const telInput  = createInput('tel',  '(21) 99999-0000', dataArr ? dataArr[3] : '');
+            telInput.style.minWidth = '130px';
+
+            btnWa.onclick = () => enviarConviteWhatsApp(nomeInput, telInput);
+
+            const tdWa = document.createElement('td');
+            tdWa.style.textAlign = 'center';
+            tdWa.appendChild(btnWa);
+
+            appendRowGenericComTd(table, [
+                nomeInput, statusSel, notaInput, telInput
+            ], tdWa);
+
             if (!dataArr) {
                 details.open = true;
                 saveState();
@@ -1283,9 +1377,10 @@
             convidadosGruposObj = {};
 
             if (state.overview) {
-                if (state.overview.local) document.getElementById('local').value = state.overview.local;
-                if (state.overview.data) document.getElementById('data').value = state.overview.data;
-                if (state.overview.obs) document.getElementById('obs').value = state.overview.obs;
+                if (state.overview.local)    document.getElementById('local').value    = state.overview.local;
+                if (state.overview.data)     document.getElementById('data').value     = state.overview.data;
+                if (state.overview.obs)      document.getElementById('obs').value      = state.overview.obs;
+                if (state.overview.whatsapp) document.getElementById('whatsapp').value = state.overview.whatsapp;
             }
 
             // Helper for backwards compatibility with old nested arrays
@@ -1331,15 +1426,16 @@
 
             return {
                 overview: {
-                    local: document.getElementById('local').value,
-                    data: document.getElementById('data').value,
-                    obs: document.getElementById('obs').value
+                    local:    document.getElementById('local').value,
+                    data:     document.getElementById('data').value,
+                    obs:      document.getElementById('obs').value,
+                    whatsapp: document.getElementById('whatsapp')?.value || ''
                 },
                 gruposConvidados: gruposLidos,
-                orcamento: parseTableSimples('orcamento-table'),
+                orcamento:  parseTableSimples('orcamento-table'),
                 cronograma: parseTableSimples('cronograma-table'),
-                compras: parseTableSimples('compras-table'),
-                equipe: parseTableSimples('equipe-table')
+                compras:    parseTableSimples('compras-table'),
+                equipe:     parseTableSimples('equipe-table')
             };
         }
 
@@ -1500,6 +1596,8 @@
             document.getElementById('local').addEventListener('input', saveState);
             document.getElementById('data').addEventListener('change', () => { updateDashboard(); saveState(); });
             document.getElementById('obs').addEventListener('input', saveState);
+            const waField = document.getElementById('whatsapp');
+            if (waField) waField.addEventListener('input', saveState);
         };
 
     </script>

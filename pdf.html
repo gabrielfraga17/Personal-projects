@@ -22,9 +22,11 @@
             padding: 0;
             overflow-x: hidden;
             color: #1f2937;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
 
-        /* Container responsivo: Fullscreen em mobile, centrado em desktop */
+        /* Container responsivo */
         .invitation-container {
             min-height: 100vh;
             display: flex;
@@ -68,7 +70,7 @@
             z-index: 1;
         }
 
-        /* Montagem de Fotos Otimizada: Esquerda Criança, Direita Adolescente */
+        /* Montagem de Fotos: Criança (Esquerda) e Adolescente (Direita) */
         .photo-montage {
             position: relative;
             height: 50vh;
@@ -85,12 +87,11 @@
             width: 75%;
             height: 90%;
             object-fit: cover;
-            /* Foco no topo para não cortar a cabeça da adolescente */
             object-position: center top;
+            /* Evita cortar o topo da cabeça */
             border-radius: 12px;
             border: 6px solid white;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-            /* Deslocada para a direita conforme pedido */
             transform: rotate(2deg) translateX(12%);
             z-index: 2;
             background-color: #fce4ec;
@@ -101,16 +102,14 @@
             width: 50%;
             height: 42%;
             bottom: 8%;
-            /* Posicionada à esquerda conforme pedido */
             left: 5%;
             object-fit: cover;
-            /* Foco centralizado com zoom maior */
             object-position: center center;
             border-radius: 10px;
             border: 5px solid white;
             box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
-            /* Zoom aplicado (scale 1.2) para focar mais na criança */
             transform: rotate(-4deg) scale(1.2);
+            /* Zoom na foto de infância */
             z-index: 3;
             background-color: #fce4ec;
         }
@@ -214,6 +213,42 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+
+        /* Estilos específicos para a geração do PDF */
+        @media print {
+            @page {
+                margin: 0;
+                size: 450px 850px;
+            }
+
+            body {
+                margin: 0;
+            }
+
+            .action-btn {
+                display: none !important;
+            }
+
+            .btn-confirm-rsvp {
+                display: inline-block !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .invitation-container {
+                background: none;
+                min-height: auto;
+            }
+
+            .invitation-card {
+                box-shadow: none;
+                border: none;
+                width: 100%;
+                max-width: 100%;
+                height: 100vh;
+                background: linear-gradient(135deg, #ffffff 0%, #fdf2f8 60%, #cbd5e1 100%) !important;
+            }
+        }
     </style>
 </head>
 
@@ -229,13 +264,14 @@
             </header>
 
             <div class="photo-montage">
-                <!-- Fotos reais da Larah com enquadramento e posições invertidas -->
+                <!-- Foto Adolescente à direita -->
                 <div class="relative photo-teen overflow-hidden">
-                    <img src="assets/adolescente.jpg" alt="Larah Hoje" class="w-full h-full object-cover">
+                    <img src="./assets/adolescente.jpg" alt="Larah Hoje" class="w-full h-full object-cover">
                     <div class="overlay-pink"></div>
                 </div>
+                <!-- Foto Criança à esquerda com zoom -->
                 <div class="relative photo-child overflow-hidden">
-                    <img src="assets/crianca.jpg" alt="Larah Criança" class="w-full h-full object-cover">
+                    <img src="./assets/crianca.jpg" alt="Larah Criança" class="w-full h-full object-cover">
                     <div class="overlay-pink"></div>
                 </div>
             </div>
@@ -253,9 +289,11 @@
                     <p class="text-[12px] text-gray-400 italic">Vargem Grande – Rio de Janeiro</p>
                 </div>
 
-                <div class="w-full mt-10 space-y-4">
+                <div class="w-full mt-10 space-y-3">
                     <button id="btnOpenMusic" class="action-btn shadow-sm">🎵 Sugerir Música Playlist</button>
                     <button id="btnOpenScreen" class="action-btn shadow-sm">💬 Mensagem para o Telão</button>
+                    <button onclick="window.print()" class="action-btn shadow-sm"
+                        style="border-color: #cbd5e1; color: #64748b;">🖨️ Guardar como PDF</button>
                 </div>
             </main>
 
@@ -264,10 +302,11 @@
                     • Música</p>
                 <p class="text-[12px] text-pink-600 font-semibold mb-6 uppercase">Traje: leve + roupa de banho</p>
 
-                <div
-                    class="inline-block py-3 px-12 bg-pink-600 text-white rounded-full text-[11px] font-bold uppercase tracking-widest shadow-lg active:scale-95 transition-transform cursor-pointer">
-                    Confirme até 30/03
-                </div>
+                <a id="btn-confirm-rsvp" href="./rsvp.html"
+                    class="btn-confirm-rsvp inline-block py-3 px-12 bg-pink-600 text-white rounded-full text-[11px] font-bold uppercase tracking-widest shadow-lg active:scale-95 transition-transform cursor-pointer"
+                    style="text-decoration:none;">
+                    👉 Clique aqui para confirmar
+                </a>
             </footer>
         </div>
     </div>
@@ -303,7 +342,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Interface Logic
@@ -324,14 +363,10 @@
             projectId: "plan15anos",
             storageBucket: "plan15anos.firebasestorage.app",
             messagingSenderId: "839344814995",
-            appId: "1:839344814995:web:7c968d334d12aeb3844666",
-            measurementId: "G-2TM45Y3R8E"
+            appId: "1:839344814995:web:7c968d334d12aeb3844666"
         };
 
-        const finalConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : userFirebaseConfig;
-        const finalAppId = typeof __app_id !== 'undefined' ? __app_id : 'plan15anos';
-
-        const app = initializeApp(finalConfig);
+        const app = initializeApp(userFirebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
@@ -339,13 +374,10 @@
 
         const initAuth = async () => {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                await signInAnonymously(auth);
             } catch (err) {
                 console.error("Auth error:", err.message);
+                window.firebaseAuthError = err.message; // Guarda o erro para informar o utilizador
             }
         };
 
@@ -358,11 +390,12 @@
         const saveData = async (collName, data, btnId) => {
             if (!currentUser) {
                 await initAuth();
-                await new Promise(r => setTimeout(r, 500));
+                await new Promise(r => setTimeout(r, 800));
             }
 
             if (!currentUser) {
-                alert("Erro ao conectar com o servidor.");
+                const erroMsg = window.firebaseAuthError || "Possível bloqueio de rede ou CORS.";
+                alert("Não foi possível ligar à base de dados Firebase.\n\nDetalhe técnico: " + erroMsg + "\n\nSe está a testar no seu computador (file://), verifique se ativou o 'Login Anónimo' no painel do Firebase.");
                 return;
             }
 
@@ -372,7 +405,7 @@
             btn.innerText = "A enviar...";
 
             try {
-                const path = `artifacts/${finalAppId}/public/data/${collName}`;
+                const path = `artifacts/plan15anos/public/data/${collName}`;
                 await addDoc(collection(db, path), {
                     ...data,
                     timestamp: serverTimestamp(),
@@ -397,7 +430,7 @@
                 }, 2000);
             } catch (err) {
                 console.error("Erro ao salvar:", err);
-                alert("Erro ao salvar: " + err.message);
+                alert("Erro ao gravar dados: " + err.message);
                 btn.innerText = "Tentar novamente";
                 btn.style.backgroundColor = "#ef4444";
                 btn.disabled = false;
@@ -417,6 +450,28 @@
                 saveData('telao_messages', { author, message: msg, music: music || "Nenhuma" }, 'submitScreen');
             }
         };
+    </script>
+
+    <script>
+        // Personaliza o botão de confirmação com parâmetros de URL
+        (function () {
+            const params  = new URLSearchParams(window.location.search);
+            const name    = params.get('name')     || '';
+            const guestId = params.get('guest_id') || '';
+            const org     = params.get('org')      || '';
+            const tel     = params.get('tel')      || '';
+
+            const base = './rsvp.html';
+            const qs   = new URLSearchParams();
+            if (name)    qs.set('name',     name);
+            if (guestId) qs.set('guest_id', guestId);
+            if (org)     qs.set('org',      org);
+            if (tel)     qs.set('tel',      tel);
+
+            const confirmUrl = qs.toString() ? `${base}?${qs.toString()}` : base;
+            const btn = document.getElementById('btn-confirm-rsvp');
+            if (btn) btn.href = confirmUrl;
+        })();
     </script>
 </body>
 
