@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -36,32 +36,12 @@
             overflow: hidden;
         }
 
-        /* ── PHOTO BANNER ────────────────────────────────────── */
-        .photo-banner {
-            position: relative;
-            height: 280px;
-            background: #fce4ec;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .photo-banner img.main-photo {
-            width: 100%; height: 100%;
-            object-fit: cover; object-position: center top;
-        }
-        .photo-banner .mini-photo {
-            position: absolute;
-            bottom: 16px; left: 16px;
-            width: 110px; height: 110px;
-            object-fit: cover; object-position: center;
-            border-radius: 12px;
-            border: 4px solid white;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-            transform: rotate(-3deg);
-        }
-        .photo-banner .banner-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(to bottom, transparent 40%, rgba(219,39,119,0.12) 100%);
-        }
+        /* Photo pair: side by side, full photos */
+        .photo-pair { display:flex; gap:10px; padding:18px 18px 4px; align-items:flex-end; background:white; }
+        .photo-pair .photo-col { flex:1; overflow:hidden; border-radius:14px; border:4px solid white; box-shadow:0 8px 28px rgba(0,0,0,.12); }
+        .photo-pair .photo-col:first-child { transform:rotate(-2deg); }
+        .photo-pair .photo-col:last-child  { transform:rotate(1.5deg); flex:1.3; }
+        .photo-pair .photo-col img { width:100%; height:auto; display:block; }
 
         /* ── HEADER ──────────────────────────────────────────── */
         .invite-header {
@@ -320,25 +300,7 @@
 </head>
 <body>
 
-<!-- Netlify form detection -->
-<form class="netlify-trap" name="rsvp-confirmacoes" netlify netlify-honeypot="bot-field" data-netlify="true">
-    <input type="hidden" name="form-name" value="rsvp-confirmacoes">
-    <input type="text" name="nome_convidado">
-    <input type="text" name="telefone">
-    <input type="text" name="acompanhantes">
-    <input type="text" name="confirmado_em">
-    <input type="text" name="guest_id">
-    <input type="text" name="source">
-    <input type="text" name="bot-field">
-</form>
-
-<div class="card">
-
-    <!-- ── PHOTO BANNER ──────────────────────────────────────── -->
-    <div class="photo-banner">
-        <img class="main-photo" src="assets/adolescente.jpg" alt="Larah">
-        <img class="mini-photo" src="assets/crianca.jpg" alt="Larah Criança">
-        <div class="banner-overlay"></div>
+<div class="photo-pair"><div class="photo-col"><img src="assets/crianca.jpg" alt="Larah crianca"></div><div class="photo-col"><img src="assets/adolescente.jpg" alt="Larah"></div></div>
     </div>
 
     <!-- ── HEADER ────────────────────────────────────────────── -->
