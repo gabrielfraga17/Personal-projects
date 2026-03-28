@@ -1276,11 +1276,14 @@
                 const tel    = (telInput?.value || '').replace(/\D/g, '');
                 const rawOrg = (document.getElementById('whatsapp')?.value || '').replace(/\D/g, '');
                 const org    = rawOrg.length <= 11 && rawOrg.length >= 10 ? '55' + rawOrg : rawOrg;
-                const base   = window.location.href.replace(/\/[^/]*$/, '');
-                const link   = `${base}/rsvp.html?guest_id=${guestId}&name=${encodeURIComponent(nome)}${tel ? '&tel=' + encodeURIComponent(tel) : ''}${org ? '&org=' + encodeURIComponent(org) : ''}`;
-                const msg    = encodeURIComponent(`Olá, ${nome}! 🎉 Confirme sua presença no evento pelo link:\n\n${link}`);
+                const base   = window.location.hostname === 'localhost' || window.location.protocol === 'file:' 
+                    ? 'https://larah15anos.netlify.app' 
+                    : window.location.origin;
+                    
+                const link   = `${base}/pdf.html?guest_id=${guestId}&name=${encodeURIComponent(nome)}${tel ? '&tel=' + encodeURIComponent(tel) : ''}${org ? '&org=' + encodeURIComponent(org) : ''}`;
+                const msg    = encodeURIComponent(`Olá, ${nome}! 🌸\n\nVocê foi convidado(a) para a Festa de 15 Anos da Larah!\n\n✨ Clique no link abaixo para ver seu convite e confirmar a presença:\n${link}`);
                 const waUrl  = tel
-                    ? `https://wa.me/${tel}?text=${msg}`
+                    ? `https://wa.me/55${tel}?text=${msg}`
                     : `https://wa.me/?text=${msg}`;
                 window.open(waUrl, '_blank', 'noopener');
             };

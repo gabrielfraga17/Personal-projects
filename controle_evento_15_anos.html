@@ -889,12 +889,13 @@
     <!-- Firebase SDKs (Modo Modular ES6) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         // Variáveis Globais de Ecossistema Nuvem (Disponibilizadas no Window para as funcoes JS nativas poderem usar)
         window.dbFirestore = null;
         window.firebaseApp = null;
         window.isCloudSyncActive = false;
+        window.shouldStartRsvpSync = false;
 
         window.tryInitFirebase = async function () {
             const storedConfig = localStorage.getItem('firebase_config_15');
@@ -918,10 +919,15 @@
                             window.triggerCloudSave();
                         }
                         updateCloudStatus("Salvo na Nuvem", "cloud-saved");
+                        window.shouldStartRsvpSync = true;
+                        if (typeof window.startRsvpRealtimeSync === 'function') {
+                            window.startRsvpRealtimeSync();
+                        }
                     } catch (dbError) {
                         console.error("Erro de permissão ou banco ausente:", dbError);
                         alert("⚠️ O App conectou ao Firebase com sucesso, mas o Banco de Dados recusou acesso.\n\nSua configuração está certa! O problema é lá no console do Google:\n1. Acesse o Firebase > Firestore Database\n2. Vá na aba 'Regras' (Rules)\n3. Troque a regra para: allow read, write: if true;\n4. Publique e recarregue essa página!\n\nErro técnico original: " + dbError.message);
                         updateCloudStatus("Nuvem Bloqueada", "cloud-syncing");
+                        window.shouldStartRsvpSync = false;
                         // NÃO removemos a chave porque ela é válida!
                     }
 
@@ -930,6 +936,7 @@
                     alert("As chaves coladas são inválidas ou há erro no JSON: " + error.message);
                     localStorage.removeItem('firebase_config_15');
                     window.isCloudSyncActive = false;
+                    window.shouldStartRsvpSync = false;
                     updateCloudStatus("Nuvem Desativada", "cloud-local");
                 }
             }
@@ -969,6 +976,108 @@
         let saveTimeout = null;
         let isAppLoaded = false;
         let convidadosGruposObj = {};
+        const RSVP_FALLBACK_GROUP = 'Confirmações Web';
+        const processedRsvpEvents = new Set();
+        let rsvpSyncUnsubscribe = null;
+
+        function normalizeName(value) {
+            return (value || '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
+        }
+
+        function extractRowData(item) {
+            return Array.isArray(item) ? item : (item?.rowData || []);
+        }
+
+        function extractGuestIdFromRowData(rowData) {
+            const raw = rowData?.[4] || rowData?.[5] || '';
+            return (raw || '').toString().trim();
+        }
+
+        function findConvidadoMatch(gruposObj, nomeConvidado, guestId) {
+            const nomeNorm = normalizeName(nomeConvidado);
+            const guestIdNorm = (guestId || '').toString().trim();
+
+            for (const [nomeGrupo, pessoas] of Object.entries(gruposObj || {})) {
+                if (!Array.isArray(pessoas)) continue;
+                for (let i = 0; i < pessoas.length; i++) {
+                    const item = pessoas[i];
+                    const rowData = extractRowData(item);
+                    const rowGuestId = extractGuestIdFromRowData(rowData);
+                    const rowNomeNorm = normalizeName(rowData?.[0]);
+
+                    const byId = guestIdNorm && rowGuestId && rowGuestId === guestIdNorm;
+                    const byName = nomeNorm && rowNomeNorm && rowNomeNorm === nomeNorm;
+                    if (byId || byName) {
+                        return { nomeGrupo, pessoaIndex: i, rowData };
+                    }
+                }
+            }
+            return null;
+        }
+
+        function getRsvpEventVersion(docData) {
+            const ts = docData?.timestamp;
+            if (ts && typeof ts === 'object' && ts.seconds !== undefined) {
+                return `${ts.seconds}_${ts.nanoseconds || 0}`;
+            }
+            return (docData?.confirmado_em || '').toString();
+        }
+
+        function upsertRsvpNoEstado(docId, docData) {
+            const nomeConvidado = (docData?.nome_convidado || '').toString().trim();
+            if (!nomeConvidado) return;
+
+            const guestId = (docData?.guest_id || '').toString().trim();
+            const telefone = (docData?.telefone || '').toString().trim();
+
+            const currentState = getCurrentStateObject();
+            convidadosGruposObj = currentState.gruposConvidados || {};
+
+            const match = findConvidadoMatch(convidadosGruposObj, nomeConvidado, guestId);
+            if (match) {
+                match.rowData[1] = 'whatsapp';
+                if (telefone && !match.rowData[3]) {
+                    match.rowData[3] = telefone;
+                }
+            } else {
+                if (!Array.isArray(convidadosGruposObj[RSVP_FALLBACK_GROUP])) {
+                    convidadosGruposObj[RSVP_FALLBACK_GROUP] = [];
+                }
+                convidadosGruposObj[RSVP_FALLBACK_GROUP].push({
+                    rowData: [nomeConvidado, 'whatsapp', 'RSVP Web', telefone]
+                });
+            }
+
+            currentState.gruposConvidados = convidadosGruposObj;
+            window.applyStateToUI(currentState);
+            saveState();
+            console.log(`[RSVP Sync] Atualizado doc ${docId}: ${nomeConvidado}`);
+        }
+
+        window.startRsvpRealtimeSync = function () {
+            if (rsvpSyncUnsubscribe || !window.dbFirestore) return;
+            if (!isAppLoaded) {
+                setTimeout(() => window.startRsvpRealtimeSync(), 400);
+                return;
+            }
+
+            const rsvpRef = collection(window.dbFirestore, 'artifacts', 'plan15anos', 'public', 'data', 'rsvp_confirmacoes');
+            rsvpSyncUnsubscribe = onSnapshot(rsvpRef, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type !== 'added' && change.type !== 'modified') return;
+                    const data = change.doc.data() || {};
+                    const version = getRsvpEventVersion(data);
+                    const dedupeKey = `${change.doc.id}:${version}`;
+                    if (processedRsvpEvents.has(dedupeKey)) return;
+                    processedRsvpEvents.add(dedupeKey);
+                    upsertRsvpNoEstado(change.doc.id, data);
+                });
+            }, (err) => {
+                console.error('[RSVP Sync] Erro no listener:', err);
+            });
+
+            console.log('[RSVP Sync] Listener ativo em artifacts/plan15anos/public/data/rsvp_confirmacoes');
+        }
 
         function createInput(type = 'text', placeholder = '', value = '', customClass = '') {
             const i = document.createElement('input');
@@ -1591,6 +1700,9 @@
             // Fallback p arrancar se não tiver module de firebase executado
             setTimeout(() => {
                 if (!window.isCloudSyncActive) loadStateLocalFallback();
+                if (window.shouldStartRsvpSync && typeof window.startRsvpRealtimeSync === 'function') {
+                    window.startRsvpRealtimeSync();
+                }
             }, 500);
 
             document.getElementById('local').addEventListener('input', saveState);
@@ -1598,6 +1710,10 @@
             document.getElementById('obs').addEventListener('input', saveState);
             const waField = document.getElementById('whatsapp');
             if (waField) waField.addEventListener('input', saveState);
+
+            if (window.shouldStartRsvpSync && typeof window.startRsvpRealtimeSync === 'function') {
+                window.startRsvpRealtimeSync();
+            }
         };
 
     </script>

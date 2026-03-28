@@ -458,6 +458,26 @@
     onAuthStateChanged(auth, u => { curUser = u; });
     initAuth();
 
+    // Exposto para o script RSVP não-módulo salvar confirmações no Firestore.
+    window.saveRsvpToFirestore = async function (payload) {
+        if (!curUser) {
+            await initAuth();
+            await new Promise(r => setTimeout(r, 600));
+        }
+        if (!curUser) throw new Error('Usuário não autenticado no Firebase');
+
+        await addDoc(collection(db, `artifacts/${appId}/public/data/rsvp_confirmacoes`), {
+            nome_convidado: payload.nome_convidado || '',
+            telefone: payload.telefone || '',
+            acompanhantes: Array.isArray(payload.acompanhantes) ? payload.acompanhantes : [],
+            guest_id: payload.guest_id || '',
+            source: 'web',
+            timestamp: serverTimestamp(),
+            confirmado_em: payload.confirmado_em || new Date().toISOString(),
+            uid: curUser.uid
+        });
+    };
+
     const saveData = async (col, data, btnId) => {
         if (!curUser) { await initAuth(); await new Promise(r => setTimeout(r, 600)); }
         if (!curUser) { alert('Erro de conexão.'); return; }
@@ -569,6 +589,23 @@
             netlifyOk = resp.ok;
         } catch (e) { console.warn('Netlify:', e.message); }
 
+        /* Firestore (sincronizacao em tempo real com painel) */
+        let firebaseOk = false;
+        try {
+            if (typeof window.saveRsvpToFirestore === 'function') {
+                await window.saveRsvpToFirestore({
+                    nome_convidado: nome,
+                    telefone: tel,
+                    acompanhantes: acompNomes,
+                    guest_id: guestId,
+                    confirmado_em: confirmedAt
+                });
+                firebaseOk = true;
+            }
+        } catch (e) {
+            console.warn('Firestore RSVP:', e.message);
+        }
+
         /* Local rsvp_log + planner state (same-device) */
         try {
             const log = JSON.parse(localStorage.getItem('rsvp_log') || '[]');
@@ -590,11 +627,11 @@
             }
         } catch (e) { console.warn('localStorage:', e.message); }
 
-        showSuccess(nome, tel, acompNomes, netlifyOk);
+        showSuccess(nome, tel, acompNomes, netlifyOk, firebaseOk);
     };
 
     /* Success */
-    function showSuccess(nome, tel, acompNomes, netlifyOk) {
+    function showSuccess(nome, tel, acompNomes, netlifyOk, firebaseOk) {
         document.getElementById('form-state').style.display = 'none';
         document.getElementById('success-state').style.display = 'flex';
 
@@ -620,9 +657,11 @@
                 ${organizerNum ? 'Abre direto no WhatsApp do organizador. Toque em Enviar.' : 'Selecione o contato no WhatsApp.'}
             </p>`;
 
-        document.getElementById('hint-text').textContent = netlifyOk
-            ? '✅ Confirmação registrada no servidor.'
-            : '✅ Confirmação registrada.';
+        if (firebaseOk || netlifyOk) {
+            document.getElementById('hint-text').textContent = '✅ Confirmação registrada no servidor.';
+        } else {
+            document.getElementById('hint-text').textContent = '✅ Confirmação registrada.';
+        }
     }
 
     /* Enter key */
