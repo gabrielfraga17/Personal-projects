@@ -619,10 +619,37 @@
             transform: rotate(90deg);
         }
 
+        .group-summary-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
         .group-actions {
             display: flex;
             gap: 8px;
             align-items: center;
+            padding: 16px 20px;
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--system-gray-6);
+        }
+
+        @media (max-width: 720px) {
+            .group-container details summary {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .group-summary-wrapper {
+                margin-bottom: 12px;
+            }
+
+            .group-actions {
+                padding: 12px 20px;
+                justify-content: flex-end;
+                flex-wrap: wrap;
+            }
         }
 
         .group-btn-action {
@@ -1422,16 +1449,32 @@
             details.dataset.groupName = nomeGrupo;
 
             const summary = document.createElement('summary');
-            summary.innerHTML = `
-            <div class="group-summary-left">
+            
+            const summaryWrapper = document.createElement('div');
+            summaryWrapper.className = 'group-summary-wrapper';
+            summaryWrapper.innerHTML = `
                 <svg class="group-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
                 ${nomeGrupo} <span style="font-size:14px; font-weight:normal; color:var(--text-secondary);" class="counter-grupo"></span>
-            </div>
-            <div class="group-actions">
-                <button type="button" class="group-btn-action" onclick="acaoGrupo(event, '${nomeGrupo}', 'confirmar')">Marcar Todos ✓</button>
-                <button type="button" class="group-btn-action group-btn-danger" onclick="acaoGrupo(event, '${nomeGrupo}', 'excluir')">Deletar</button>
-            </div>
-        `;
+            `;
+            summary.appendChild(summaryWrapper);
+
+            const actions = document.createElement('div');
+            actions.className = 'group-actions';
+
+            const btnConfirmar = document.createElement('button');
+            btnConfirmar.type = 'button';
+            btnConfirmar.className = 'group-btn-action';
+            btnConfirmar.textContent = 'Marcar Todos ✓';
+            btnConfirmar.onclick = (event) => acaoGrupo(event, nomeGrupo, 'confirmar');
+
+            const btnExcluir = document.createElement('button');
+            btnExcluir.type = 'button';
+            btnExcluir.className = 'group-btn-action group-btn-danger';
+            btnExcluir.textContent = 'Deletar';
+            btnExcluir.onclick = (event) => acaoGrupo(event, nomeGrupo, 'excluir');
+
+            actions.appendChild(btnConfirmar);
+            actions.appendChild(btnExcluir);
 
             const contentDiv = document.createElement('div');
             contentDiv.className = 'group-content';
@@ -1462,6 +1505,7 @@
             contentDiv.appendChild(table);
             contentDiv.appendChild(btnAdd);
             details.appendChild(summary);
+            details.appendChild(actions);
             details.appendChild(contentDiv);
 
             document.getElementById('grupos-container').appendChild(details);
