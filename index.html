@@ -1673,7 +1673,24 @@
 
         // Exported para ser chamado quando o Documento Cloud for encontrado e baixado.
         window.applyStateToUI = function (state) {
-            if (!state) return;
+            // ⚠️ TRAVA MÁXIMA: Detecta estado vazio ANTES de qualquer wipe
+            if (!state || typeof state !== 'object' || Object.keys(state).length === 0) {
+                console.warn('⚠️ Nuvem vazia detectada. Abortando wipe. Forçando save local...');
+                return window.triggerCloudSave ? window.triggerCloudSave() : null;
+            }
+            if (!state.gruposConvidados && !state.convidados && !state.orcamento) {
+                console.warn('⚠️ Estado cloud sem dados críticos. Abortando wipe. Forçando save local...');
+                return window.triggerCloudSave ? window.triggerCloudSave() : null;
+            }
+
+            const hasCloudGroups = state.gruposConvidados && typeof state.gruposConvidados === 'object' && Object.keys(state.gruposConvidados).length > 0;
+            const hasLegacyGuests = Array.isArray(state.convidados) && state.convidados.length > 0;
+            if (!hasCloudGroups && !hasLegacyGuests) {
+                if (window.isCloudSyncActive) {
+                    setTimeout(() => window.triggerCloudSave && window.triggerCloudSave(), 180);
+                }
+                return;
+            }
 
             // Limpar tabelas da UI para recriar (para evitar duplicidade se sincronizar mid-session)
             document.querySelectorAll('tbody').forEach(tbody => tbody.innerHTML = '');
