@@ -354,8 +354,8 @@
                 <input type="text" id="input-nome" class="form-input" placeholder="Como você se chama?" autocomplete="given-name" required>
             </div>
             <div class="form-group">
-                <label class="field-label" for="input-tel">WhatsApp (opcional)</label>
-                <input type="tel" id="input-tel" class="form-input" placeholder="(21) 99999-0000" autocomplete="tel">
+                <label class="field-label" for="input-tel">WhatsApp com DDD *</label>
+                <input type="tel" id="input-tel" class="form-input" placeholder="(21) 99999-0000" autocomplete="tel" inputmode="numeric" required>
             </div>
 
             <!-- Acompanhantes -->
@@ -466,15 +466,12 @@
         }
         if (!curUser) throw new Error('Usuário não autenticado no Firebase');
 
-        await addDoc(collection(db, `artifacts/${appId}/public/data/rsvp_confirmacoes`), {
+        await addDoc(collection(db, 'artifacts/' + appId + '/public/data/rsvp_confirmacoes'), {
             nome_convidado: payload.nome_convidado || '',
             telefone: payload.telefone || '',
             acompanhantes: Array.isArray(payload.acompanhantes) ? payload.acompanhantes : [],
-            guest_id: payload.guest_id || '',
             source: 'web',
-            timestamp: serverTimestamp(),
-            confirmado_em: payload.confirmado_em || new Date().toISOString(),
-            uid: curUser.uid
+            timestamp: serverTimestamp()
         });
     };
 
@@ -521,12 +518,63 @@
 (function () {
     /* URL params */
     const params  = new URLSearchParams(window.location.search);
-    const guestId = params.get('guest_id') || (crypto.randomUUID?.() || Date.now().toString(36));
     const preNome = params.get('name') || '';
     const preTel  = params.get('tel')  || '';
 
+    const formatPhoneInput = (rawValue) => {
+        const digits = (rawValue || '').replace(/\D/g, '').slice(0, 11);
+        if (!digits) return '';
+        if (digits.length <= 2) return '(' + digits;
+        if (digits.length <= 6) return '(' + digits.slice(0, 2) + ') ' + digits.slice(2);
+        if (digits.length <= 10) return '(' + digits.slice(0, 2) + ') ' + digits.slice(2, 6) + '-' + digits.slice(6);
+        return '(' + digits.slice(0, 2) + ') ' + digits.slice(2, 7) + '-' + digits.slice(7);
+    };
+
+    const showFieldError = (inputId, message) => {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+
+        let errEl = document.getElementById(inputId + '-error');
+        if (!errEl) {
+            errEl = document.createElement('span');
+            errEl.id = inputId + '-error';
+            errEl.style.display = 'block';
+            errEl.style.marginTop = '6px';
+            errEl.style.fontSize = '12px';
+            errEl.style.fontWeight = '600';
+            errEl.style.color = '#ef4444';
+            errEl.style.letterSpacing = '0.01em';
+            input.insertAdjacentElement('afterend', errEl);
+        }
+
+        errEl.textContent = message;
+        input.style.borderColor = '#ef4444';
+
+        if (errEl._timer) clearTimeout(errEl._timer);
+        errEl._timer = setTimeout(() => {
+            if (errEl && errEl.parentNode) errEl.remove();
+            input.style.borderColor = '';
+        }, 3000);
+    };
+
+    const clearFieldError = (inputId) => {
+        const input = document.getElementById(inputId);
+        const errEl = document.getElementById(inputId + '-error');
+        if (errEl) errEl.remove();
+        if (input) input.style.borderColor = '';
+    };
+
     if (preNome) document.getElementById('input-nome').value = preNome;
-    if (preTel)  document.getElementById('input-tel').value  = preTel;
+    if (preTel)  document.getElementById('input-tel').value  = formatPhoneInput(preTel);
+
+    const inputTel = document.getElementById('input-tel');
+    inputTel.addEventListener('input', (e) => {
+        e.target.value = formatPhoneInput(e.target.value);
+        clearFieldError('input-tel');
+    });
+
+    const inputNome = document.getElementById('input-nome');
+    inputNome.addEventListener('input', () => clearFieldError('input-nome'));
 
     /* Organizer number — URL param first, then localStorage */
     let rawOrg = (params.get('org') || '').replace(/\D/g, '');
@@ -558,9 +606,15 @@
         const nome = document.getElementById('input-nome').value.trim();
         const tel  = document.getElementById('input-tel').value.trim();
         if (!nome) {
-            const inp = document.getElementById('input-nome');
-            inp.style.borderColor = '#ef4444'; inp.focus();
-            setTimeout(() => inp.style.borderColor = '', 1500);
+            showFieldError('input-nome', 'Informe seu nome completo.');
+            document.getElementById('input-nome').focus();
+            return;
+        }
+
+        const telefoneLimpo = tel.replace(/\D/g, '');
+        if (telefoneLimpo.length < 10) {
+            showFieldError('input-tel', 'Digite seu WhatsApp com DDD (10 ou 11 números).');
+            document.getElementById('input-tel').focus();
             return;
         }
 
@@ -572,33 +626,14 @@
         document.getElementById('btn-text').textContent = 'Confirmando…';
         document.getElementById('spinner').style.display = 'block';
 
-        const confirmedAt = new Date().toISOString();
-
-        /* Netlify Forms */
-        let netlifyOk = false;
-        try {
-            const fd = new FormData();
-            fd.append('form-name',      'rsvp-confirmacoes');
-            fd.append('nome_convidado', nome);
-            fd.append('telefone',       tel);
-            fd.append('acompanhantes',  acompNomes.join(', '));
-            fd.append('confirmado_em',  confirmedAt);
-            fd.append('guest_id',       guestId);
-            fd.append('source',         'link_individual');
-            const resp = await fetch('/', { method: 'POST', body: fd });
-            netlifyOk = resp.ok;
-        } catch (e) { console.warn('Netlify:', e.message); }
-
         /* Firestore (sincronizacao em tempo real com painel) */
         let firebaseOk = false;
         try {
             if (typeof window.saveRsvpToFirestore === 'function') {
                 await window.saveRsvpToFirestore({
                     nome_convidado: nome,
-                    telefone: tel,
-                    acompanhantes: acompNomes,
-                    guest_id: guestId,
-                    confirmado_em: confirmedAt
+                    telefone: telefoneLimpo,
+                    acompanhantes: acompNomes
                 });
                 firebaseOk = true;
             }
@@ -606,32 +641,11 @@
             console.warn('Firestore RSVP:', e.message);
         }
 
-        /* Local rsvp_log + planner state (same-device) */
-        try {
-            const log = JSON.parse(localStorage.getItem('rsvp_log') || '[]');
-            log.push({ guest_id: guestId, nome_convidado: nome, telefone: tel,
-                       acompanhantes: acompNomes, confirmado_em: confirmedAt, source: 'link_individual' });
-            localStorage.setItem('rsvp_log', JSON.stringify(log));
-
-            if (appState?.gruposConvidados) {
-                let updated = false;
-                for (const grp of Object.values(appState.gruposConvidados)) {
-                    for (const p of grp) {
-                        const rd = Array.isArray(p) ? p : (p.rowData || []);
-                        const byId   = rd[4] && rd[4] === params.get('guest_id');
-                        const byName = rd[0] && rd[0].toLowerCase().trim() === nome.toLowerCase().trim();
-                        if (byId || byName) { rd[1] = 'whatsapp'; updated = true; }
-                    }
-                }
-                if (updated) localStorage.setItem('applePlannerState', JSON.stringify(appState));
-            }
-        } catch (e) { console.warn('localStorage:', e.message); }
-
-        showSuccess(nome, tel, acompNomes, netlifyOk, firebaseOk);
+        showSuccess(nome, tel, acompNomes, firebaseOk);
     };
 
     /* Success */
-    function showSuccess(nome, tel, acompNomes, netlifyOk, firebaseOk) {
+    function showSuccess(nome, tel, acompNomes, firebaseOk) {
         document.getElementById('form-state').style.display = 'none';
         document.getElementById('success-state').style.display = 'flex';
 
@@ -657,10 +671,10 @@
                 ${organizerNum ? 'Abre direto no WhatsApp do organizador. Toque em Enviar.' : 'Selecione o contato no WhatsApp.'}
             </p>`;
 
-        if (firebaseOk || netlifyOk) {
+        if (firebaseOk) {
             document.getElementById('hint-text').textContent = '✅ Confirmação registrada no servidor.';
         } else {
-            document.getElementById('hint-text').textContent = '✅ Confirmação registrada.';
+            document.getElementById('hint-text').textContent = '⚠️ Não foi possível registrar agora. Tente novamente em instantes.';
         }
     }
 

@@ -418,6 +418,104 @@
             border-top: 1px solid var(--system-gray-5);
             font-weight: 500;
             font-size: 20px;
+        }
+
+        .budget-progress-wrap {
+            margin: 18px 0 12px;
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .budget-progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+
+        .budget-progress-track {
+            width: 100%;
+            height: 12px;
+            border-radius: var(--radius-pill);
+            background: var(--system-gray-6);
+            overflow: hidden;
+            border: 1px solid var(--system-gray-5);
+        }
+
+        .budget-progress-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: var(--radius-pill);
+            background: var(--apple-blue);
+            transition: width 0.35s ease, background-color 0.35s ease;
+        }
+
+        .toast-container {
+            position: fixed;
+            right: 18px;
+            top: 72px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 2200;
+            pointer-events: none;
+        }
+
+        .toast-item {
+            min-width: 260px;
+            max-width: 420px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            box-shadow: var(--shadow-float);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.86);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.35;
+            opacity: 0;
+            transform: translateY(-6px);
+            animation: toastIn 0.25s ease forwards;
+        }
+
+        .toast-item.toast-success { border-left: 4px solid var(--apple-green); }
+        .toast-item.toast-error { border-left: 4px solid var(--apple-red); }
+        .toast-item.toast-info { border-left: 4px solid var(--apple-blue); }
+
+        .btn-approve {
+            border: 1px solid rgba(52, 199, 89, 0.35);
+            border-radius: var(--radius-pill);
+            background: rgba(52, 199, 89, 0.14);
+            color: #1f7a34;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 6px 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .btn-approve:hover {
+            background: rgba(52, 199, 89, 0.2);
+            transform: translateY(-1px);
+        }
+
+        @keyframes toastIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .total-box {
             display: flex;
             justify-content: flex-end;
             align-items: center;
@@ -671,6 +769,8 @@
         </div>
     </nav>
 
+    <div id="toast-container" class="toast-container"></div>
+
     <div class="container">
         <h1>15 Anos da Larah</h1>
 
@@ -736,6 +836,15 @@
                 Orçamento e Custos
                 <button type="button" class="btn-ai" onclick="openAIModal()">✨ Sugerir com Gemini Inteligente</button>
             </h2>
+            <div class="budget-progress-wrap">
+                <div class="budget-progress-header">
+                    <span>Progresso do Orçamento (Fechado x Estimado)</span>
+                    <span id="budget-progress-label">0%</span>
+                </div>
+                <div class="budget-progress-track">
+                    <div id="budget-progress-fill" class="budget-progress-fill"></div>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table id="orcamento-table">
                     <thead>
@@ -863,7 +972,7 @@
                 Para sincronizar seus dados entre o Celular e o Computador gratuitamente, ative o Google Cloud
                 Firestore.
                 <br><a href="#"
-                    onclick="alert('1. Acesse console.firebase.google.com\n2. Crie um projeto\n3. Habilite o Firestore Database em modo teste\n4. Vá em Configurações > Adicionar Web App e copie o JSON de configuração.')"
+                    onclick="openFirebaseHelpToast(); return false;"
                     style="color:var(--apple-blue); font-size:12px;">Como criar meu banco gratuito?</a>
             </div>
 
@@ -897,6 +1006,21 @@
         window.isCloudSyncActive = false;
         window.shouldStartRsvpSync = false;
 
+        window.showToast = window.showToast || function (message, type = 'info', duration = 3600) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast-item toast-' + type;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-6px)';
+                toast.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+                setTimeout(() => toast.remove(), 220);
+            }, duration);
+        };
+
         window.tryInitFirebase = async function () {
             const storedConfig = localStorage.getItem('firebase_config_15');
             if (storedConfig) {
@@ -925,7 +1049,8 @@
                         }
                     } catch (dbError) {
                         console.error("Erro de permissão ou banco ausente:", dbError);
-                        alert("⚠️ O App conectou ao Firebase com sucesso, mas o Banco de Dados recusou acesso.\n\nSua configuração está certa! O problema é lá no console do Google:\n1. Acesse o Firebase > Firestore Database\n2. Vá na aba 'Regras' (Rules)\n3. Troque a regra para: allow read, write: if true;\n4. Publique e recarregue essa página!\n\nErro técnico original: " + dbError.message);
+                        window.showToast("Conectou ao Firebase, mas o Firestore recusou acesso. Revise as regras no console.", "error", 5200);
+                        window.showToast("Erro técnico: " + dbError.message, "info", 4800);
                         updateCloudStatus("Nuvem Bloqueada", "cloud-syncing");
                         window.shouldStartRsvpSync = false;
                         // NÃO removemos a chave porque ela é válida!
@@ -933,7 +1058,8 @@
 
                 } catch (error) {
                     console.error("Erro ao inicializar Firebase Auth:", error);
-                    alert("As chaves coladas são inválidas ou há erro no JSON: " + error.message);
+                    window.showToast("As chaves coladas são inválidas ou há erro no JSON.", "error", 4800);
+                    window.showToast("Detalhe: " + error.message, "info", 4200);
                     localStorage.removeItem('firebase_config_15');
                     window.isCloudSyncActive = false;
                     window.shouldStartRsvpSync = false;
@@ -976,38 +1102,38 @@
         let saveTimeout = null;
         let isAppLoaded = false;
         let convidadosGruposObj = {};
-        const RSVP_FALLBACK_GROUP = 'Confirmações Web';
-        const processedRsvpEvents = new Set();
+
+        window.showToast = window.showToast || function () {};
+
+        function openFirebaseHelpToast() {
+            window.showToast('1) Acesse console.firebase.google.com', 'info', 4200);
+            window.showToast('2) Crie um projeto e habilite Firestore em modo teste', 'info', 4200);
+            window.showToast('3) Em Configurações, adicione Web App e copie o firebaseConfig', 'info', 4500);
+        }
+        const RSVP_FALLBACK_GROUP = '⚠️ Tentativas Não Cadastradas';
+        const processedRsvpDocs = new Set();
         let rsvpSyncUnsubscribe = null;
 
-        function normalizeName(value) {
-            return (value || '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
+        function normalizePhone(value) {
+            return (value || '').toString().replace(/\D/g, '');
         }
 
         function extractRowData(item) {
             return Array.isArray(item) ? item : (item?.rowData || []);
         }
 
-        function extractGuestIdFromRowData(rowData) {
-            const raw = rowData?.[4] || rowData?.[5] || '';
-            return (raw || '').toString().trim();
-        }
-
-        function findConvidadoMatch(gruposObj, nomeConvidado, guestId) {
-            const nomeNorm = normalizeName(nomeConvidado);
-            const guestIdNorm = (guestId || '').toString().trim();
+        function findConvidadoPorTelefone(gruposObj, telefoneFirestore) {
+            const telefoneAlvo = normalizePhone(telefoneFirestore);
+            if (!telefoneAlvo) return null;
 
             for (const [nomeGrupo, pessoas] of Object.entries(gruposObj || {})) {
+                if (nomeGrupo === RSVP_FALLBACK_GROUP) continue;
                 if (!Array.isArray(pessoas)) continue;
                 for (let i = 0; i < pessoas.length; i++) {
                     const item = pessoas[i];
                     const rowData = extractRowData(item);
-                    const rowGuestId = extractGuestIdFromRowData(rowData);
-                    const rowNomeNorm = normalizeName(rowData?.[0]);
-
-                    const byId = guestIdNorm && rowGuestId && rowGuestId === guestIdNorm;
-                    const byName = nomeNorm && rowNomeNorm && rowNomeNorm === nomeNorm;
-                    if (byId || byName) {
+                    const telPainel = normalizePhone(rowData?.[3]);
+                    if (telPainel && telPainel === telefoneAlvo) {
                         return { nomeGrupo, pessoaIndex: i, rowData };
                     }
                 }
@@ -1015,47 +1141,60 @@
             return null;
         }
 
-        function getRsvpEventVersion(docData) {
-            const ts = docData?.timestamp;
-            if (ts && typeof ts === 'object' && ts.seconds !== undefined) {
-                return `${ts.seconds}_${ts.nanoseconds || 0}`;
-            }
-            return (docData?.confirmado_em || '').toString();
+        function forceStatusPills() {
+            document.querySelectorAll('.group-container tbody select').forEach((s) => {
+                s.className = 'status-pill status-' + s.value;
+            });
         }
 
         function upsertRsvpNoEstado(docId, docData) {
             const nomeConvidado = (docData?.nome_convidado || '').toString().trim();
-            if (!nomeConvidado) return;
+            const telefone = normalizePhone(docData?.telefone || '');
+            if (!telefone) return;
 
-            const guestId = (docData?.guest_id || '').toString().trim();
-            const telefone = (docData?.telefone || '').toString().trim();
+            const acompanhantes = Array.isArray(docData?.acompanhantes)
+                ? docData.acompanhantes.map(v => (v || '').toString().trim()).filter(Boolean)
+                : [];
 
             const currentState = getCurrentStateObject();
             convidadosGruposObj = currentState.gruposConvidados || {};
 
-            const match = findConvidadoMatch(convidadosGruposObj, nomeConvidado, guestId);
+            const match = findConvidadoPorTelefone(convidadosGruposObj, telefone);
             if (match) {
-                match.rowData[1] = 'whatsapp';
-                if (telefone && !match.rowData[3]) {
+                match.rowData[1] = 'confirmado';
+                if (acompanhantes.length > 0) {
+                    const textoAcomp = ' + Acomp: ' + acompanhantes.join(', ');
+                    const notaAtual = (match.rowData[2] || '').toString();
+                    if (!notaAtual.includes(textoAcomp)) {
+                        match.rowData[2] = notaAtual ? (notaAtual + textoAcomp) : textoAcomp;
+                    }
+                }
+                if (!match.rowData[3]) {
                     match.rowData[3] = telefone;
                 }
             } else {
                 if (!Array.isArray(convidadosGruposObj[RSVP_FALLBACK_GROUP])) {
                     convidadosGruposObj[RSVP_FALLBACK_GROUP] = [];
                 }
+                let notaTentativa = 'Tentou confirmar com o número: ' + telefone;
+                if (acompanhantes.length > 0) {
+                    notaTentativa += ' + Acomp: ' + acompanhantes.join(', ');
+                }
                 convidadosGruposObj[RSVP_FALLBACK_GROUP].push({
-                    rowData: [nomeConvidado, 'whatsapp', 'RSVP Web', telefone]
+                    rowData: [nomeConvidado || 'Convidado Web', 'pendente', notaTentativa, telefone]
                 });
             }
 
             currentState.gruposConvidados = convidadosGruposObj;
             window.applyStateToUI(currentState);
+            forceStatusPills();
+            updateDashboard();
             saveState();
-            console.log(`[RSVP Sync] Atualizado doc ${docId}: ${nomeConvidado}`);
+            console.log('[RSVP Sync] Atualizado doc ' + docId + ': ' + nomeConvidado);
         }
 
         window.startRsvpRealtimeSync = function () {
-            if (rsvpSyncUnsubscribe || !window.dbFirestore) return;
+            if (!window.isCloudSyncActive || rsvpSyncUnsubscribe || !window.dbFirestore) return;
             if (!isAppLoaded) {
                 setTimeout(() => window.startRsvpRealtimeSync(), 400);
                 return;
@@ -1064,13 +1203,10 @@
             const rsvpRef = collection(window.dbFirestore, 'artifacts', 'plan15anos', 'public', 'data', 'rsvp_confirmacoes');
             rsvpSyncUnsubscribe = onSnapshot(rsvpRef, (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
-                    if (change.type !== 'added' && change.type !== 'modified') return;
-                    const data = change.doc.data() || {};
-                    const version = getRsvpEventVersion(data);
-                    const dedupeKey = `${change.doc.id}:${version}`;
-                    if (processedRsvpEvents.has(dedupeKey)) return;
-                    processedRsvpEvents.add(dedupeKey);
-                    upsertRsvpNoEstado(change.doc.id, data);
+                    if (change.type !== 'added') return;
+                    if (processedRsvpDocs.has(change.doc.id)) return;
+                    processedRsvpDocs.add(change.doc.id);
+                    upsertRsvpNoEstado(change.doc.id, change.doc.data() || {});
                 });
             }, (err) => {
                 console.error('[RSVP Sync] Erro no listener:', err);
@@ -1192,7 +1328,11 @@
         function enviarConviteWhatsApp(nomeInput, telInput) {
             const nome = nomeInput.value.trim();
             const tel  = (telInput.value || '').replace(/\D/g, '');
-            if (!nome) { alert('Preencha o nome do convidado antes de enviar o convite.'); nomeInput.focus(); return; }
+            if (!nome) {
+                window.showToast('Preencha o nome do convidado antes de enviar o convite.', 'error');
+                nomeInput.focus();
+                return;
+            }
 
             // URL base do site (produção Netlify ou fallback local)
             const siteBase = window.location.hostname === 'localhost' || window.location.protocol === 'file:'
@@ -1304,7 +1444,17 @@
 
             const tdWa = document.createElement('td');
             tdWa.style.textAlign = 'center';
-            tdWa.appendChild(btnWa);
+
+            if (nomeGrupo === RSVP_FALLBACK_GROUP) {
+                const btnApprove = document.createElement('button');
+                btnApprove.type = 'button';
+                btnApprove.className = 'btn-approve';
+                btnApprove.textContent = '✅ Aprovar';
+                btnApprove.onclick = () => aprovarTentativaNaoCadastrada(nomeInput, statusSel, notaInput, telInput);
+                tdWa.appendChild(btnApprove);
+            } else {
+                tdWa.appendChild(btnWa);
+            }
 
             appendRowGenericComTd(table, [
                 nomeInput, statusSel, notaInput, telInput
@@ -1317,16 +1467,65 @@
             }
         }
 
+        function aprovarTentativaNaoCadastrada(nomeInput, statusSel, notaInput, telInput) {
+            const nome = (nomeInput.value || '').trim() || 'Convidado aprovado';
+            const telefone = (telInput.value || '').replace(/\D/g, '');
+            const notaOriginal = (notaInput.value || '').trim();
+            const notaLimpa = notaOriginal
+                .replace(/^Tentou confirmar com o número:\s*\d+\s*/i, '')
+                .replace(/^\+\s*/, '')
+                .trim();
+
+            const stateObj = getCurrentStateObject();
+            const grupos = stateObj.gruposConvidados || {};
+            const tentativaArr = Array.isArray(grupos[RSVP_FALLBACK_GROUP]) ? grupos[RSVP_FALLBACK_GROUP] : [];
+
+            let removido = false;
+            grupos[RSVP_FALLBACK_GROUP] = tentativaArr.filter((item) => {
+                if (removido) return true;
+                const row = extractRowData(item);
+                const telRow = (row[3] || '').toString().replace(/\D/g, '');
+                const nomeRow = (row[0] || '').toString().trim().toLowerCase();
+                const match = telRow === telefone && nomeRow === nome.toLowerCase();
+                if (match) {
+                    removido = true;
+                    return false;
+                }
+                return true;
+            });
+
+            if (grupos[RSVP_FALLBACK_GROUP].length === 0) {
+                delete grupos[RSVP_FALLBACK_GROUP];
+            }
+
+            const grupoDestino = 'Convidados Gerais';
+            if (!Array.isArray(grupos[grupoDestino])) grupos[grupoDestino] = [];
+            grupos[grupoDestino].push({
+                rowData: [nome, 'confirmado', notaLimpa, telefone]
+            });
+
+            stateObj.gruposConvidados = grupos;
+            window.applyStateToUI(stateObj);
+            updateDashboard();
+            saveState();
+            window.showToast('Convidado aprovado e movido para Convidados Gerais.', 'success');
+        }
+
         function criarNovoGrupoUI() {
             const val = document.getElementById('novo-grupo-nome').value.trim();
-            if (!val) return alert("Digite um nome para o grupo.");
+            if (!val) {
+                window.showToast('Digite um nome para o grupo.', 'error');
+                return;
+            }
             if (!convidadosGruposObj[val]) {
                 convidadosGruposObj[val] = [];
                 renderizarGrupoContainer(val, true);
                 addPessoaAoGrupo(val);
                 document.getElementById('novo-grupo-nome').value = '';
                 saveState();
-            } else alert("Este grupo já existe!");
+            } else {
+                window.showToast('Este grupo já existe!', 'info');
+            }
         }
 
         function acaoGrupo(event, nomeGrupo, action) {
@@ -1434,6 +1633,27 @@
 
             const somaEstimado = document.getElementById('soma-estimado');
             if (somaEstimado) somaEstimado.textContent = valEstimado;
+
+            const progressFill = document.getElementById('budget-progress-fill');
+            const progressLabel = document.getElementById('budget-progress-label');
+            if (progressFill && progressLabel) {
+                const ratio = totalEstimado > 0 ? (totalVal / totalEstimado) : (totalVal > 0 ? 1 : 0);
+                const percentRaw = Math.max(0, ratio * 100);
+                const percentDisplay = Math.round(percentRaw);
+                const percentVisual = Math.min(percentRaw, 100);
+
+                progressFill.style.width = percentVisual + '%';
+                if (totalEstimado > 0 && totalVal > totalEstimado) {
+                    progressFill.style.background = 'var(--apple-red)';
+                    progressLabel.textContent = percentDisplay + '% (acima do estimado)';
+                } else if (percentRaw > 0) {
+                    progressFill.style.background = 'var(--apple-green)';
+                    progressLabel.textContent = percentDisplay + '% do estimado';
+                } else {
+                    progressFill.style.background = 'var(--apple-blue)';
+                    progressLabel.textContent = '0%';
+                }
+            }
 
             let globalTotal = 0;
             let globalConfirmed = 0;
@@ -1616,7 +1836,10 @@
             const spinner = document.getElementById('ai-spinner');
             const btnText = document.getElementById('ai-btn-text');
 
-            if (!apiKey) return alert("Por favor, informe sua API Key.");
+            if (!apiKey) {
+                window.showToast('Por favor, informe sua API Key.', 'error');
+                return;
+            }
             localStorage.setItem('gemini_api_key_15', apiKey);
 
             btn.disabled = true; btnText.textContent = "Pensando..."; spinner.style.display = "inline-block";
@@ -1643,10 +1866,12 @@
                 const custosGerados = JSON.parse(data.candidates[0].content.parts[0].text);
                 if (custosGerados && custosGerados.length > 0) {
                     custosGerados.forEach(c => addOrcamento([c.fornecedor + ' (IA)', c.valor_estimado, '']));
-                    alert(`Sucesso!`); closeAIModal();
+                    window.showToast('Estimativa gerada com sucesso!', 'success');
+                    closeAIModal();
                 }
             } catch (error) {
-                console.error(error); alert("Erro ao tentar processar o json da IA.");
+                console.error(error);
+                window.showToast('Erro ao processar o JSON da IA.', 'error');
             } finally {
                 btn.disabled = false; btnText.textContent = "Gerar Estimativa"; spinner.style.display = "none";
             }
@@ -1664,7 +1889,10 @@
 
         function salvarFirebaseConfig() {
             let val = document.getElementById('firebase-config-input').value.trim();
-            if (!val) return alert("Cole o JSON de configuração!");
+            if (!val) {
+                window.showToast('Cole o JSON de configuração!', 'error');
+                return;
+            }
 
             try {
                 // Isolando 100% à prova de falhas apenas o miolo de texto útil JSON
@@ -1672,7 +1900,8 @@
                 let endIndex = val.lastIndexOf('}');
 
                 if (startIndex === -1 || endIndex === -1) {
-                    return alert("Não encontrei as chaves { } no seu texto. Copie do site do Google exatamente o bloco 'const firebaseConfig = { ... };'");
+                    window.showToast('Não encontrei as chaves { } no texto colado.', 'error', 4800);
+                    return;
                 }
 
                 // Pega todo o texto das chaves incluindo elas mesmas
@@ -1683,15 +1912,18 @@
                 const convertToObj = new Function("return " + extractedObjString)();
 
                 if (!convertToObj.apiKey || !convertToObj.projectId) {
-                    return alert("As chaves de configuração do Google estão vazias ou inválidas. Tente copiar novamente!");
+                    window.showToast('As chaves do Google estão vazias ou inválidas.', 'error', 4800);
+                    return;
                 }
 
                 localStorage.setItem('firebase_config_15', JSON.stringify(convertToObj));
                 closeCloudModal();
-                window.location.reload();
+                window.showToast('Configuração salva. Recarregando para ativar a nuvem...', 'success');
+                setTimeout(() => window.location.reload(), 450);
 
             } catch (e) {
-                alert("Vixe, o código colado apresentou um formato que o sistema não conseguiu ler. Verifique se não cortou pelametade. Erro técnico: " + e.message);
+                window.showToast('Não foi possível ler esse JSON. Confira se o bloco está completo.', 'error', 5200);
+                window.showToast('Erro técnico: ' + e.message, 'info', 4500);
             }
         }
 
