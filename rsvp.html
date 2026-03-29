@@ -622,8 +622,9 @@
             return;
         }
 
-        const telefoneLimpo = normalizePhone(tel);
-        if (telefoneLimpo.length < 10) {
+        const telefoneLimpo = String((tel || '')).replace(/\D/g, '');
+        const telefoneFinal = telefoneLimpo.startsWith('55') && telefoneLimpo.length >= 12 ? telefoneLimpo.substring(2) : telefoneLimpo;
+        if (telefoneFinal.length < 10) {
             showFieldError('input-tel', 'Digite seu WhatsApp com DDD (10 ou 11 números).');
             document.getElementById('input-tel').focus();
             return;
@@ -643,7 +644,7 @@
             if (typeof window.saveRsvpToFirestore === 'function') {
                 await window.saveRsvpToFirestore({
                     nome_convidado: nome,
-                    telefone: telefoneLimpo,
+                    telefone: telefoneFinal,
                     acompanhantes: acompNomes
                 });
                 firebaseOk = true;

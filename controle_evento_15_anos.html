@@ -1175,8 +1175,9 @@
                 for (let i = 0; i < pessoas.length; i++) {
                     const item = pessoas[i];
                     const rowData = extractRowData(item);
-                    const telPainel = normalizePhone(rowData?.[3]);
-                    if (telPainel && telPainel === telefoneAlvo) {
+                    const telPainel = String((rowData ? rowData[3] : '') || '').replace(/\D/g, '');
+                    const telNormalizado = telPainel.startsWith('55') && telPainel.length >= 12 ? telPainel.substring(2) : telPainel;
+                    if (telNormalizado && telNormalizado.length > 8 && telNormalizado === telefoneAlvo) {
                         return { nomeGrupo, pessoaIndex: i, rowData };
                     }
                 }
@@ -1751,7 +1752,15 @@
 
         // Exported para ser chamado quando o Documento Cloud for encontrado e baixado.
         window.applyStateToUI = function (state) {
-            if (!state || typeof state !== 'object') return;
+            // ⚠️ TRAVA MÁXIMA: Detecta estado vazio ANTES de qualquer wipe
+            if (!state || typeof state !== 'object' || Object.keys(state).length === 0) {
+                console.warn('⚠️ Nuvem vazia detectada. Abortando wipe. Forçando save local...');
+                return window.triggerCloudSave ? window.triggerCloudSave() : null;
+            }
+            if (!state.gruposConvidados && !state.convidados && !state.orcamento) {
+                console.warn('⚠️ Estado cloud sem dados críticos. Abortando wipe...');
+                return window.triggerCloudSave ? window.triggerCloudSave() : null;
+            }
 
             const hasCloudGroups = state.gruposConvidados && typeof state.gruposConvidados === 'object' && Object.keys(state.gruposConvidados).length > 0;
             const hasLegacyGuests = Array.isArray(state.convidados) && state.convidados.length > 0;
