@@ -1861,7 +1861,7 @@
 
             const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
-            const prompt = `Você é um Assessor de Festas de 15 anos. Perfil: ${numConvidados} convidados. Local: ${local}. Notas: ${obs}. Estilo: ${style}. Retorne um JSON ARRAY validado destas estimativas em R$. [{ "fornecedor": "Nome", "valor_estimado": numero_inteiro }]`;
+            const prompt = `Você é um Assessor de Festas de 15 anos. Perfil: ${numConvidados} convidados. Local: ${local}. Notas: ${obs}. Estilo: ${style}. Retorne APENAS um JSON ARRAY validado destas estimativas em R$. Exemplo: [{ "fornecedor": "Som", "valor_estimado": 1500 }]`;
 
             try {
                 const resp = await fetch(endpoint, {
@@ -1869,18 +1869,25 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: { temperature: 0.4, responseMimeType: "application/json" }
+                        generationConfig: { temperature: 0.2, responseMimeType: "application/json" }
                     })
                 });
                 const data = await resp.json();
                 if (data.error) throw new Error(data.error.message);
-                const custosGerados = JSON.parse(data.candidates[0].content.parts[0].text);
+                
+                let textResp = data.candidates[0].content.parts[0].text;
+                // Strip markdown backticks if Gemini ignores responseMimeType
+                textResp = textResp.replace(/```json/gi, '').replace(/```/g, '').trim();
+                
+                const custosGerados = JSON.parse(textResp);
                 if (custosGerados && custosGerados.length > 0) {
                     custosGerados.forEach(c => addOrcamento([c.fornecedor + ' (IA)', c.valor_estimado, '']));
-                    window.showToast("Orçamento gerado com sucesso!", "success", 3000); closeAIModal();
+                    window.showToast("Orçamento gerado com sucesso!", "success", 3000); 
+                    closeAIModal();
                 }
             } catch (error) {
-                console.error(error); window.showToast("Erro ao processar o JSON da IA.", "error", 4000);
+                console.error("Gemini Error:", error); 
+                window.showToast("Erro ao processar a resposta da IA. Verifique sua chave ou tente novamente.", "error", 5000);
             } finally {
                 btn.disabled = false; btnText.textContent = "Gerar Estimativa"; spinner.style.display = "none";
             }
