@@ -466,7 +466,8 @@
         }
         if (!curUser) throw new Error('Usuário não autenticado no Firebase');
 
-        console.log(`[RSVP Envio] Enviando para nuvem: Nome: ${payload.nome_convidado || ''}, Tel Limpo: ${payload.telefone || ''}`);
+        console.log(`[RSVP Envio] Enviando: ${payload.nome_convidado} | Tel: ${payload.telefone || 'VAZIO'}`);
+        if (!payload.telefone) console.warn(`[RSVP Envio] AVISO: Telefone vazio!`);
         await addDoc(collection(db, 'artifacts/' + appId + '/public/data/rsvp_confirmacoes'), {
             nome_convidado: payload.nome_convidado || '',
             telefone: payload.telefone || '',

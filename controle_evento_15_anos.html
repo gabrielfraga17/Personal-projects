@@ -1225,8 +1225,11 @@
         function upsertRsvpNoEstado(docId, docData) {
             const nomeConvidado = (docData?.nome_convidado || '').toString().trim();
             const telefone = normalizePhone(docData?.telefone || '');
-            if (!telefone) return;
-            console.log(`[RSVP Firebase] Recebido: ${nomeConvidado || 'Sem nome'} - Tel: ${telefone}`);
+            if (!telefone) {
+                console.warn(`[RSVP Firebase] Telefone vazio para ${nomeConvidado}`);
+                return;
+            }
+            console.log(`[RSVP Firebase] Recebido: ${nomeConvidado} - Tel: ${telefone}`);
 
             const acompanhantes = Array.isArray(docData?.acompanhantes)
                 ? docData.acompanhantes.map(v => (v || '').toString().trim()).filter(Boolean)
@@ -1236,7 +1239,9 @@
             convidadosGruposObj = currentState.gruposConvidados || {};
 
             const match = findConvidadoPorTelefone(convidadosGruposObj, telefone);
+            console.log(`[RSVP Match] Procurando ${telefone} em ${Object.keys(convidadosGruposObj).length} grupos`);
             if (match) {
+                console.log(`[RSVP Match] ENCONTRADO em ${match.nomeGrupo}`);
                 match.rowData[1] = 'confirmado';
                 if (acompanhantes.length > 0) {
                     const textoAcomp = ' + Acomp: ' + acompanhantes.join(', ');
@@ -1537,6 +1542,7 @@
             const notaInput = createInput('text', 'Nota extra...', String((rowData[2] ?? '')), '');
             const telInput  = createInput('tel',  '(21) 99999-0000', String((rowData[3] ?? '')), '');
             telInput.style.minWidth = '130px';
+            if (rowData[3]) console.log(`[Render] ${rowData[0]} - Tel: ${String(rowData[3]).replace(/\D/g, '').slice(-8)}`);
 
             btnWa.onclick = () => enviarConviteWhatsApp(nomeInput, telInput);
 
@@ -1870,10 +1876,15 @@
             document.querySelectorAll('.group-container').forEach(details => {
                 const name = details.dataset.groupName;
                 const tableBodyRows = details.querySelectorAll('tbody tr');
-                gruposLidos[name] = Array.from(tableBodyRows).map(row => {
+                console.log(`[State Read] Grupo "${name}": ${tableBodyRows.length} linhas`);
+                gruposLidos[name] = Array.from(tableBodyRows).map((row, rowIdx) => {
                     const getCellValue = (index) => {
                         const control = row.cells[index]?.querySelector('input, select, textarea');
-                        return control ? control.value : '';
+                        const val = control ? control.value : '';
+                        if (index === 3 && !val) {
+                            console.warn(`[State Read] Linha ${rowIdx} Grupo "${name}": TELEFONE VAZIO!`);
+                        }
+                        return val;
                     };
                     const cellData = [
                         getCellValue(0),
@@ -1881,6 +1892,9 @@
                         getCellValue(2),
                         getCellValue(3)
                     ];
+                    if (cellData[3]) {
+                        console.log(`[State Read] OK: ${cellData[0]} - Tel: ${cellData[3].replace(/\D/g, '').slice(-8)}`);
+                    }
                     // Firebase nested array workaround
                     return { rowData: cellData };
                 });
