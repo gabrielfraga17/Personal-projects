@@ -1164,6 +1164,7 @@
             window._rsvpSyncUnsub = onSnapshot(q, (snapshot) => {
                 snapshot.docChanges().forEach(change => {
                     if (change.type === 'added') {
+                        console.log('[RSVP Listener] Novo doc recebido:', change.doc.id);
                         window.upsertRsvpNoEstado && window.upsertRsvpNoEstado(change.doc.id, change.doc.data());
                     }
                 });
@@ -1454,6 +1455,7 @@
         function addPessoaAoGrupo(nomeGrupo, dataArr = null) {
             const details = renderizarGrupoContainer(nomeGrupo);
             const table = details.querySelector('table');
+            const rowData = Array.isArray(dataArr) ? dataArr : ((dataArr && dataArr.rowData) ? dataArr.rowData : []);
             const options = [
                 { value: 'pendente',   label: 'Pendente' },
                 { value: 'confirmado', label: '✅ Confirmado' },
@@ -1461,11 +1463,14 @@
                 { value: 'recusado',   label: 'Não Irá' }
             ];
             // dataArr layout: [0]=nome, [1]=status, [2]=nota, [3]=telefone, [4]=guestId
-            const guestId   = (dataArr && dataArr[4]) ? dataArr[4] : generateUUID();
-            const nomeInput = createInput('text', 'Nome', dataArr ? dataArr[0] : '');
-            const statusSel = createSelect(options, dataArr ? dataArr[1] : 'pendente', updateDashboard);
-            const notaInput = createInput('text', 'Nota extra...', dataArr ? dataArr[2] : '');
-            const telInput  = createInput('tel',  '5511...', dataArr ? dataArr[3] : '');
+            const guestId   = rowData[4] ? rowData[4] : generateUUID();
+            const nomeInput = createInput('text', 'Nome', String((rowData[0] ?? '')), '');
+            const statusSel = createSelect(options, String((rowData[1] ?? 'pendente')), updateDashboard);
+            const notaInput = createInput('text', 'Nota extra...', String((rowData[2] ?? '')), '');
+            const telInput  = createInput('tel',  '5511...', String((rowData[3] ?? '')), '');
+            if (rowData[3]) {
+                console.log('[Render] Adicionando ao painel:', rowData[0] || 'Sem nome', '- Tel:', String(rowData[3]).replace(/\D/g, ''));
+            }
             const rsvpCell  = document.createElement('span');
             if (nomeGrupo === RSVP_FALLBACK_GROUP) {
                 const btnApprove = document.createElement('button');
@@ -1717,10 +1722,26 @@
             document.querySelectorAll('.group-container').forEach(details => {
                 const name = details.dataset.groupName;
                 const tableBodyRows = details.querySelectorAll('tbody tr');
-                gruposLidos[name] = Array.from(tableBodyRows).map(row => {
-                    // Columns: [nome, status, nota, telefone, rsvpBtn(span)] + [del btn]
-                    // We want cells 0-3 (nome, status, nota, telefone) + guest_id from dataset
-                    const cellData = Array.from(row.cells).slice(0, 4).map(c => c.firstElementChild ? c.firstElementChild.value : '');
+                console.log('[State Read] Grupo:', name, '- Linhas:', tableBodyRows.length);
+                gruposLidos[name] = Array.from(tableBodyRows).map((row, rowIdx) => {
+                    const getCellValue = (index) => {
+                        const control = row.cells[index]?.querySelector('input, select, textarea');
+                        const value = control ? control.value : '';
+                        if (index === 3) {
+                            if (value) {
+                                console.log('[State Read] Telefone lido:', value.replace(/\D/g, ''), '- Grupo:', name, '- Linha:', rowIdx);
+                            } else {
+                                console.warn('[State Read] Telefone vazio no painel - Grupo:', name, '- Linha:', rowIdx);
+                            }
+                        }
+                        return value;
+                    };
+                    const cellData = [
+                        getCellValue(0),
+                        getCellValue(1),
+                        getCellValue(2),
+                        getCellValue(3)
+                    ];
                     const guestId = row.dataset.guestId || generateUUID();
                     cellData.push(guestId); // index 4
                     // Firebase nested array workaround
@@ -1985,8 +2006,13 @@
                 if (details.dataset.groupName === RSVP_FALLBACK_GROUP) return;
                 details.querySelectorAll('tbody tr').forEach(row => {
                     if (found) return;
+                    const nomePainel = row.cells[0]?.querySelector('input')?.value || 'Sem nome';
                     const telInput = row.cells[3]?.querySelector('input');
-                    if (telInput && normalizePhone(telInput.value) === alvo) found = row;
+                    const telPainel = telInput ? normalizePhone(String(telInput.value || '').replace(/\D/g, '')) : '';
+                    if (telPainel && telPainel.length > 8) {
+                        console.log('[RSVP Painel] Comparando com:', nomePainel, '- Tel:', telPainel);
+                    }
+                    if (telPainel && telPainel.length > 8 && telPainel === alvo) found = row;
                 });
             });
             return found;
@@ -2002,10 +2028,12 @@
         window.upsertRsvpNoEstado = function (docId, docData) {
             if (processedRsvpDocs.has(docId)) return;
             processedRsvpDocs.add(docId);
-            const telefone = docData.telefone || '';
+            const telefone = normalizePhone(docData.telefone || '');
             const nome = docData.nome_convidado || 'Desconhecido';
             const acompanhantes = Array.isArray(docData.acompanhantes) ? docData.acompanhantes : [];
+            console.log('[RSVP Firebase] Recebido:', nome, '- Tel:', telefone);
             const row = findConvidadoPorTelefone(telefone);
+            console.log('[RSVP Match] Procurando', telefone, 'em grupos do painel');
             if (row) {
                 const statusSel = row.cells[1]?.querySelector('select');
                 if (statusSel) { statusSel.value = 'confirmado'; statusSel.className = 'status-pill status-confirmado'; }
@@ -2013,8 +2041,12 @@
                     const notaInput = row.cells[2]?.querySelector('input');
                     if (notaInput) notaInput.value = (notaInput.value ? notaInput.value + ' | ' : '') + 'Acomp: ' + acompanhantes.join(', ');
                 }
+                const telInput = row.cells[3]?.querySelector('input');
+                if (telInput && !telInput.value) telInput.value = telefone;
+                console.log('[RSVP Match] Match encontrado para:', nome, '- Tel:', telefone);
                 window.showToast('\u2705 ' + nome + ' confirmou presença via link!', 'success', 4500);
             } else {
+                console.warn('[RSVP Match] Nenhum telPainel válido correspondeu a', telefone, '- enviando para fallback');
                 addPessoaAoGrupo(RSVP_FALLBACK_GROUP, [nome, 'whatsapp', 'Tentou confirmar com o número: ' + telefone, telefone, null]);
                 window.showToast('\u26a0\ufe0f Confirmação de número desconhecido: ' + telefone, 'info', 5000);
             }
