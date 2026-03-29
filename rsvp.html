@@ -526,8 +526,14 @@
     const preNome = params.get('name') || '';
     const preTel  = params.get('tel')  || '';
 
+    const normalizePhone = (value) => {
+        let num = (value || '').toString().replace(/\D/g, '');
+        if (num.startsWith('55') && num.length >= 12) num = num.substring(2);
+        return num;
+    };
+
     const formatPhoneInput = (rawValue) => {
-        const digits = (rawValue || '').replace(/\D/g, '').slice(0, 11);
+        const digits = normalizePhone(rawValue).slice(0, 11);
         if (!digits) return '';
         if (digits.length <= 2) return '(' + digits;
         if (digits.length <= 6) return '(' + digits.slice(0, 2) + ') ' + digits.slice(2);
@@ -616,7 +622,7 @@
             return;
         }
 
-        const telefoneLimpo = tel.replace(/\D/g, '');
+        const telefoneLimpo = normalizePhone(tel);
         if (telefoneLimpo.length < 10) {
             showFieldError('input-tel', 'Digite seu WhatsApp com DDD (10 ou 11 números).');
             document.getElementById('input-tel').focus();

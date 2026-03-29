@@ -978,39 +978,6 @@
                 </div>
             </div>
 
-            <!-- Netlify API Sync -->
-            <div style="
-                background: rgba(52,199,89,0.06);
-                border: 1px solid rgba(52,199,89,0.22);
-                border-radius: 16px;
-                padding: 20px 24px;
-                margin-bottom: 24px;
-            ">
-                <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">
-                    ☁️ Sincronizar com Netlify Forms
-                </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
-                    <div>
-                        <label style="font-size:12px; color:var(--text-secondary); font-weight:500; display:block; margin-bottom:4px;">Token Pessoal (User Settings → OAuth)</label>
-                        <input type="password" id="netlify-token" placeholder="netlify_pat_..." style="font-size:13px; padding:10px 12px; border-radius:10px; border:1px solid var(--system-gray-4); width:100%; background:rgba(255,255,255,0.8); font-family:monospace;">
-                    </div>
-                    <div>
-                        <label style="font-size:12px; color:var(--text-secondary); font-weight:500; display:block; margin-bottom:4px;">Site ID ou Nome do Site Netlify</label>
-                        <input type="text" id="netlify-site-id" placeholder="ex: my-site.netlify.app" style="font-size:13px; padding:10px 12px; border-radius:10px; border:1px solid var(--system-gray-4); width:100%; background:rgba(255,255,255,0.8);">
-                    </div>
-                </div>
-                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-                    <button type="button" class="btn-primary" id="btn-netlify-sync" onclick="sincronizarNetlify()" style="margin-top:0; padding:10px 20px; font-size:13px;">
-                        ↻ Sincronizar Confirmações
-                    </button>
-                    <span id="netlify-sync-status" style="font-size:13px; color:var(--text-secondary);"></span>
-                    <a href="https://app.netlify.com" target="_blank" rel="noopener" style="font-size:12px; color:var(--apple-blue); margin-left:auto;">Ver painel Netlify →</a>
-                </div>
-                <div style="font-size:11px; color:var(--text-secondary); margin-top:10px;">
-                    O token é salvo localmente (só neste dispositivo). As confirmações são cruzadas pelo <code>guest_id</code> único de cada link individual.
-                </div>
-            </div>
-
             <!-- Local log list -->
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
                 <div style="font-size:15px; font-weight:600; color:var(--text-primary);">
@@ -1189,7 +1156,22 @@
 
                         if (docSnap.exists()) {
                             console.log("Baixando dados reais da nuvem...");
-                            window.applyStateToUI(docSnap.data());
+                            const cloudState = docSnap.data() || {};
+                            const hasCloudGroups = cloudState.gruposConvidados && Object.keys(cloudState.gruposConvidados).length > 0;
+                            const hasLegacyGuests = Array.isArray(cloudState.convidados) && cloudState.convidados.length > 0;
+                            if (hasCloudGroups || hasLegacyGuests) {
+                                window.applyStateToUI(cloudState);
+                            } else {
+                                const localStateRaw = localStorage.getItem('applePlannerState');
+                                if (localStateRaw) {
+                                    try {
+                                        window.applyStateToUI(JSON.parse(localStateRaw));
+                                    } catch (e) {
+                                        console.warn('State local inválido para restauração:', e.message);
+                                    }
+                                }
+                                setTimeout(() => window.triggerCloudSave && window.triggerCloudSave(), 220);
+                            }
                         } else {
                             // Se não tem na nuvem, manda o que tá local p/ inicializar
                             window.triggerCloudSave();
@@ -1401,8 +1383,8 @@
             btn.dataset.guestId = guestId;
             btn.onclick = () => {
                 const nome   = nomeInput.value.trim() || 'Convidado';
-                const tel    = (telInput?.value || '').replace(/\D/g, '');
-                const rawOrg = (document.getElementById('whatsapp')?.value || '').replace(/\D/g, '');
+                const tel    = normalizePhone(telInput?.value || '');
+                const rawOrg = normalizePhone(document.getElementById('whatsapp')?.value || '');
                 const org    = rawOrg.length <= 11 && rawOrg.length >= 10 ? '55' + rawOrg : rawOrg;
                 const base   = window.location.hostname === 'localhost' || window.location.protocol === 'file:' 
                     ? 'https://larah15anos.netlify.app' 
@@ -1410,8 +1392,9 @@
                     
                 const link   = `${base}/pdf.html?guest_id=${guestId}&name=${encodeURIComponent(nome)}${tel ? '&tel=' + encodeURIComponent(tel) : ''}${org ? '&org=' + encodeURIComponent(org) : ''}`;
                 const msg    = encodeURIComponent(`Olá, ${nome}! 🌸\n\nVocê foi convidado(a) para a Festa de 15 Anos da Larah!\n\n✨ Clique no link abaixo para ver seu convite e confirmar a presença:\n${link}`);
+                const waTel  = tel ? (tel.length <= 11 ? ('55' + tel) : tel) : '';
                 const waUrl  = tel
-                    ? `https://wa.me/55${tel}?text=${msg}`
+                    ? `https://wa.me/${waTel}?text=${msg}`
                     : `https://wa.me/?text=${msg}`;
                 window.open(waUrl, '_blank', 'noopener');
             };
@@ -1873,12 +1856,6 @@
             if (linkEl)     linkEl.textContent = rsvpUrl;
             if (previewEl)  previewEl.href = rsvpUrl;
 
-            // Restore saved Netlify credentials
-            const savedToken  = localStorage.getItem('netlify_token');
-            const savedSiteId = localStorage.getItem('netlify_site_id');
-            if (savedToken)  document.getElementById('netlify-token').value = savedToken;
-            if (savedSiteId) document.getElementById('netlify-site-id').value = savedSiteId;
-
             rsvpRefresh();
         }
 
@@ -1934,112 +1911,9 @@
         }
 
         function limparLogRsvp() {
-            if (confirm('Tem certeza? Isso apagará a lista de confirmações deste dispositivo. As confirmações no Netlify não serão afetadas.')) {
+            if (confirm('Tem certeza? Isso apagará a lista de confirmações deste dispositivo.')) {
                 localStorage.removeItem('rsvp_log');
                 rsvpRefresh();
-            }
-        }
-
-        async function sincronizarNetlify() {
-            const token  = document.getElementById('netlify-token').value.trim();
-            const siteId = document.getElementById('netlify-site-id').value.trim();
-            const statusEl = document.getElementById('netlify-sync-status');
-            const btn = document.getElementById('btn-netlify-sync');
-
-            if (!token || !siteId) {
-                statusEl.textContent = '⚠️ Preencha o token e o site ID.';
-                statusEl.style.color = '#FF9500';
-                return;
-            }
-
-            // Persist credentials for convenience (never sent to any server, only stored locally)
-            localStorage.setItem('netlify_token', token);
-            localStorage.setItem('netlify_site_id', siteId);
-
-            btn.disabled = true;
-            statusEl.textContent = 'Buscando confirmações...';
-            statusEl.style.color = 'var(--text-secondary)';
-
-            try {
-                // 1. Find the form ID by listing forms for the site
-                const formsResp = await fetch(
-                    `https://api.netlify.com/api/v1/sites/${siteId}/forms`,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-                if (!formsResp.ok) throw new Error(`Erro Netlify API: ${formsResp.status} ${formsResp.statusText}. Verifique o token e o site ID.`);
-
-                const forms = await formsResp.json();
-                const rsvpForm = forms.find(f => f.name === 'rsvp-confirmacoes');
-                if (!rsvpForm) throw new Error('Formulário "rsvp-confirmacoes" não encontrado. O site foi publicado e alguém já confirmou presença?');
-
-                // 2. Fetch submissions (up to 100 most recent)
-                const subsResp = await fetch(
-                    `https://api.netlify.com/api/v1/forms/${rsvpForm.id}/submissions?per_page=100`,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-                if (!subsResp.ok) throw new Error(`Erro ao buscar submissions: ${subsResp.status}`);
-
-                const submissions = await subsResp.json();
-                if (submissions.length === 0) {
-                    statusEl.textContent = '✅ Nenhuma confirmação encontrada ainda no Netlify.';
-                    statusEl.style.color = 'var(--apple-green)';
-                    btn.disabled = false;
-                    return;
-                }
-
-                // 3. Merge into local rsvp_log (de-duplicate by guest_id)
-                let log = [];
-                try { log = JSON.parse(localStorage.getItem('rsvp_log') || '[]'); } catch (e) {}
-                const existingIds = new Set(log.map(e => e.guest_id));
-
-                let novos = 0;
-                for (const sub of submissions) {
-                    const d = sub.data || sub.body || {};
-                    const gid = d.guest_id || sub.id;
-                    if (!existingIds.has(gid)) {
-                        log.push({
-                            guest_id:        gid,
-                            nome_convidado:  d.nome_convidado || d.guest_name || '—',
-                            telefone:        d.telefone || '—',
-                            confirmado_em:   sub.created_at || new Date().toISOString(),
-                            source:          'netlify_sync'
-                        });
-                        existingIds.add(gid);
-                        novos++;
-                    }
-                }
-                localStorage.setItem('rsvp_log', JSON.stringify(log));
-
-                // 4. Match by guest_id and update planner guest statuses
-                let atualizados = 0;
-                const appState = JSON.parse(localStorage.getItem('applePlannerState') || 'null');
-                if (appState?.gruposConvidados) {
-                    const syncedIds = new Set(submissions.map(s => (s.data || {}).guest_id).filter(Boolean));
-                    for (const grupo of Object.values(appState.gruposConvidados)) {
-                        for (const pessoa of grupo) {
-                            const rd = Array.isArray(pessoa) ? pessoa : (pessoa.rowData || []);
-                            if (rd[4] && syncedIds.has(rd[4]) && rd[1] !== 'whatsapp' && rd[1] !== 'confirmado') {
-                                rd[1] = 'whatsapp';
-                                atualizados++;
-                            }
-                        }
-                    }
-                    if (atualizados > 0) {
-                        localStorage.setItem('applePlannerState', JSON.stringify(appState));
-                        window.applyStateToUI(appState);
-                    }
-                }
-
-                rsvpRefresh();
-                statusEl.textContent = `✅ ${submissions.length} confirmações | ${novos} novas | ${atualizados} convidado(s) marcado(s) como Confirmado`;
-                statusEl.style.color = 'var(--apple-green)';
-
-            } catch (err) {
-                console.error('Netlify sync error:', err);
-                statusEl.textContent = `❌ ${err.message}`;
-                statusEl.style.color = 'var(--apple-red)';
-            } finally {
-                btn.disabled = false;
             }
         }
 
@@ -2047,7 +1921,9 @@
            7. FIRESTORE RSVP SYNC (CONFIRMAÇÕES AUTOMÁTICAS)
            ======================================= */
         function normalizePhone(value) {
-            return (value || '').toString().replace(/\D/g, '');
+            let num = (value || '').toString().replace(/\D/g, '');
+            if (num.startsWith('55') && num.length >= 12) num = num.substring(2);
+            return num;
         }
 
         function findConvidadoPorTelefone(telefoneFirestore) {

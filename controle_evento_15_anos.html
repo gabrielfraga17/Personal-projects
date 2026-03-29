@@ -458,6 +458,23 @@
             transition: width 0.35s ease, background-color 0.35s ease;
         }
 
+        .budget-progress-bg {
+            width: 100%;
+            height: 10px;
+            border-radius: var(--radius-pill);
+            background: var(--system-gray-5);
+            overflow: hidden;
+            border: 1px solid var(--system-gray-4);
+            margin-top: 10px;
+        }
+
+        .budget-progress-text {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
         .toast-container {
             position: fixed;
             right: 18px;
@@ -469,14 +486,16 @@
             pointer-events: none;
         }
 
+        .toast,
         .toast-item {
             min-width: 260px;
             max-width: 420px;
             padding: 12px 14px;
             border-radius: 14px;
             box-shadow: var(--shadow-float);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            background: rgba(255, 255, 255, 0.86);
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            background: rgba(255, 255, 255, 0.52);
+            backdrop-filter: blur(16px) saturate(160%);
             color: var(--text-primary);
             font-size: 13px;
             font-weight: 500;
@@ -486,8 +505,11 @@
             animation: toastIn 0.25s ease forwards;
         }
 
+        .toast.success,
         .toast-item.toast-success { border-left: 4px solid var(--apple-green); }
+        .toast.error,
         .toast-item.toast-error { border-left: 4px solid var(--apple-red); }
+        .toast.info,
         .toast-item.toast-info { border-left: 4px solid var(--apple-blue); }
 
         .btn-approve {
@@ -778,6 +800,8 @@
             <div class="card">
                 <div class="card-title">Orçamento Total Usado</div>
                 <div class="card-value" id="dash-orcamento">R$ 0,00</div>
+                <div class="budget-progress-bg"><div class="budget-progress-fill" id="budget-fill"></div></div>
+                <div class="budget-progress-text" id="budget-percent">0% do estimado</div>
             </div>
             <div class="card">
                 <div class="card-title">Contagem Regressiva</div>
@@ -1006,11 +1030,12 @@
         window.isCloudSyncActive = false;
         window.shouldStartRsvpSync = false;
 
-        window.showToast = window.showToast || function (message, type = 'info', duration = 3600) {
+        window.showToast = window.showToast || function (message, type = 'success', duration = 3000) {
             const container = document.getElementById('toast-container');
             if (!container) return;
             const toast = document.createElement('div');
-            toast.className = 'toast-item toast-' + type;
+            const visualType = (type === 'error' || type === 'info') ? type : 'success';
+            toast.className = 'toast ' + visualType;
             toast.textContent = message;
             container.appendChild(toast);
             setTimeout(() => {
@@ -1037,7 +1062,23 @@
 
                         if (docSnap.exists()) {
                             console.log("Baixando dados reais da nuvem...");
-                            window.applyStateToUI(docSnap.data());
+                            const cloudState = docSnap.data() || {};
+                            const hasCloudGroups = cloudState.gruposConvidados && Object.keys(cloudState.gruposConvidados).length > 0;
+                            const hasLegacyGuests = Array.isArray(cloudState.convidados) && cloudState.convidados.length > 0;
+
+                            if (hasCloudGroups || hasLegacyGuests) {
+                                window.applyStateToUI(cloudState);
+                            } else {
+                                const localStateRaw = localStorage.getItem('applePlannerState');
+                                if (localStateRaw) {
+                                    try {
+                                        window.applyStateToUI(JSON.parse(localStateRaw));
+                                    } catch (e) {
+                                        console.warn('State local inválido para restauração:', e.message);
+                                    }
+                                }
+                                setTimeout(() => window.triggerCloudSave && window.triggerCloudSave(), 220);
+                            }
                         } else {
                             // Se não tem na nuvem, manda o que tá local p/ inicializar
                             window.triggerCloudSave();
@@ -1115,7 +1156,9 @@
         let rsvpSyncUnsubscribe = null;
 
         function normalizePhone(value) {
-            return (value || '').toString().replace(/\D/g, '');
+            let num = (value || '').toString().replace(/\D/g, '');
+            if (num.startsWith('55') && num.length >= 12) num = num.substring(2);
+            return num;
         }
 
         function extractRowData(item) {
@@ -1327,7 +1370,7 @@
         /* Envio de convite via WhatsApp */
         function enviarConviteWhatsApp(nomeInput, telInput) {
             const nome = nomeInput.value.trim();
-            const tel  = (telInput.value || '').replace(/\D/g, '');
+            const tel  = normalizePhone(telInput.value || '');
             if (!nome) {
                 window.showToast('Preencha o nome do convidado antes de enviar o convite.', 'error');
                 nomeInput.focus();
@@ -1339,7 +1382,7 @@
                 ? 'https://larah15anos.netlify.app'
                 : window.location.origin;
 
-            const orgNum = (document.getElementById('whatsapp')?.value || '').replace(/\D/g, '');
+            const orgNum = normalizePhone(document.getElementById('whatsapp')?.value || '');
             const guestId = 'g_' + Date.now().toString(36);
 
             const qs = new URLSearchParams();
@@ -1351,7 +1394,8 @@
             const conviteUrl = `${siteBase}/pdf.html?${qs.toString()}`;
             const msgTexto   = encodeURIComponent(`Olá, ${nome}! 🌸\n\nVocê foi convidado(a) para a Festa de 15 Anos da Larah!\n\n✨ Clique no link abaixo para ver seu convite e confirmar a presença:\n${conviteUrl}`);
 
-            const waUrl = tel ? `https://wa.me/55${tel}?text=${msgTexto}` : `https://wa.me/?text=${msgTexto}`;
+            const waTel = tel ? (tel.length <= 11 ? ('55' + tel) : tel) : '';
+            const waUrl = waTel ? `https://wa.me/${waTel}?text=${msgTexto}` : `https://wa.me/?text=${msgTexto}`;
             window.open(waUrl, '_blank');
         }
 
@@ -1636,6 +1680,8 @@
 
             const progressFill = document.getElementById('budget-progress-fill');
             const progressLabel = document.getElementById('budget-progress-label');
+            const cardProgressFill = document.getElementById('budget-fill');
+            const cardProgressLabel = document.getElementById('budget-percent');
             if (progressFill && progressLabel) {
                 const ratio = totalEstimado > 0 ? (totalVal / totalEstimado) : (totalVal > 0 ? 1 : 0);
                 const percentRaw = Math.max(0, ratio * 100);
@@ -1643,15 +1689,22 @@
                 const percentVisual = Math.min(percentRaw, 100);
 
                 progressFill.style.width = percentVisual + '%';
+                if (cardProgressFill) cardProgressFill.style.width = percentVisual + '%';
                 if (totalEstimado > 0 && totalVal > totalEstimado) {
                     progressFill.style.background = 'var(--apple-red)';
+                    if (cardProgressFill) cardProgressFill.style.background = 'var(--apple-red)';
                     progressLabel.textContent = percentDisplay + '% (acima do estimado)';
+                    if (cardProgressLabel) cardProgressLabel.textContent = percentDisplay + '% (acima do estimado)';
                 } else if (percentRaw > 0) {
                     progressFill.style.background = 'var(--apple-green)';
+                    if (cardProgressFill) cardProgressFill.style.background = 'var(--apple-green)';
                     progressLabel.textContent = percentDisplay + '% do estimado';
+                    if (cardProgressLabel) cardProgressLabel.textContent = percentDisplay + '% do estimado';
                 } else {
                     progressFill.style.background = 'var(--apple-blue)';
+                    if (cardProgressFill) cardProgressFill.style.background = 'var(--apple-blue)';
                     progressLabel.textContent = '0%';
+                    if (cardProgressLabel) cardProgressLabel.textContent = '0% do estimado';
                 }
             }
 
@@ -1698,7 +1751,16 @@
 
         // Exported para ser chamado quando o Documento Cloud for encontrado e baixado.
         window.applyStateToUI = function (state) {
-            if (!state) return;
+            if (!state || typeof state !== 'object') return;
+
+            const hasCloudGroups = state.gruposConvidados && typeof state.gruposConvidados === 'object' && Object.keys(state.gruposConvidados).length > 0;
+            const hasLegacyGuests = Array.isArray(state.convidados) && state.convidados.length > 0;
+            if (!hasCloudGroups && !hasLegacyGuests) {
+                if (window.isCloudSyncActive) {
+                    setTimeout(() => window.triggerCloudSave && window.triggerCloudSave(), 180);
+                }
+                return;
+            }
 
             // Limpar tabelas da UI para recriar (para evitar duplicidade se sincronizar mid-session)
             document.querySelectorAll('tbody').forEach(tbody => tbody.innerHTML = '');
