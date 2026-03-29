@@ -698,11 +698,92 @@
                 width: 100% !important;
             }
         }
+
+        /* ── Budget Progress Bar ── */
+        .budget-progress-wrap {
+            margin-bottom: 24px;
+            padding: 20px 24px;
+            background: rgba(0,113,227,0.04);
+            border: 1px solid rgba(0,113,227,0.12);
+            border-radius: 16px;
+        }
+        .budget-progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        .budget-progress-track {
+            background: var(--system-gray-5);
+            border-radius: 99px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .budget-progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: var(--apple-blue);
+            transition: width 0.5s cubic-bezier(0.25,0.1,0.25,1), background 0.3s ease;
+            width: 0%;
+        }
+
+        /* ── Toast System ── */
+        #toast-container {
+            position: fixed;
+            top: 68px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast-item {
+            min-width: 280px;
+            max-width: 380px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            backdrop-filter: blur(20px) saturate(180%);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            opacity: 1;
+            transition: opacity 0.2s ease;
+            pointer-events: auto;
+            animation: toastIn 0.3s cubic-bezier(0.25,0.1,0.25,1);
+        }
+        .toast-success { background: rgba(52,199,89,0.92); }
+        .toast-error   { background: rgba(255,59,48,0.92); }
+        .toast-info    { background: rgba(0,113,227,0.92); }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ── Approve Button ── */
+        .btn-approve {
+            background: rgba(52,199,89,0.12);
+            color: var(--apple-green);
+            border: 1px solid rgba(52,199,89,0.35);
+            border-radius: var(--radius-pill);
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .btn-approve:hover { background: rgba(52,199,89,0.22); }
     </style>
 </head>
 
 <body>
 
+    <div id="toast-container"></div>
     <div class="bg-photo-layer"></div>
     <div class="bg-overlay-layer"></div>
 
@@ -786,6 +867,15 @@
                 Orçamento e Custos
                 <button type="button" class="btn-ai" onclick="openAIModal()">✨ Sugerir com Gemini Inteligente</button>
             </h2>
+            <div class="budget-progress-wrap">
+                <div class="budget-progress-header">
+                    <span>Valor Fechado vs. Estimado</span>
+                    <span id="budget-progress-label">0%</span>
+                </div>
+                <div class="budget-progress-track">
+                    <div id="budget-progress-fill" class="budget-progress-fill"></div>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table id="orcamento-table">
                     <thead>
@@ -1020,7 +1110,7 @@
                 Para sincronizar seus dados entre o Celular e o Computador gratuitamente, ative o Google Cloud
                 Firestore.
                 <br><a href="#"
-                    onclick="alert('1. Acesse console.firebase.google.com\n2. Crie um projeto\n3. Habilite o Firestore Database em modo teste\n4. Vá em Configurações > Adicionar Web App e copie o JSON de configuração.')"
+                    onclick="openFirebaseHelpToast()"
                     style="color:var(--apple-blue); font-size:12px;">Como criar meu banco gratuito?</a>
             </div>
 
@@ -1046,12 +1136,41 @@
     <!-- Firebase SDKs (Modo Modular ES6) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         // Variáveis Globais de Ecossistema Nuvem (Disponibilizadas no Window para as funcoes JS nativas poderem usar)
         window.dbFirestore = null;
         window.firebaseApp = null;
         window.isCloudSyncActive = false;
+
+        window.showToast = window.showToast || function (message, type = 'info', duration = 3600) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast-item toast-' + type;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 220);
+            }, duration);
+        };
+
+        window.startRsvpRealtimeSync = function () {
+            if (!window.isCloudSyncActive || !window.dbFirestore) return;
+            if (window._rsvpSyncUnsub) { window._rsvpSyncUnsub(); }
+            const colRef = collection(window.dbFirestore, 'artifacts/plan15anos/public/data/rsvp_confirmacoes');
+            const q = query(colRef, orderBy('timestamp', 'asc'));
+            window._rsvpSyncUnsub = onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === 'added') {
+                        window.upsertRsvpNoEstado && window.upsertRsvpNoEstado(change.doc.id, change.doc.data());
+                    }
+                });
+            }, (err) => {
+                console.error('RSVP listener error:', err);
+            });
+        };
 
         window.tryInitFirebase = async function () {
             const storedConfig = localStorage.getItem('firebase_config_15');
@@ -1061,6 +1180,7 @@
                     window.firebaseApp = initializeApp(firebaseConfig);
                     window.dbFirestore = getFirestore(window.firebaseApp);
                     window.isCloudSyncActive = true;
+                    setTimeout(() => { if (typeof window.startRsvpRealtimeSync === 'function') window.startRsvpRealtimeSync(); }, 800);
 
                     try {
                         // Cloud ativo! Busca o documento inicial da nuvem (ou usa o Local se a nuvem estiver vazia)
@@ -1077,14 +1197,16 @@
                         updateCloudStatus("Salvo na Nuvem", "cloud-saved");
                     } catch (dbError) {
                         console.error("Erro de permissão ou banco ausente:", dbError);
-                        alert("⚠️ O App conectou ao Firebase com sucesso, mas o Banco de Dados recusou acesso.\n\nSua configuração está certa! O problema é lá no console do Google:\n1. Acesse o Firebase > Firestore Database\n2. Vá na aba 'Regras' (Rules)\n3. Troque a regra para: allow read, write: if true;\n4. Publique e recarregue essa página!\n\nErro técnico original: " + dbError.message);
+                        window.showToast("Firestore recusou acesso. Revise as Regras (Rules) no console Firebase e recarregue.", "error", 5500);
+                        window.showToast("Erro técnico: " + dbError.message, "info", 4800);
                         updateCloudStatus("Nuvem Bloqueada", "cloud-syncing");
                         // NÃO removemos a chave porque ela é válida!
                     }
 
                 } catch (error) {
                     console.error("Erro ao inicializar Firebase Auth:", error);
-                    alert("As chaves coladas são inválidas ou há erro no JSON: " + error.message);
+                    window.showToast("As chaves coladas são inválidas ou há erro no JSON.", "error", 4800);
+                    window.showToast("Detalhe: " + error.message, "info", 4200);
                     localStorage.removeItem('firebase_config_15');
                     window.isCloudSyncActive = false;
                     updateCloudStatus("Nuvem Desativada", "cloud-local");
@@ -1120,6 +1242,12 @@
 
 
     <script>
+        // Bootstrap toast (disponível antes do módulo ES6 terminar de carregar)
+        window.showToast = window.showToast || function () {};
+
+        const RSVP_FALLBACK_GROUP = '\u26a0\ufe0f Tentativas Não Cadastradas';
+        const processedRsvpDocs = new Set();
+
         /* =======================================
            1. UTILS E CRIAÇÃO DE ELEMENTOS (MOTOR NATIVO)
            ======================================= */
@@ -1302,17 +1430,21 @@
             // dataArr layout: [0]=nome, [1]=status, [2]=nota, [3]=telefone, [4]=guestId
             const guestId   = (dataArr && dataArr[4]) ? dataArr[4] : generateUUID();
             const nomeInput = createInput('text', 'Nome', dataArr ? dataArr[0] : '');
+            const statusSel = createSelect(options, dataArr ? dataArr[1] : 'pendente', updateDashboard);
+            const notaInput = createInput('text', 'Nota extra...', dataArr ? dataArr[2] : '');
             const telInput  = createInput('tel',  '5511...', dataArr ? dataArr[3] : '');
-            const rsvpBtn  = criarBotaoRsvp(guestId, nomeInput, telInput);
-            const rsvpCell = document.createElement('span');
-            rsvpCell.appendChild(rsvpBtn);
-            appendRowGeneric(table, [
-                nomeInput,
-                createSelect(options, dataArr ? dataArr[1] : 'pendente', updateDashboard),
-                createInput('text', 'Nota extra...', dataArr ? dataArr[2] : ''),
-                telInput,
-                rsvpCell
-            ]);
+            const rsvpCell  = document.createElement('span');
+            if (nomeGrupo === RSVP_FALLBACK_GROUP) {
+                const btnApprove = document.createElement('button');
+                btnApprove.type = 'button';
+                btnApprove.className = 'btn-approve';
+                btnApprove.textContent = '✅ Aprovar';
+                btnApprove.onclick = () => aprovarTentativaNaoCadastrada(nomeInput, statusSel, notaInput, telInput);
+                rsvpCell.appendChild(btnApprove);
+            } else {
+                rsvpCell.appendChild(criarBotaoRsvp(guestId, nomeInput, telInput));
+            }
+            appendRowGeneric(table, [nomeInput, statusSel, notaInput, telInput, rsvpCell]);
             // Store guestId on the row for state serialization
             const lastRow = table.querySelector('tbody tr:last-child');
             if (lastRow) lastRow.dataset.guestId = guestId;
@@ -1325,14 +1457,14 @@
 
         function criarNovoGrupoUI() {
             const val = document.getElementById('novo-grupo-nome').value.trim();
-            if (!val) return alert("Digite um nome para o grupo.");
+            if (!val) return window.showToast("Digite um nome para o grupo.", "error", 3000);
             if (!convidadosGruposObj[val]) {
                 convidadosGruposObj[val] = [];
                 renderizarGrupoContainer(val, true);
                 addPessoaAoGrupo(val);
                 document.getElementById('novo-grupo-nome').value = '';
                 saveState();
-            } else alert("Este grupo já existe!");
+            } else window.showToast("Este grupo já existe!", "error", 3000);
         }
 
         function acaoGrupo(event, nomeGrupo, action) {
@@ -1471,6 +1603,25 @@
                 else if (diffDays === 0) dashDias.textContent = "Hoje!";
                 else dashDias.textContent = "Já passou";
             } else dashDias.textContent = "--";
+
+            // Budget progress bar
+            const progressFill  = document.getElementById('budget-progress-fill');
+            const progressLabel = document.getElementById('budget-progress-label');
+            if (progressFill && progressLabel) {
+                const ratio = totalEstimado > 0 ? (totalVal / totalEstimado) : (totalVal > 0 ? 1 : 0);
+                const pct = Math.max(0, ratio * 100);
+                progressFill.style.width = Math.min(pct, 100) + '%';
+                if (totalEstimado > 0 && totalVal > totalEstimado) {
+                    progressFill.style.background = 'var(--apple-red)';
+                    progressLabel.textContent = pct.toFixed(0) + '% (acima do estimado)';
+                } else if (pct > 0) {
+                    progressFill.style.background = 'var(--apple-green)';
+                    progressLabel.textContent = pct.toFixed(0) + '% do estimado';
+                } else {
+                    progressFill.style.background = 'var(--apple-blue)';
+                    progressLabel.textContent = '0%';
+                }
+            }
         }
 
         function parseTableSimples(tableId) {
@@ -1628,7 +1779,7 @@
             const spinner = document.getElementById('ai-spinner');
             const btnText = document.getElementById('ai-btn-text');
 
-            if (!apiKey) return alert("Por favor, informe sua API Key.");
+            if (!apiKey) return window.showToast("Por favor, informe sua Gemini API Key.", "error", 3500);
             localStorage.setItem('gemini_api_key_15', apiKey);
 
             btn.disabled = true; btnText.textContent = "Pensando..."; spinner.style.display = "inline-block";
@@ -1655,10 +1806,10 @@
                 const custosGerados = JSON.parse(data.candidates[0].content.parts[0].text);
                 if (custosGerados && custosGerados.length > 0) {
                     custosGerados.forEach(c => addOrcamento([c.fornecedor + ' (IA)', c.valor_estimado, '']));
-                    alert(`Sucesso!`); closeAIModal();
+                    window.showToast("Orçamento gerado com sucesso!", "success", 3000); closeAIModal();
                 }
             } catch (error) {
-                console.error(error); alert("Erro ao tentar processar o json da IA.");
+                console.error(error); window.showToast("Erro ao processar o JSON da IA.", "error", 4000);
             } finally {
                 btn.disabled = false; btnText.textContent = "Gerar Estimativa"; spinner.style.display = "none";
             }
@@ -1676,7 +1827,7 @@
 
         function salvarFirebaseConfig() {
             let val = document.getElementById('firebase-config-input').value.trim();
-            if (!val) return alert("Cole o JSON de configuração!");
+            if (!val) return window.showToast("Cole o JSON de configuração!", "error", 3000);
 
             try {
                 // Isolando 100% à prova de falhas apenas o miolo de texto útil JSON
@@ -1684,7 +1835,7 @@
                 let endIndex = val.lastIndexOf('}');
 
                 if (startIndex === -1 || endIndex === -1) {
-                    return alert("Não encontrei as chaves { } no seu texto. Copie do site do Google exatamente o bloco 'const firebaseConfig = { ... };'");
+                    return window.showToast("Não encontrei as chaves { } no texto. Copie o bloco 'const firebaseConfig = { ... };'", "error", 5000);
                 }
 
                 // Pega todo o texto das chaves incluindo elas mesmas
@@ -1695,7 +1846,7 @@
                 const convertToObj = new Function("return " + extractedObjString)();
 
                 if (!convertToObj.apiKey || !convertToObj.projectId) {
-                    return alert("As chaves de configuração do Google estão vazias ou inválidas. Tente copiar novamente!");
+                    return window.showToast("Chaves de configuração inválidas. Copie novamente do Firebase!", "error", 4500);
                 }
 
                 localStorage.setItem('firebase_config_15', JSON.stringify(convertToObj));
@@ -1703,7 +1854,7 @@
                 window.location.reload();
 
             } catch (e) {
-                alert("Vixe, o código colado apresentou um formato que o sistema não conseguiu ler. Verifique se não cortou pelametade. Erro técnico: " + e.message);
+                window.showToast("Formato inválido. Verifique se o JSON não foi cortado. Erro: " + e.message, "error", 5500);
             }
         }
 
@@ -1892,8 +2043,85 @@
             }
         }
 
-        // Inicializa seção RSVP após carregamento
-        // (chamado dentro do window.onload abaixo para evitar double-fire)
+        /* =======================================
+           7. FIRESTORE RSVP SYNC (CONFIRMAÇÕES AUTOMÁTICAS)
+           ======================================= */
+        function normalizePhone(value) {
+            return (value || '').toString().replace(/\D/g, '');
+        }
+
+        function findConvidadoPorTelefone(telefoneFirestore) {
+            const alvo = normalizePhone(telefoneFirestore);
+            if (!alvo) return null;
+            let found = null;
+            document.querySelectorAll('.group-container').forEach(details => {
+                if (found) return;
+                if (details.dataset.groupName === RSVP_FALLBACK_GROUP) return;
+                details.querySelectorAll('tbody tr').forEach(row => {
+                    if (found) return;
+                    const telInput = row.cells[3]?.querySelector('input');
+                    if (telInput && normalizePhone(telInput.value) === alvo) found = row;
+                });
+            });
+            return found;
+        }
+
+        function forceStatusPills() {
+            document.querySelectorAll('.group-container tbody tr').forEach(row => {
+                const sel = row.cells[1]?.querySelector('select');
+                if (sel) sel.className = `status-pill status-${sel.value}`;
+            });
+        }
+
+        window.upsertRsvpNoEstado = function (docId, docData) {
+            if (processedRsvpDocs.has(docId)) return;
+            processedRsvpDocs.add(docId);
+            const telefone = docData.telefone || '';
+            const nome = docData.nome_convidado || 'Desconhecido';
+            const acompanhantes = Array.isArray(docData.acompanhantes) ? docData.acompanhantes : [];
+            const row = findConvidadoPorTelefone(telefone);
+            if (row) {
+                const statusSel = row.cells[1]?.querySelector('select');
+                if (statusSel) { statusSel.value = 'confirmado'; statusSel.className = 'status-pill status-confirmado'; }
+                if (acompanhantes.length > 0) {
+                    const notaInput = row.cells[2]?.querySelector('input');
+                    if (notaInput) notaInput.value = (notaInput.value ? notaInput.value + ' | ' : '') + 'Acomp: ' + acompanhantes.join(', ');
+                }
+                window.showToast('\u2705 ' + nome + ' confirmou presença via link!', 'success', 4500);
+            } else {
+                addPessoaAoGrupo(RSVP_FALLBACK_GROUP, [nome, 'whatsapp', 'Tentou confirmar com o número: ' + telefone, telefone, null]);
+                window.showToast('\u26a0\ufe0f Confirmação de número desconhecido: ' + telefone, 'info', 5000);
+            }
+            forceStatusPills();
+            updateDashboard();
+            saveState();
+        };
+
+        function aprovarTentativaNaoCadastrada(nomeInput, statusSel, notaInput, telInput) {
+            const nome = nomeInput.value.trim();
+            const telefone = telInput.value.trim();
+            const rowToRemove = nomeInput.closest('tr');
+            let targetGroup = 'Convidados Gerais';
+            if (!convidadosGruposObj[targetGroup]) {
+                const groups = Object.keys(convidadosGruposObj).filter(g => g !== RSVP_FALLBACK_GROUP);
+                if (groups.length > 0) targetGroup = groups[0];
+            }
+            addPessoaAoGrupo(targetGroup, [nome, 'confirmado', '', telefone, null]);
+            if (rowToRemove) {
+                rowToRemove.style.opacity = '0';
+                rowToRemove.style.transition = 'opacity 0.2s ease';
+                setTimeout(() => { rowToRemove.remove(); updateDashboard(); saveState(); }, 200);
+            }
+            window.showToast('\u2705 ' + nome + ' aprovado(a) e movido(a) para ' + targetGroup + '!', 'success', 4000);
+            updateDashboard();
+            saveState();
+        }
+
+        function openFirebaseHelpToast() {
+            window.showToast('1) Acesse console.firebase.google.com', 'info', 4200);
+            setTimeout(() => window.showToast('2) Crie um projeto e habilite o Firestore em modo teste', 'info', 4200), 700);
+            setTimeout(() => window.showToast('3) Em Configurações > Adicionar Web App, copie o JSON', 'info', 4800), 1400);
+        }
 
         // Inicialização Limpa
         window.onload = () => {
