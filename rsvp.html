@@ -477,7 +477,12 @@
 
     const saveData = async (col, data, btnId) => {
         if (!curUser) { await initAuth(); await new Promise(r => setTimeout(r, 600)); }
-        if (!curUser) { alert('Erro de conexão.'); return; }
+        if (!curUser) {
+            const btn = document.getElementById(btnId);
+            btn.innerText = 'Erro de conexão ❌'; btn.style.background = '#ef4444';
+            setTimeout(() => { btn.innerText = btn.dataset.orig || 'Enviar'; btn.style.background = ''; btn.disabled = false; }, 3000);
+            return;
+        }
         const btn = document.getElementById(btnId);
         const orig = btn.innerText;
         btn.disabled = true; btn.innerText = 'A enviar…';
@@ -495,8 +500,8 @@
                 }
             }, 2000);
         } catch (err) {
-            alert('Erro: ' + err.message);
-            btn.innerText = 'Tentar novamente'; btn.style.background = '#ef4444'; btn.disabled = false;
+            btn.innerText = 'Erro ❌'; btn.style.background = '#ef4444'; btn.disabled = false;
+            setTimeout(() => { btn.innerText = orig; btn.style.background = ''; }, 3500);
         }
     };
 
