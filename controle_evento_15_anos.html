@@ -1175,8 +1175,12 @@
                 for (let i = 0; i < pessoas.length; i++) {
                     const item = pessoas[i];
                     const rowData = extractRowData(item);
+                    const nomePainel = String((rowData ? rowData[0] : '') || '').trim();
                     const telPainel = String((rowData ? rowData[3] : '') || '').replace(/\D/g, '');
                     const telNormalizado = telPainel.startsWith('55') && telPainel.length >= 12 ? telPainel.substring(2) : telPainel;
+                    if (telNormalizado && telNormalizado.length > 8) {
+                        console.log(`[RSVP Painel] Comparando com: ${nomePainel || 'Sem nome'} - Tel: ${telNormalizado}`);
+                    }
                     if (telNormalizado && telNormalizado.length > 8 && telNormalizado === telefoneAlvo) {
                         return { nomeGrupo, pessoaIndex: i, rowData };
                     }
@@ -1195,6 +1199,7 @@
             const nomeConvidado = (docData?.nome_convidado || '').toString().trim();
             const telefone = normalizePhone(docData?.telefone || '');
             if (!telefone) return;
+            console.log(`[RSVP Firebase] Recebido: ${nomeConvidado || 'Sem nome'} - Tel: ${telefone}`);
 
             const acompanhantes = Array.isArray(docData?.acompanhantes)
                 ? docData.acompanhantes.map(v => (v || '').toString().trim()).filter(Boolean)
@@ -1216,10 +1221,12 @@
                 if (!match.rowData[3]) {
                     match.rowData[3] = telefone;
                 }
+                console.log(`[RSVP Match] Match encontrado em ${match.nomeGrupo} para ${nomeConvidado || 'Sem nome'} - Tel: ${telefone}`);
             } else {
                 if (!Array.isArray(convidadosGruposObj[RSVP_FALLBACK_GROUP])) {
                     convidadosGruposObj[RSVP_FALLBACK_GROUP] = [];
                 }
+                console.warn(`[RSVP Match] Nenhum telPainel válido correspondeu a ${telefone}. Enviando para ${RSVP_FALLBACK_GROUP}.`);
                 let notaTentativa = 'Tentou confirmar com o número: ' + telefone;
                 if (acompanhantes.length > 0) {
                     notaTentativa += ' + Acomp: ' + acompanhantes.join(', ');
@@ -1249,6 +1256,7 @@
                 snapshot.docChanges().forEach((change) => {
                     if (change.type !== 'added') return;
                     if (processedRsvpDocs.has(change.doc.id)) return;
+                    console.log(`[RSVP Listener] Novo doc recebido: ${change.doc.id}`);
                     processedRsvpDocs.add(change.doc.id);
                     upsertRsvpNoEstado(change.doc.id, change.doc.data() || {});
                 });
@@ -1463,6 +1471,7 @@
         function addPessoaAoGrupo(nomeGrupo, dataArr = null) {
             const details = renderizarGrupoContainer(nomeGrupo);
             const table = details.querySelector('table');
+            const rowData = Array.isArray(dataArr) ? dataArr : extractRowData(dataArr);
             const options = [
                 { value: 'pendente', label: 'Pendente' },
                 { value: 'confirmado', label: 'Confirmado' },
@@ -1479,10 +1488,10 @@
             btnWa.onmouseover = () => btnWa.style.opacity = '1';
             btnWa.onmouseout  = () => btnWa.style.opacity = '0.85';
 
-            const nomeInput = createInput('text', 'Nome', dataArr ? dataArr[0] : '');
-            const statusSel = createSelect(options, dataArr ? dataArr[1] : 'pendente', updateDashboard);
-            const notaInput = createInput('text', 'Nota extra...', dataArr ? dataArr[2] : '');
-            const telInput  = createInput('tel',  '(21) 99999-0000', dataArr ? dataArr[3] : '');
+            const nomeInput = createInput('text', 'Nome', String((rowData[0] ?? '')), '');
+            const statusSel = createSelect(options, String((rowData[1] ?? 'pendente')), updateDashboard);
+            const notaInput = createInput('text', 'Nota extra...', String((rowData[2] ?? '')), '');
+            const telInput  = createInput('tel',  '(21) 99999-0000', String((rowData[3] ?? '')), '');
             telInput.style.minWidth = '130px';
 
             btnWa.onclick = () => enviarConviteWhatsApp(nomeInput, telInput);
@@ -1818,7 +1827,16 @@
                 const name = details.dataset.groupName;
                 const tableBodyRows = details.querySelectorAll('tbody tr');
                 gruposLidos[name] = Array.from(tableBodyRows).map(row => {
-                    const cellData = Array.from(row.cells).slice(0, -1).map(c => c.firstElementChild ? c.firstElementChild.value : '');
+                    const getCellValue = (index) => {
+                        const control = row.cells[index]?.querySelector('input, select, textarea');
+                        return control ? control.value : '';
+                    };
+                    const cellData = [
+                        getCellValue(0),
+                        getCellValue(1),
+                        getCellValue(2),
+                        getCellValue(3)
+                    ];
                     // Firebase nested array workaround
                     return { rowData: cellData };
                 });
