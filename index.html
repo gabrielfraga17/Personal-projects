@@ -1275,13 +1275,25 @@
             const i = document.createElement('input');
             i.type = type;
             if (placeholder) i.placeholder = placeholder;
-            if (value !== null && value !== undefined) i.value = value;
+            i.value = type === 'tel' ? formatPhone(value) : (value !== null && value !== undefined ? value : '');
+            if (type === 'tel') i.setAttribute('autocomplete', 'off');
             if (customClass) i.className = customClass;
-            i.addEventListener('input', () => {
+            
+            i.addEventListener('input', (e) => {
+                if (type === 'tel') e.target.value = formatPhone(e.target.value);
                 if (type === 'number' || customClass.includes('calc')) updateDashboard();
                 saveState();
             });
             return i;
+        }
+
+        function formatPhone(rawValue) {
+            const digits = (rawValue || '').replace(/\D/g, '').slice(0, 11);
+            if (!digits) return '';
+            if (digits.length <= 2) return '(' + digits;
+            if (digits.length <= 6) return '(' + digits.slice(0, 2) + ') ' + digits.slice(2);
+            if (digits.length <= 10) return '(' + digits.slice(0, 2) + ') ' + digits.slice(2, 6) + '-' + digits.slice(6);
+            return '(' + digits.slice(0, 2) + ') ' + digits.slice(2, 7) + '-' + digits.slice(7);
         }
 
         function createSelect(options, value = '', onChangeFn = null) {
