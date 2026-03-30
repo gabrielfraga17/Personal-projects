@@ -1453,7 +1453,7 @@
                     ? 'https://larah15anos.netlify.app' 
                     : window.location.origin;
                     
-                const link   = `${base}/pdf.html?guest_id=${guestId}&name=${encodeURIComponent(nome)}${tel ? '&tel=' + encodeURIComponent(tel) : ''}${org ? '&org=' + encodeURIComponent(org) : ''}`;
+                const link   = `${base}/convite.html?guest_id=${guestId}&name=${encodeURIComponent(nome)}${tel ? '&tel=' + encodeURIComponent(tel) : ''}${org ? '&org=' + encodeURIComponent(org) : ''}`;
                 const msg    = encodeURIComponent(`Olá, ${nome}! 🌸\n\nVocê foi convidado(a) para a Festa de 15 Anos da Larah!\n\n✨ Clique no link abaixo para ver seu convite e confirmar a presença:\n${link}`);
                 const waTel  = tel ? (tel.length <= 11 ? ('55' + tel) : tel) : '';
                 const waUrl  = tel
@@ -2033,6 +2033,13 @@
             return num;
         }
 
+        function fuzzyPhoneMatch(p1, p2) {
+            if (!p1 || !p2) return false;
+            if (p1 === p2) return true;
+            const removeNine = (p) => p.length === 11 && p[2] === '9' ? p.substring(0, 2) + p.substring(3) : p;
+            return removeNine(p1) === removeNine(p2);
+        }
+
         function findConvidadoPorTelefone(telefoneFirestore) {
             const alvo = normalizePhone(telefoneFirestore);
             if (!alvo) return null;
@@ -2046,9 +2053,9 @@
                     const telInput = row.cells[3]?.querySelector('input');
                     const telPainel = telInput ? normalizePhone(String(telInput.value || '').replace(/\D/g, '')) : '';
                     if (telPainel && telPainel.length > 8) {
-                        console.log('[RSVP Painel] Comparando com:', nomePainel, '- Tel:', telPainel);
+                        console.log('[RSVP Painel] Comparando com:', nomePainel, '- Base:', telPainel, 'RSVP:', alvo);
+                        if (fuzzyPhoneMatch(telPainel, alvo)) found = row;
                     }
-                    if (telPainel && telPainel.length > 8 && telPainel === alvo) found = row;
                 });
             });
             return found;

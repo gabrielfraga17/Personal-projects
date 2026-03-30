@@ -2,421 +2,172 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Convite Larah 15 Anos - Edição Mágica</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, initial-scale=1.0" />
+    <title>Convite Larah 15 Anos</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Parisienne&display=swap');
 
-        :root {
-            --pink-bg: #fdf2f8;
-            --pink-accent: #db2777;
-            --silver: #e5e7eb;
-        }
-
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--pink-bg);
             margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            color: #1f2937;
+            background: #fdf2f8;
+            font-family: 'Montserrat', sans-serif;
         }
 
-        /* Container responsivo: Fullscreen em mobile, centrado em desktop */
-        .invitation-container {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            background: linear-gradient(135deg, #ffffff 0%, #fdf2f8 60%, #cbd5e1 100%);
-        }
-
-        .invitation-card {
-            width: 100%;
-            max-width: 500px;
-            min-height: 100vh;
-            position: relative;
-            overflow: hidden;
+        /* Canvas fixo */
+        .card {
+            width: 1080px;
+            height: 1920px;
+            margin: 0 auto;
+            background: white;
             display: flex;
             flex-direction: column;
-            background: white;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            align-items: center;
         }
 
-        /* Efeitos visuais */
-        .glitter-layer {
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.6) 1px, transparent 1px);
-            background-size: 30px 30px;
-            opacity: 0.3;
-            pointer-events: none;
-            z-index: 5;
+        /* Área das fotos */
+        .photos {
+            position: relative;
+            margin-top: 60px;
+            height: 720px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
         }
 
-        .silver-flare {
-            position: absolute;
-            top: -15%;
-            right: -15%;
-            width: 90%;
-            height: 50%;
-            background: radial-gradient(circle, rgba(203, 213, 225, 0.4) 0%, transparent 70%);
-            filter: blur(40px);
+        /* Foto principal — NÃO TOCADA */
+        .photo-main {
+            width: 600px;
+            height: 720px;
+            border-radius: 22px;
+            border: 8px solid #fff;
+            object-fit: cover;
+            object-position: center top;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+            transform: rotate(2deg);
             z-index: 1;
         }
 
-        /* Montagem de Fotos Otimizada: Esquerda Criança, Direita Adolescente */
-        .photo-montage {
-            position: relative;
-            height: 50vh;
-            min-height: 400px;
-            width: 100%;
-            z-index: 10;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .photo-teen {
-            width: 75%;
-            height: 90%;
+        /* Foto secundária — REENQUADRAMENTO FINAL */
+        .photo-small {
+            position: absolute;
+            width: 360px;
+            /* levemente menor */
+            height: 245px;
+            right: 40px;
+            /* empurra para a borda */
+            top: 460px;
+            /* desce bem para fora da área central */
+            border-radius: 18px;
+            border: 6px solid #fff;
             object-fit: cover;
-            /* Foco no topo para não cortar a cabeça da adolescente */
-            object-position: center top;
-            border-radius: 12px;
-            border: 6px solid white;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-            /* Deslocada para a direita conforme pedido */
-            transform: rotate(2deg) translateX(12%);
+            object-position: center;
+            box-shadow: 0 16px 30px rgba(0, 0, 0, 0.22);
+            transform: rotate(-3deg);
             z-index: 2;
-            background-color: #fce4ec;
         }
 
-        .photo-child {
-            position: absolute;
-            width: 50%;
-            height: 42%;
-            bottom: 8%;
-            /* Posicionada à esquerda conforme pedido */
-            left: 5%;
-            object-fit: cover;
-            /* Foco centralizado com zoom maior */
-            object-position: center center;
-            border-radius: 10px;
-            border: 5px solid white;
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
-            /* Zoom aplicado (scale 1.2) para focar mais na criança */
-            transform: rotate(-4deg) scale(1.2);
-            z-index: 3;
-            background-color: #fce4ec;
-        }
-
-        .overlay-pink {
-            position: absolute;
-            inset: 0;
-            background: rgba(219, 39, 119, 0.03);
-            pointer-events: none;
-            z-index: 4;
-            border-radius: inherit;
-        }
-
-        .neon-text {
+        /* Título */
+        .neon {
             font-family: 'Parisienne', cursive;
+            font-size: 110px;
+            margin-top: 32px;
             color: #fff;
             text-shadow:
-                0 0 7px #fff,
-                0 0 10px #f472b6,
-                0 0 21px #f472b6;
+                0 0 8px #fff,
+                0 0 16px #f9a8d4,
+                0 0 28px #f472b6;
         }
 
-        /* Modais */
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            z-index: 100;
+        /* Botão */
+        .btn-confirm {
+            margin-top: 26px;
+            background: #db2777;
+            color: #fff;
+            height: 56px;
+            padding: 0 48px;
+            border-radius: 999px;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-decoration: none;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
         }
 
-        .modal-content {
-            background: white;
-            width: 100%;
-            max-width: 400px;
-            padding: 30px;
-            border-radius: 24px;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
+        @media print {
+            @page {
+                size: 1080px 1920px;
+                margin: 0;
+            }
 
-        input,
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #fbcfe8;
-            border-radius: 12px;
-            margin-top: 6px;
-            margin-bottom: 12px;
-            font-family: inherit;
-            background-color: #fdf2f8;
-            font-size: 14px;
-        }
-
-        .label-modal {
-            display: block;
-            text-align: left;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #db2777;
-            margin-left: 4px;
-        }
-
-        .action-btn {
-            background: white;
-            border: 1px solid #f472b6;
-            color: #db2777;
-            padding: 16px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            width: 100%;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .action-btn:active {
-            transform: scale(0.98);
-            background: #fdf2f8;
-        }
-
-        .submit-btn {
-            background: #db2777;
-            color: white;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 600;
-            width: 100%;
-            transition: all 0.2s ease;
-            margin-top: 10px;
-        }
-
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+            body {
+                margin: 0;
+            }
         }
     </style>
 </head>
 
 <body>
+    <div class="card">
 
-    <div class="invitation-container">
-        <div class="invitation-card">
-            <div class="glitter-layer"></div>
-            <div class="silver-flare"></div>
+        <div class="mt-10 text-[18px] tracking-[0.35em] text-pink-500">
+            LARAH 15 ANOS
+        </div>
 
-            <header class="pt-10 text-center relative z-10">
-                <h1 class="text-xs font-light tracking-[0.4em] text-pink-600 uppercase">Larah 15 Anos</h1>
-            </header>
+        <div class="photos">
+            <img src="./assets/adolescente.jpg" class="photo-main" />
+            <img src="./assets/crianca.jpg" class="photo-small" />
+        </div>
 
-            <div class="photo-montage">
-                <!-- Fotos reais da Larah com enquadramento e posições invertidas -->
-                <div class="relative photo-teen overflow-hidden">
-                    <img src="assets/adolescente.jpg" alt="Larah Hoje" class="w-full h-full object-cover">
-                    <div class="overlay-pink"></div>
-                </div>
-                <div class="relative photo-child overflow-hidden">
-                    <img src="assets/crianca.jpg" alt="Larah Criança" class="w-full h-full object-cover">
-                    <div class="overlay-pink"></div>
-                </div>
-            </div>
+        <div class="neon">Happy Birthday</div>
 
-            <main class="flex-grow flex flex-col items-center justify-center text-center px-10 relative z-10 pb-10">
-                <h2 class="neon-text text-6xl mb-8">Happy Birthday</h2>
+        <div class="mt-5 text-[40px] font-bold">
+            19 de Abril de 2026
+        </div>
 
-                <div class="text-gray-700 space-y-2">
-                    <p class="text-2xl font-bold tracking-tight">19 de Abril de 2026</p>
-                    <p class="text-sm tracking-widest uppercase font-light text-pink-500">Das 13h às 19h</p>
+        <div class="text-[18px] tracking-widest uppercase text-pink-400">
+            Das 13h às 19h
+        </div>
 
-                    <div class="w-12 h-0.5 bg-pink-200 mx-auto my-6"></div>
+        <div class="w-20 h-[3px] bg-pink-200 my-4"></div>
 
-                    <p class="text-xl font-bold text-gray-800 uppercase tracking-tight">Sítio das Zitas</p>
-                    <p class="text-[12px] text-gray-400 italic">Vargem Grande – Rio de Janeiro</p>
-                </div>
+        <div class="text-[30px] font-bold uppercase">
+            Sítio das Zitas
+        </div>
 
-                <div class="w-full mt-10 space-y-4">
-                    <button id="btnOpenMusic" class="action-btn shadow-sm">🎵 Sugerir Música Playlist</button>
-                    <button id="btnOpenScreen" class="action-btn shadow-sm">💬 Mensagem para o Telão</button>
-                </div>
-            </main>
+        <div class="text-[16px] italic text-gray-400 mt-0.5">
+            Vargem Grande – Rio de Janeiro
+        </div>
 
-            <footer class="p-8 bg-white/50 backdrop-blur-md text-center relative z-10 border-t border-pink-50">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">Piscina • Vôlei • Futebol
-                    • Música</p>
-                <p class="text-[12px] text-pink-600 font-semibold mb-6 uppercase">Traje: leve + roupa de banho</p>
+        <div class="mt-6 text-[14px] tracking-[0.18em] uppercase text-gray-400">
+            Piscina • Vôlei • Futebol • Música
+        </div>
 
-                <div
-                    class="inline-block py-3 px-12 bg-pink-600 text-white rounded-full text-[11px] font-bold uppercase tracking-widest shadow-lg active:scale-95 transition-transform cursor-pointer">
-                    Confirme até 30/03
-                </div>
-            </footer>
+        <div class="mt-2 text-[18px] font-semibold uppercase text-pink-600">
+            Traje: leve + roupa de banho
+        </div>
+
+        <a id="btn-confirm" class="btn-confirm">
+            👉 CLIQUE AQUI PARA CONFIRMAR
+        </a>
+
+        <div class="mt-3 text-[14px] text-pink-500 font-semibold text-center">
+            Digite o nome completo seu e dos acompanhantes<br>
+            <span class="text-[12px] text-gray-400 font-normal">
+                (válido somente para convidados)
+            </span>
         </div>
     </div>
 
-    <!-- Modais -->
-    <div id="modalMusic" class="modal">
-        <div class="modal-content">
-            <h3 class="text-pink-600 font-bold mb-1 text-lg">Sugerir Música</h3>
-            <p class="text-[10px] text-gray-400 mb-4 uppercase tracking-wider">Qual o hit da festa?</p>
-            <span class="label-modal">Música e Artista</span>
-            <input type="text" id="musicInput" placeholder="Ex: Dancing Queen - ABBA">
-            <button id="submitMusic" class="submit-btn">Enviar Sugestão</button>
-            <button id="closeMusic"
-                class="mt-6 text-[10px] text-gray-400 uppercase font-bold tracking-widest hover:text-pink-400 transition-colors">Voltar</button>
-        </div>
-    </div>
-
-    <div id="modalScreen" class="modal">
-        <div class="modal-content">
-            <h3 class="text-pink-600 font-bold mb-1 text-lg">Recado no Telão</h3>
-            <p class="text-[10px] text-gray-400 mb-4 uppercase tracking-wider">Deixe seu carinho aqui</p>
-            <span class="label-modal">Seu Nome</span>
-            <input type="text" id="authorInput" placeholder="Seu nome">
-            <span class="label-modal">Mensagem (máx 190 carac.)</span>
-            <textarea id="messageInput" maxlength="190" rows="3" placeholder="Sua mensagem..."></textarea>
-            <span class="label-modal">Sugerir trilha para o recado?</span>
-            <input type="text" id="screenMusicInput" placeholder="Música - Artista (Opcional)">
-            <button id="submitScreen" class="submit-btn">Mandar para o Telão</button>
-            <button id="closeScreen"
-                class="mt-6 text-[10px] text-gray-400 uppercase font-bold tracking-widest hover:text-pink-400 transition-colors">Voltar</button>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Interface Logic
-        const toggleModal = (id, show) => {
-            const modal = document.getElementById(id);
-            if (modal) modal.style.display = show ? 'flex' : 'none';
-        };
-
-        document.getElementById('btnOpenMusic').onclick = () => toggleModal('modalMusic', true);
-        document.getElementById('btnOpenScreen').onclick = () => toggleModal('modalScreen', true);
-        document.getElementById('closeMusic').onclick = () => toggleModal('modalMusic', false);
-        document.getElementById('closeScreen').onclick = () => toggleModal('modalScreen', false);
-
-        // Firebase Setup
-        const userFirebaseConfig = {
-            apiKey: "AIzaSyCBoDIUR9nNhRi9baH87H8pHwqXk6mWASc",
-            authDomain: "plan15anos.firebaseapp.com",
-            projectId: "plan15anos",
-            storageBucket: "plan15anos.firebasestorage.app",
-            messagingSenderId: "839344814995",
-            appId: "1:839344814995:web:7c968d334d12aeb3844666",
-            measurementId: "G-2TM45Y3R8E"
-        };
-
-        const finalConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : userFirebaseConfig;
-        const finalAppId = typeof __app_id !== 'undefined' ? __app_id : 'plan15anos';
-
-        const app = initializeApp(finalConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUser = null;
-
-        const initAuth = async () => {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (err) {
-                console.error("Auth error:", err.message);
-            }
-        };
-
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-        });
-
-        initAuth();
-
-        const saveData = async (collName, data, btnId) => {
-            if (!currentUser) {
-                await initAuth();
-                await new Promise(r => setTimeout(r, 500));
-            }
-
-            if (!currentUser) {
-                alert("Erro ao conectar com o servidor.");
-                return;
-            }
-
-            const btn = document.getElementById(btnId);
-            const originalText = btn.innerText;
-            btn.disabled = true;
-            btn.innerText = "A enviar...";
-
-            try {
-                const path = `artifacts/${finalAppId}/public/data/${collName}`;
-                await addDoc(collection(db, path), {
-                    ...data,
-                    timestamp: serverTimestamp(),
-                    uid: currentUser.uid
-                });
-
-                btn.innerText = "Sucesso! ✨";
-                btn.style.backgroundColor = "#10b981";
-
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                    btn.style.backgroundColor = "";
-                    toggleModal(btnId === 'submitMusic' ? 'modalMusic' : 'modalScreen', false);
-
-                    if (btnId === 'submitMusic') document.getElementById('musicInput').value = '';
-                    else {
-                        document.getElementById('authorInput').value = '';
-                        document.getElementById('messageInput').value = '';
-                        document.getElementById('screenMusicInput').value = '';
-                    }
-                }, 2000);
-            } catch (err) {
-                console.error("Erro ao salvar:", err);
-                alert("Erro ao salvar: " + err.message);
-                btn.innerText = "Tentar novamente";
-                btn.style.backgroundColor = "#ef4444";
-                btn.disabled = false;
-            }
-        };
-
-        document.getElementById('submitMusic').onclick = () => {
-            const music = document.getElementById('musicInput').value;
-            if (music.trim()) saveData('playlist_suggestions', { suggestion: music }, 'submitMusic');
-        };
-
-        document.getElementById('submitScreen').onclick = () => {
-            const author = document.getElementById('authorInput').value;
-            const msg = document.getElementById('messageInput').value;
-            const music = document.getElementById('screenMusicInput').value;
-            if (author.trim() && msg.trim()) {
-                saveData('telao_messages', { author, message: msg, music: music || "Nenhuma" }, 'submitScreen');
-            }
-        };
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        let query = params.toString();
+        document.getElementById('btn-confirm').href = query ? `./rsvp.html?${query}` : './rsvp.html';
     </script>
 </body>
 
