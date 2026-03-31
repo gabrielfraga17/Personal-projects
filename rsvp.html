@@ -1,703 +1,396 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html class="light" lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Larah 15 Anos – Confirme sua Presença</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Parisienne&display=swap');
-
-        :root {
-            --pink:       #db2777;
-            --pink-light: #fdf2f8;
-            --pink-mid:   #fbcfe8;
-            --radius:     14px;
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Larah | 15 Anos - O Arquivo Etéreo</title>
+    <!-- WhatsApp / Social Media Meta Tags -->
+    <meta content="Larah | 15 Anos" property="og:title" />
+    <meta content="Você está convidado para o início de um novo capítulo. O Arquivo Etéreo de Larah."
+        property="og:description" />
+    <meta content="website" property="og:type" />
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Parisienne&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;family=Montserrat:wght@300;400;500;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#d88c9a",
+                        "secondary-fixed": "#dae4ec",
+                        "on-surface": "#191c1d",
+                        "on-surface-variant": "#524345",
+                        "primary": "#8b4b58",
+                        "on-primary": "#ffffff",
+                    },
+                    fontFamily: {
+                        "headline": ["Parisienne", "cursive"],
+                        "body": ["Plus Jakarta Sans", "sans-serif"],
+                        "display": ["Montserrat", "sans-serif"]
+                    }
+                }
+            }
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
 
         body {
-            font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(160deg, #fff 0%, #fdf2f8 55%, #f0e6f6 100%);
-            min-height: 100vh;
-            color: #1f2937;
+            background-color: #f8f9fa;
+            min-height: 100svh;
+            /* Disable pull-to-refresh on mobile */
+            overscroll-behavior-y: none;
         }
 
-        /* ── CARD ───────────────────────────────────────────── */
-        .card {
-            max-width: 480px;
-            margin: 0 auto;
-            min-height: 100vh;
-            background: white;
-            box-shadow: 0 0 60px rgba(219,39,119,0.08);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+        .mesh-gradient {
+            background: radial-gradient(at 0% 0%, #ffd9de 0px, transparent 50%),
+                radial-gradient(at 100% 0%, #d88c9a 0px, transparent 50%),
+                radial-gradient(at 100% 100%, #dae4ec 0px, transparent 50%),
+                radial-gradient(at 0% 100%, #f8f9fa 0px, transparent 50%);
+            background-size: 200% 200%;
         }
 
-        /* Photo pair: side by side, full photos */
-        .photo-pair { display:flex; gap:10px; padding:18px 18px 4px; align-items:flex-end; background:white; }
-        .photo-pair .photo-col { flex:1; overflow:hidden; border-radius:14px; border:4px solid white; box-shadow:0 8px 28px rgba(0,0,0,.12); }
-        .photo-pair .photo-col:first-child { transform:rotate(-2deg); }
-        .photo-pair .photo-col:last-child  { transform:rotate(1.5deg); flex:1.3; }
-        .photo-pair .photo-col img { width:100%; height:auto; display:block; }
-
-        /* ── HEADER ──────────────────────────────────────────── */
-        .invite-header {
-            padding: 24px 28px 0;
-            text-align: center;
-        }
-        .eyebrow {
-            font-size: 10px; letter-spacing: 0.35em;
-            font-weight: 600; color: #ec4899;
-            text-transform: uppercase; margin-bottom: 4px;
-        }
-        .title-script {
-            font-family: 'Parisienne', cursive;
-            font-size: 52px;
-            color: var(--pink);
-            line-height: 1;
-            text-shadow: 0 2px 12px rgba(219,39,119,0.2);
-            margin-bottom: 6px;
-        }
-        .title-name {
-            font-size: 28px; font-weight: 800;
-            color: #1f2937; letter-spacing: -0.5px;
-            margin-bottom: 0;
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
         }
 
-        /* ── DIVIDER ─────────────────────────────────────────── */
-        .divider {
-            width: 40px; height: 2px;
-            background: linear-gradient(90deg, #f472b6, #db2777);
-            border-radius: 2px; margin: 16px auto;
+        .organic-mask-1 {
+            clip-path: circle(45% at 50% 50%);
         }
 
-        /* ── EVENT INFO ──────────────────────────────────────── */
-        .event-info {
-            padding: 0 28px;
-            text-align: center;
-        }
-        .event-date {
-            font-size: 22px; font-weight: 800;
-            color: #111827; letter-spacing: -0.3px;
-        }
-        .event-time {
-            font-size: 13px; color: var(--pink);
-            font-weight: 600; letter-spacing: 0.12em;
-            text-transform: uppercase; margin-top: 4px;
-        }
-        .event-venue {
-            font-size: 17px; font-weight: 800;
-            color: #111827; text-transform: uppercase;
-            letter-spacing: 0.04em; margin-top: 14px;
-        }
-        .event-location {
-            font-size: 13px; color: #9ca3af;
-            font-style: italic; margin-top: 3px;
-        }
-        .event-location a {
-            color: var(--pink); text-decoration: none;
-            font-style: normal; font-weight: 600;
-        }
-        .event-location a:hover { text-decoration: underline; }
-
-        /* ── FEATURE BUTTONS (inline) ─────────────────────────── */
-        .feature-row {
-            display: flex; gap: 10px;
-            padding: 16px 24px 0;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .feat-btn {
-            background: white;
-            border: 1.5px solid #f9a8d4;
-            color: var(--pink);
-            padding: 9px 16px;
-            border-radius: 50px;
-            font-size: 12px; font-weight: 700;
-            font-family: inherit;
-            text-transform: uppercase; letter-spacing: 0.06em;
-            cursor: pointer; transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .feat-btn:active { background: #fdf2f8; transform: scale(0.97); }
-
-        /* ── RSVP SECTION ────────────────────────────────────── */
-        .rsvp-wrap {
-            padding: 20px 24px 28px;
-            flex: 1;
-        }
-        .rsvp-callout {
-            background: linear-gradient(135deg, #fdf2f8, #fce7f3);
-            border: 1px solid #f9a8d4;
-            border-radius: 14px;
-            padding: 14px 18px;
-            margin-bottom: 18px;
-            text-align: center;
-        }
-        .rsvp-callout p {
-            font-size: 13px; font-weight: 700;
-            color: var(--pink); line-height: 1.45;
-        }
-        .rsvp-callout small {
-            display: block; margin-top: 6px;
-            font-size: 11px; color: #9ca3af;
-            font-weight: 500;
+        .organic-mask-2 {
+            clip-path: ellipse(40% 48% at 50% 50%);
         }
 
-        .field-label {
-            display: block; font-size: 10px; font-weight: 700;
-            text-transform: uppercase; color: var(--pink);
-            letter-spacing: 0.1em; margin-bottom: 5px; margin-left: 2px;
-        }
-        .form-group { margin-bottom: 14px; }
-        .form-input {
-            width: 100%; padding: 13px 16px;
-            border: 1.5px solid #f9a8d4;
-            border-radius: var(--radius);
-            font-family: inherit; font-size: 15px;
-            background: white; color: #1f2937;
-            transition: border-color 0.2s; outline: none;
-        }
-        .form-input:focus { border-color: var(--pink); }
-
-        /* Acompanhantes */
-        #acomp-lista { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
-        .acomp-row { display: flex; gap: 8px; align-items: center; }
-        .acomp-input {
-            flex: 1; padding: 11px 14px;
-            border: 1.5px solid #f9a8d4;
-            border-radius: var(--radius);
-            font-size: 14px; font-family: inherit; background: white;
-        }
-        .acomp-remove {
-            background: none; border: none;
-            font-size: 22px; cursor: pointer;
-            color: #f43f5e; line-height: 1; padding: 0 4px;
-        }
-        .btn-add-acomp {
-            background: rgba(219,39,119,0.05);
-            border: 1.5px dashed #f9a8d4;
-            border-radius: var(--radius);
-            color: var(--pink); font-family: inherit;
-            font-size: 13px; font-weight: 600;
-            padding: 11px; width: 100%;
-            cursor: pointer; margin-top: 6px; transition: all 0.2s;
-        }
-
-        /* Confirm button */
-        .btn-confirm {
-            width: 100%; padding: 17px;
-            background: linear-gradient(135deg, #db2777, #ec4899);
-            color: white; border: none;
-            border-radius: 50px; font-size: 15px;
-            font-weight: 800; font-family: inherit;
-            cursor: pointer; margin-top: 10px;
-            box-shadow: 0 8px 24px rgba(219,39,119,0.3);
-            transition: all 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            letter-spacing: 0.02em;
-        }
-        .btn-confirm:active { transform: scale(0.98); }
-        .btn-confirm:disabled { opacity: 0.65; cursor: not-allowed; }
-        .spinner {
-            display: none; width: 18px; height: 18px;
-            border: 2px solid rgba(255,255,255,0.4);
-            border-top-color: white; border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .deadline-badge {
-            text-align: center; margin-top: 10px;
-            font-size: 11px; font-weight: 700;
-            color: var(--pink); letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        /* ── FOOTER ──────────────────────────────────────────── */
-        .invite-footer {
-            padding: 16px 28px 24px;
-            border-top: 1px solid #fce7f3;
-            text-align: center;
-            background: rgba(253,242,248,0.5);
-        }
-        .footer-activities {
-            font-size: 10px; font-weight: 700;
-            color: #9ca3af; letter-spacing: 0.2em;
-            text-transform: uppercase; margin-bottom: 4px;
-        }
-        .footer-dress {
-            font-size: 12px; color: var(--pink);
-            font-weight: 600; text-transform: uppercase;
-        }
-
-        /* ── SUCCESS STATE ────────────────────────────────────── */
-        .state-panel {
-            display: none; flex-direction: column;
-            align-items: center; text-align: center; padding: 8px 0;
-        }
-        .icon-big { font-size: 52px; margin-bottom: 8px; }
-        .state-title { font-size: 22px; font-weight: 800; color: #111827; margin-bottom: 6px; }
-        .state-desc { font-size: 15px; color: #6b7280; line-height: 1.5; margin-bottom: 14px; }
-
-        .btn-wa {
-            display: inline-flex; align-items: center; gap: 10px;
-            padding: 14px 28px;
-            background: #25d366; color: white;
-            border-radius: 50px; font-weight: 700;
-            font-size: 14px; text-decoration: none;
-            font-family: inherit;
-            box-shadow: 0 6px 20px rgba(37,211,102,0.35);
-        }
-        .hint-text {
-            font-size: 11px; color: #9ca3af;
-            margin-top: 10px; text-align: center;
-        }
-
-        /* ── MODALS ──────────────────────────────────────────── */
+        /* Modal CSS preserved and updated to Tailwind values */
         .modal {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(8px); z-index: 200;
-            align-items: center; justify-content: center; padding: 20px;
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
+
         .modal-content {
-            background: white; width: 100%; max-width: 420px;
-            padding: 28px; border-radius: 24px; text-align: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
-        .modal-label {
-            display: block; text-align: left; font-size: 10px;
-            font-weight: 700; text-transform: uppercase;
-            color: var(--pink); margin-left: 2px; margin-bottom: 4px;
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #fbcfe8;
+            border-radius: 12px;
+            margin-top: 6px;
+            margin-bottom: 12px;
+            font-family: inherit;
+            background-color: #fdf2f8;
+            font-size: 14px;
         }
-        .modal-input {
-            width: 100%; padding: 12px 16px;
-            border: 1.5px solid #f9a8d4;
-            border-radius: 12px; margin-bottom: 14px;
-            font-family: inherit; background: #fdf2f8; font-size: 14px;
-            outline: none;
+
+        .label-modal {
+            display: block;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #db2777;
+            margin-left: 4px;
         }
-        .modal-input:focus { border-color: var(--pink); }
-        .modal-submit {
-            background: var(--pink); color: white; padding: 14px;
-            border-radius: 12px; font-weight: 700; font-size: 14px;
-            width: 100%; font-family: inherit; border: none;
-            cursor: pointer; margin-top: 4px; transition: all 0.2s;
+
+        .submit-btn {
+            background: #db2777;
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.2s ease;
+            margin-top: 10px;
         }
-        .modal-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-        .modal-back {
-            display: block; width: 100%; background: none; border: none;
-            margin-top: 16px; font-size: 11px; font-family: inherit;
-            color: #9ca3af; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.1em; cursor: pointer;
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
-        .netlify-trap { display: none !important; }
     </style>
 </head>
-<body>
 
-<div class="photo-pair"><div class="photo-col"><img src="assets/crianca.jpg" alt="Larah crianca"></div><div class="photo-col"><img src="assets/adolescente.jpg" alt="Larah"></div></div>
-    </div>
+<body class="font-body text-on-surface">
 
-    <!-- ── HEADER ────────────────────────────────────────────── -->
-    <div class="invite-header">
-        <p class="eyebrow">Você está convidado(a)</p>
-        <p class="title-script">Larah</p>
-        <p class="title-name">15 Anos 🎉</p>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- ── EVENT INFO ─────────────────────────────────────────── -->
-    <div class="event-info">
-        <p class="event-date">19 de Abril de 2026</p>
-        <p class="event-time">Das 13h às 19h</p>
-        <p class="event-venue">Sítio das Zitas</p>
-        <p class="event-location">
-            Vargem Grande – Rio de Janeiro •
-            <a href="https://maps.app.goo.gl/6MBFTHXekWQ9pxEi8" target="_blank" rel="noopener">
-                📍 Ver no Mapa
-            </a>
-        </p>
-    </div>
-
-    <!-- ── FEATURE BUTTONS ────────────────────────────────────── -->
-    <div class="feature-row">
-        <button id="btnOpenMusic" class="feat-btn">🎵 Sugerir Música Playlist</button>
-        <button id="btnOpenScreen" class="feat-btn">💬 Mensagem para Larah</button>
-    </div>
-
-    <!-- ── RSVP SECTION ───────────────────────────────────────── -->
-    <div class="rsvp-wrap">
-
-        <!-- Info header (spaced) -->
-        <div style="text-align:center; padding: 4px 8px 20px; border-bottom: 1px solid #fce7f3; margin-bottom: 20px;">
-            <p style="font-size:15px; font-weight:800; color:var(--pink); line-height:1.4; margin-bottom:12px;">
-                Sua confirmação é muito importante<br>para a organização do evento 🌸
-            </p>
-            <p style="font-size:12px; font-weight:600; color:#9ca3af; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:6px;">
-                Piscina &bull; Vôlei &bull; Futebol &bull; Música
-            </p>
-            <p style="font-size:13px; font-weight:700; color:var(--pink);">
-                Traje: leve + roupa de banho
-            </p>
+    <main
+        class="relative min-h-[100svh] w-full flex flex-col items-center justify-center mesh-gradient overflow-hidden pb-12">
+        <div class="absolute inset-0 opacity-20 pointer-events-none">
+            <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-primary-container rounded-full blur-[100px]"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary-fixed rounded-full blur-[120px]"></div>
         </div>
 
-        <!-- Form state -->
-        <div id="form-state">
-            <div class="form-group">
-                <label class="field-label" for="input-nome">Seu nome completo *</label>
-                <input type="text" id="input-nome" class="form-input" placeholder="Como você se chama?" autocomplete="given-name" required>
-            </div>
-            <div class="form-group">
-                <label class="field-label" for="input-tel">WhatsApp com DDD *</label>
-                <input type="tel" id="input-tel" class="form-input" placeholder="(21) 99999-0000" autocomplete="off" inputmode="numeric" required>
+        <div class="relative w-full max-w-md px-6 flex-1 flex flex-col justify-center mt-8">
+            <div class="relative aspect-[4/5] w-full">
+                <!-- Teen Image -->
+                <div class="absolute inset-0 z-20 organic-mask-2 overflow-hidden shadow-2xl">
+                    <img alt="Larah Hoje" class="w-full h-full object-cover object-[center_15%] scale-105"
+                        src="./assets/adolescente.jpg" />
+                </div>
+                <!-- Child Image -->
+                <div
+                    class="absolute -top-4 -left-4 w-40 h-40 z-30 organic-mask-1 overflow-hidden shadow-xl border-4 border-white/40 glass-panel">
+                    <img alt="Larah Criança" class="w-full h-full object-cover" src="./assets/crianca.jpg" />
+                </div>
+                <!-- Floating Label -->
+                <div class="absolute bottom-12 -right-2 z-40">
+                    <div class="glass-panel px-6 py-2 rounded-full shadow-lg border border-white/20">
+                        <span class="font-headline text-primary text-4xl">15 Anos</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- Acompanhantes -->
-            <div class="form-group" style="margin-bottom:10px;">
-                <label class="field-label">
-                    👥 Confirmar outro convidado? <span style="font-weight:400;font-size:11px;">(opcional)</span>
-                </label>
-                <div id="acomp-lista"></div>
-                <button type="button" class="btn-add-acomp" id="btn-add-acomp" onclick="adicionarAcompanhante()">
-                    + Adicionar convidado (nome completo)
+            <div class="mt-8 text-center space-y-2">
+                <p class="font-display text-on-surface-variant uppercase tracking-[0.3em] text-[10px] font-semibold">O
+                    Início de um Novo Capítulo</p>
+                <h2 class="font-headline text-primary text-6xl drop-shadow-sm">Larah</h2>
+
+                <div id="guest-greeting"
+                    class="hidden mt-2 inline-block px-4 py-1 glass-panel border border-primary/20 rounded-full">
+                    <p class="text-xs font-semibold tracking-widest text-[#8b4b58] uppercase" id="guest-name-display">
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full max-w-md px-8 mt-4 grid grid-cols-3 gap-4">
+            <div class="text-center">
+                <p class="font-display text-[9px] uppercase tracking-widest text-on-surface-variant mb-1">Data</p>
+                <p class="font-bold text-primary">19.04.26</p>
+            </div>
+            <div class="text-center border-x border-outline/20 px-2">
+                <p class="font-display text-[9px] uppercase tracking-widest text-on-surface-variant mb-1">Horário</p>
+                <p class="font-bold text-primary">13h — 19h</p>
+            </div>
+            <div class="text-center">
+                <p class="font-display text-[9px] uppercase tracking-widest text-on-surface-variant mb-1">Local</p>
+                <a href="https://maps.app.goo.gl/soDiev1dnF6TGAmZ6" target="_blank" rel="noopener noreferrer"
+                    class="font-bold text-primary text-[10px] leading-tight hover:underline active:opacity-70 block">SÍTIO
+                    DAS ZITAS</a>
+            </div>
+        </div>
+
+        <div class="w-full max-w-md px-8 mt-8 flex flex-col gap-4 items-center relative z-50">
+            <!-- IMPORTANT: preserved RSVP button ID for the URL script logic -->
+            <a id="btn-confirm-rsvp"
+                href="https://api.whatsapp.com/send/?phone=5521986448525&text=Ol%C3%A1%21+Confirmo+minha+presen%C3%A7a+no+evento+%EF%BF%BD&type=phone_number&app_absent=0"
+                target="_blank" rel="noopener noreferrer"
+                class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-full font-display font-semibold uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2 group relative overflow-hidden">
+                <span class="material-symbols-outlined text-sm">celebration</span>
+                <span class="relative z-10">Confirmar Presença</span>
+                <div class="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </a>
+
+            <div class="flex w-full gap-3">
+                <button id="btnOpenMusic"
+                    class="flex-1 py-3 px-2 glass-panel border border-primary/20 rounded-full text-primary font-display font-medium text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-transform">
+                    <span class="material-symbols-outlined text-sm">music_note</span>
+                    Sugerir Música
+                </button>
+                <button id="btnOpenScreen"
+                    class="flex-1 py-3 px-2 glass-panel border border-primary/20 rounded-full text-primary font-display font-medium text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-transform">
+                    <span class="material-symbols-outlined text-sm">chat_bubble</span>
+                    Mensagem
                 </button>
             </div>
-
-            <button class="btn-confirm" id="btn-confirm" onclick="submitRSVP()">
-                <span id="btn-text">🎉 Clique aqui para confirmar</span>
-                <span class="spinner" id="spinner"></span>
-            </button>
-            <p class="deadline-badge">Confirme até 30/03</p>
         </div>
+    </main>
 
-        <!-- Success state -->
-        <div class="state-panel" id="success-state">
-            <div class="icon-big">🎊</div>
-            <div class="state-title">Presença confirmada!</div>
-            <div class="state-desc" id="success-desc">Obrigada por confirmar!</div>
-            <div id="action-area"></div>
-            <p class="hint-text" id="hint-text"></p>
+    <!-- Modais -->
+    <div id="modalMusic" class="modal">
+        <div class="modal-content">
+            <h3 class="font-display text-[#8b4b58] font-bold mb-1 text-lg">Sugerir Música</h3>
+            <p class="text-[10px] text-gray-500 mb-4 uppercase tracking-wider">Qual o hit da festa?</p>
+            <span class="label-modal text-[#8b4b58]">Música e Artista</span>
+            <input type="text" id="musicInput" placeholder="Ex: Dancing Queen - ABBA">
+            <button id="submitMusic" class="submit-btn bg-[#8b4b58]">Enviar Sugestão</button>
+            <button id="closeMusic"
+                class="mt-6 text-[10px] text-gray-400 uppercase font-bold tracking-widest hover:text-[#8b4b58] transition-colors">Voltar</button>
         </div>
-
     </div>
 
-
-
-</div>
-
-<!-- ── MODAL: Música ──────────────────────────────────────────── -->
-<div id="modalMusic" class="modal">
-    <div class="modal-content">
-        <h3 style="color:var(--pink);font-weight:800;font-size:18px;margin-bottom:4px;">Sugerir Música</h3>
-        <p style="font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.12em;margin-bottom:18px;">Qual o hit da festa?</p>
-        <span class="modal-label">Música e Artista</span>
-        <input type="text" id="musicInput" class="modal-input" placeholder="Ex: Dancing Queen - ABBA">
-        <button id="submitMusic" class="modal-submit">Enviar Sugestão</button>
-        <button class="modal-back" id="closeMusic">Voltar</button>
+    <div id="modalScreen" class="modal">
+        <div class="modal-content">
+            <h3 class="font-display text-[#8b4b58] font-bold mb-1 text-lg">Recado no Telão</h3>
+            <p class="text-[10px] text-gray-500 mb-4 uppercase tracking-wider">Deixe seu carinho aqui</p>
+            <span class="label-modal text-[#8b4b58]">Seu Nome</span>
+            <input type="text" id="authorInput" placeholder="Seu nome">
+            <span class="label-modal text-[#8b4b58]">Mensagem (máx 190 carac.)</span>
+            <textarea id="messageInput" maxlength="190" rows="3" placeholder="Sua mensagem..."></textarea>
+            <span class="label-modal text-[#8b4b58]">Sugerir trilha para o recado?</span>
+            <input type="text" id="screenMusicInput" placeholder="Música - Artista (Opcional)">
+            <button id="submitScreen" class="submit-btn bg-[#8b4b58]">Mandar para o Telão</button>
+            <button id="closeScreen"
+                class="mt-6 text-[10px] text-gray-400 uppercase font-bold tracking-widest hover:text-[#8b4b58] transition-colors">Voltar</button>
+        </div>
     </div>
-</div>
 
-<!-- ── MODAL: Telão ───────────────────────────────────────────── -->
-<div id="modalScreen" class="modal">
-    <div class="modal-content">
-        <h3 style="color:var(--pink);font-weight:800;font-size:18px;margin-bottom:4px;">Mensagem para Larah</h3>
-        <p style="font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.12em;margin-bottom:18px;">Deixe seu carinho no telão</p>
-        <span class="modal-label">Seu Nome</span>
-        <input type="text" id="authorInput" class="modal-input" placeholder="Seu nome">
-        <span class="modal-label">Mensagem (máx 190 caracteres)</span>
-        <textarea id="messageInput" class="modal-input" maxlength="190" rows="3" placeholder="Sua mensagem..."></textarea>
-        <span class="modal-label">Trilha para o recado? (opcional)</span>
-        <input type="text" id="screenMusicInput" class="modal-input" placeholder="Música - Artista">
-        <button id="submitScreen" class="modal-submit">Mandar para o Telão</button>
-        <button class="modal-back" id="closeScreen">Voltar</button>
-    </div>
-</div>
+    <!-- Firebase Logic Preserved EXACTLY as in pdf.html -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-<!-- ── FIREBASE (música / telão) ─────────────────────────────── -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        const toggleModal = (id, show) => {
+            const modal = document.getElementById(id);
+            if (modal) modal.style.display = show ? 'flex' : 'none';
+        };
 
-    const toggleModal = (id, show) => {
-        const m = document.getElementById(id);
-        if (m) m.style.display = show ? 'flex' : 'none';
-    };
-    document.getElementById('btnOpenMusic').onclick  = () => toggleModal('modalMusic',  true);
-    document.getElementById('btnOpenScreen').onclick = () => toggleModal('modalScreen', true);
-    document.getElementById('closeMusic').onclick    = () => toggleModal('modalMusic',  false);
-    document.getElementById('closeScreen').onclick   = () => toggleModal('modalScreen', false);
+        document.getElementById('btnOpenMusic').onclick = () => toggleModal('modalMusic', true);
+        document.getElementById('btnOpenScreen').onclick = () => toggleModal('modalScreen', true);
+        document.getElementById('closeMusic').onclick = () => toggleModal('modalMusic', false);
+        document.getElementById('closeScreen').onclick = () => toggleModal('modalScreen', false);
 
-    const fbCfg = {
-        apiKey: "AIzaSyCBoDIUR9nNhRi9baH87H8pHwqXk6mWASc",
-        authDomain: "plan15anos.firebaseapp.com", projectId: "plan15anos",
-        storageBucket: "plan15anos.firebasestorage.app",
-        messagingSenderId: "839344814995",
-        appId: "1:839344814995:web:7c968d334d12aeb3844666"
-    };
-    const cfg     = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : fbCfg;
-    const appId   = typeof __app_id         !== 'undefined' ? __app_id : 'plan15anos';
-    const app     = initializeApp(cfg);
-    const auth    = getAuth(app);
-    const db      = getFirestore(app);
-    let   curUser = null;
+        // Firebase Setup
+        const userFirebaseConfig = {
+            apiKey: "AIzaSyCBoDIUR9nNhRi9baH87H8pHwqXk6mWASc",
+            authDomain: "plan15anos.firebaseapp.com",
+            projectId: "plan15anos",
+            storageBucket: "plan15anos.firebasestorage.app",
+            messagingSenderId: "839344814995",
+            appId: "1:839344814995:web:7c968d334d12aeb3844666"
+        };
 
-    const initAuth = async () => {
-        try {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token)
-                await signInWithCustomToken(auth, __initial_auth_token);
-            else await signInAnonymously(auth);
-        } catch (e) { console.error('Auth:', e.message); }
-    };
-    onAuthStateChanged(auth, u => { curUser = u; });
-    initAuth();
+        const app = initializeApp(userFirebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    // Exposto para o script RSVP não-módulo salvar confirmações no Firestore.
-    window.saveRsvpToFirestore = async function (payload) {
-        if (!curUser) {
-            await initAuth();
-            await new Promise(r => setTimeout(r, 600));
-        }
-        if (!curUser) throw new Error('Usuário não autenticado no Firebase');
+        let currentUser = null;
 
-        console.log(`[RSVP Envio] Enviando: ${payload.nome_convidado} | Tel: ${payload.telefone || 'VAZIO'}`);
-        if (!payload.telefone) console.warn(`[RSVP Envio] AVISO: Telefone vazio!`);
-        await addDoc(collection(db, 'artifacts/' + appId + '/public/data/rsvp_confirmacoes'), {
-            nome_convidado: payload.nome_convidado || '',
-            telefone: payload.telefone || '',
-            acompanhantes: Array.isArray(payload.acompanhantes) ? payload.acompanhantes : [],
-            source: 'web',
-            timestamp: serverTimestamp()
-        });
-    };
-
-    const saveData = async (col, data, btnId) => {
-        if (!curUser) { await initAuth(); await new Promise(r => setTimeout(r, 600)); }
-        if (!curUser) {
-            const btn = document.getElementById(btnId);
-            btn.innerText = 'Erro de conexão ❌'; btn.style.background = '#ef4444';
-            setTimeout(() => { btn.innerText = btn.dataset.orig || 'Enviar'; btn.style.background = ''; btn.disabled = false; }, 3000);
-            return;
-        }
-        const btn = document.getElementById(btnId);
-        const orig = btn.innerText;
-        btn.disabled = true; btn.innerText = 'A enviar…';
-        try {
-            await addDoc(collection(db, `artifacts/${appId}/public/data/${col}`),
-                { ...data, timestamp: serverTimestamp(), uid: curUser.uid });
-            btn.innerText = 'Sucesso! ✨'; btn.style.background = '#10b981';
-            setTimeout(() => {
-                btn.disabled = false; btn.innerText = orig; btn.style.background = '';
-                toggleModal(btnId === 'submitMusic' ? 'modalMusic' : 'modalScreen', false);
-                if (btnId === 'submitMusic') {
-                    document.getElementById('musicInput').value = '';
-                } else {
-                    ['authorInput','messageInput','screenMusicInput'].forEach(id => document.getElementById(id).value = '');
-                }
-            }, 2000);
-        } catch (err) {
-            btn.innerText = 'Erro ❌'; btn.style.background = '#ef4444'; btn.disabled = false;
-            setTimeout(() => { btn.innerText = orig; btn.style.background = ''; }, 3500);
-        }
-    };
-
-    document.getElementById('submitMusic').onclick = () => {
-        const v = document.getElementById('musicInput').value;
-        if (v.trim()) saveData('playlist_suggestions', { suggestion: v }, 'submitMusic');
-    };
-    document.getElementById('submitScreen').onclick = () => {
-        const a = document.getElementById('authorInput').value;
-        const m = document.getElementById('messageInput').value;
-        const s = document.getElementById('screenMusicInput').value;
-        if (a.trim() && m.trim())
-            saveData('telao_messages', { author: a, message: m, music: s || 'Nenhuma' }, 'submitScreen');
-    };
-</script>
-
-<!-- ── RSVP LOGIC ─────────────────────────────────────────────── -->
-<script>
-(function () {
-    /* URL params */
-    const params  = new URLSearchParams(window.location.search);
-    const preNome = params.get('name') || '';
-    const preTel  = params.get('tel')  || '';
-
-    const normalizePhone = (value) => {
-        let num = (value || '').toString().replace(/\D/g, '');
-        if (num.startsWith('55') && num.length >= 12) num = num.substring(2);
-        return num;
-    };
-
-    const formatPhoneInput = (rawValue) => {
-        const digits = normalizePhone(rawValue).slice(0, 11);
-        if (!digits) return '';
-        if (digits.length <= 2) return '(' + digits;
-        if (digits.length <= 6) return '(' + digits.slice(0, 2) + ') ' + digits.slice(2);
-        if (digits.length <= 10) return '(' + digits.slice(0, 2) + ') ' + digits.slice(2, 6) + '-' + digits.slice(6);
-        return '(' + digits.slice(0, 2) + ') ' + digits.slice(2, 7) + '-' + digits.slice(7);
-    };
-
-    const showFieldError = (inputId, message) => {
-        const input = document.getElementById(inputId);
-        if (!input) return;
-
-        let errEl = document.getElementById(inputId + '-error');
-        if (!errEl) {
-            errEl = document.createElement('span');
-            errEl.id = inputId + '-error';
-            errEl.style.display = 'block';
-            errEl.style.marginTop = '6px';
-            errEl.style.fontSize = '12px';
-            errEl.style.fontWeight = '600';
-            errEl.style.color = '#ef4444';
-            errEl.style.letterSpacing = '0.01em';
-            input.insertAdjacentElement('afterend', errEl);
-        }
-
-        errEl.textContent = message;
-        input.style.borderColor = '#ef4444';
-
-        if (errEl._timer) clearTimeout(errEl._timer);
-        errEl._timer = setTimeout(() => {
-            if (errEl && errEl.parentNode) errEl.remove();
-            input.style.borderColor = '';
-        }, 3000);
-    };
-
-    const clearFieldError = (inputId) => {
-        const input = document.getElementById(inputId);
-        const errEl = document.getElementById(inputId + '-error');
-        if (errEl) errEl.remove();
-        if (input) input.style.borderColor = '';
-    };
-
-    if (preNome) document.getElementById('input-nome').value = preNome;
-    if (preTel)  document.getElementById('input-tel').value  = formatPhoneInput(preTel);
-
-    const inputTel = document.getElementById('input-tel');
-    inputTel.addEventListener('input', (e) => {
-        e.target.value = formatPhoneInput(e.target.value);
-        clearFieldError('input-tel');
-    });
-
-    const inputNome = document.getElementById('input-nome');
-    inputNome.addEventListener('input', () => clearFieldError('input-nome'));
-
-    /* Organizer number — URL param first, then localStorage */
-    let rawOrg = (params.get('org') || '').replace(/\D/g, '');
-    let appState = null;
-    try {
-        appState = JSON.parse(localStorage.getItem('applePlannerState') || 'null');
-        if (!rawOrg) rawOrg = (appState?.overview?.whatsapp || '').replace(/\D/g, '');
-    } catch (e) {}
-    /* Auto-add Brazil country code if local format */
-    const organizerNum = rawOrg && rawOrg.length <= 11 ? '55' + rawOrg : rawOrg;
-
-    /* Acompanhantes */
-    let acompCount = 0;
-    window.adicionarAcompanhante = function () {
-        if (acompCount >= 6) return;
-        acompCount++;
-        const lista = document.getElementById('acomp-lista');
-        const row   = document.createElement('div');
-        row.className = 'acomp-row';
-        row.innerHTML = `
-            <input type="text" placeholder="Nome completo do convidado ${acompCount}" class="acomp-input">
-            <button type="button" class="acomp-remove" onclick="this.parentElement.remove(); acompCount--;">×</button>`;
-        lista.appendChild(row);
-        if (acompCount >= 6) document.getElementById('btn-add-acomp').style.display = 'none';
-    };
-
-    /* Submit */
-    window.submitRSVP = async function () {
-        const nome = document.getElementById('input-nome').value.trim();
-        const tel  = document.getElementById('input-tel').value.trim();
-        if (!nome) {
-            showFieldError('input-nome', 'Informe seu nome completo.');
-            document.getElementById('input-nome').focus();
-            return;
-        }
-
-        const telefoneLimpo = String((tel || '')).replace(/\D/g, '');
-        const telefoneFinal = telefoneLimpo.startsWith('55') && telefoneLimpo.length >= 12 ? telefoneLimpo.substring(2) : telefoneLimpo;
-        if (telefoneFinal.length < 10) {
-            showFieldError('input-tel', 'Digite seu WhatsApp com DDD (10 ou 11 números).');
-            document.getElementById('input-tel').focus();
-            return;
-        }
-
-        const acompNomes = Array.from(document.querySelectorAll('.acomp-input'))
-                                .map(i => i.value.trim()).filter(Boolean);
-
-        const btn = document.getElementById('btn-confirm');
-        btn.disabled = true;
-        document.getElementById('btn-text').textContent = 'Confirmando…';
-        document.getElementById('spinner').style.display = 'block';
-
-        /* Firestore (sincronizacao em tempo real com painel) */
-        let firebaseOk = false;
-        try {
-            if (typeof window.saveRsvpToFirestore === 'function') {
-                await window.saveRsvpToFirestore({
-                    nome_convidado: nome,
-                    telefone: telefoneFinal,
-                    acompanhantes: acompNomes
-                });
-                firebaseOk = true;
+        const initAuth = async () => {
+            try {
+                await signInAnonymously(auth);
+            } catch (err) {
+                console.error("Auth error:", err.message);
+                window.firebaseAuthError = err.message;
             }
-        } catch (e) {
-            console.warn('Firestore RSVP:', e.message);
-        }
+        };
 
-        showSuccess(nome, tel, acompNomes, firebaseOk);
-    };
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+        });
 
-    /* Success */
-    function showSuccess(nome, tel, acompNomes, firebaseOk) {
-        document.getElementById('form-state').style.display = 'none';
-        document.getElementById('success-state').style.display = 'flex';
+        initAuth();
 
-        const totalStr  = acompNomes.length > 0 ? ` (+ ${acompNomes.length} acomp.)` : '';
-        document.getElementById('success-desc').innerHTML =
-            `Que ótimo, <strong>${nome}</strong>!${totalStr ? ' <em style="font-size:13px;color:#9ca3af;">' + totalStr + '</em>' : ''}<br>Sua presença está confirmada. 🌟`;
+        const saveData = async (collName, data, btnId) => {
+            if (!currentUser) {
+                await initAuth();
+                await new Promise(r => setTimeout(r, 800));
+            }
 
-        const now       = new Date().toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-        const telLine   = tel       ? `\n📱 WhatsApp: ${tel}` : '';
-        const acompLine = acompNomes.length > 0 ? `\n👥 Acompanhantes: ${acompNomes.join(', ')}` : '';
-        const msg = encodeURIComponent(`✅ Confirmo minha presença!\n\n👤 Nome: ${nome}${telLine}${acompLine}\n⏰ ${now}`);
+            if (!currentUser) {
+                const erroMsg = window.firebaseAuthError || "Possível bloqueio de rede ou CORS.";
+                alert("Não foi possível ligar à base de dados.\n\nDetalhe técnico: " + erroMsg);
+                return;
+            }
 
-        const waSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.849L0 24l6.335-1.508A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.659-.498-5.19-1.37l-.372-.217-3.76.896.948-3.668-.241-.388A9.963 9.963 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>`;
+            const btn = document.getElementById(btnId);
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "A enviar...";
 
-        const waUrl   = organizerNum ? `https://wa.me/${organizerNum}?text=${msg}` : `https://wa.me/?text=${msg}`;
-        const waLabel = organizerNum ? 'Avisar o organizador' : 'Compartilhar confirmação';
+            try {
+                const path = `artifacts/plan15anos/public/data/${collName}`;
+                await addDoc(collection(db, path), {
+                    ...data,
+                    timestamp: serverTimestamp(),
+                    uid: currentUser.uid
+                });
 
-        document.getElementById('action-area').innerHTML = `
-            <a class="btn-wa" href="${waUrl}" target="_blank" rel="noopener" style="margin-top:14px;">
-                ${waSvg} ${waLabel}
-            </a>
-            <p style="font-size:11px;color:#9ca3af;margin-top:10px;">
-                ${organizerNum ? 'Abre direto no WhatsApp do organizador. Toque em Enviar.' : 'Selecione o contato no WhatsApp.'}
-            </p>`;
+                btn.innerText = "Sucesso! ✨";
+                btn.style.backgroundColor = "#10b981";
 
-        if (firebaseOk) {
-            document.getElementById('hint-text').textContent = '✅ Confirmação registrada no servidor.';
-        } else {
-            document.getElementById('hint-text').textContent = '⚠️ Não foi possível registrar agora. Tente novamente em instantes.';
-        }
-    }
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = "";
+                    toggleModal(btnId === 'submitMusic' ? 'modalMusic' : 'modalScreen', false);
 
-    /* Enter key */
-    ['input-nome','input-tel'].forEach(id =>
-        document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') submitRSVP(); })
-    );
-})();
-</script>
+                    if (btnId === 'submitMusic') document.getElementById('musicInput').value = '';
+                    else {
+                        document.getElementById('authorInput').value = '';
+                        document.getElementById('messageInput').value = '';
+                        document.getElementById('screenMusicInput').value = '';
+                    }
+                }, 2000);
+            } catch (err) {
+                console.error("Erro ao salvar:", err);
+                alert("Erro ao gravar dados: " + err.message);
+                btn.innerText = "Tentar novamente";
+                btn.style.backgroundColor = "#ef4444";
+                btn.disabled = false;
+            }
+        };
 
+        document.getElementById('submitMusic').onclick = () => {
+            const music = document.getElementById('musicInput').value;
+            if (music.trim()) saveData('playlist_suggestions', { suggestion: music }, 'submitMusic');
+        };
+
+        document.getElementById('submitScreen').onclick = () => {
+            const author = document.getElementById('authorInput').value;
+            const msg = document.getElementById('messageInput').value;
+            const music = document.getElementById('screenMusicInput').value;
+            if (author.trim() && msg.trim()) {
+                saveData('telao_messages', { author, message: msg, music: music || "Nenhuma" }, 'submitScreen');
+            }
+        };
+    </script>
+
+    <script>
+        // Personalization logic
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const name = params.get('name') || '';
+            const guestId = params.get('guest_id') || '';
+
+            if (name || guestId) {
+                if (name) {
+                    const greetingBox = document.getElementById('guest-greeting');
+                    const nameDisplay = document.getElementById('guest-name-display');
+                    if (greetingBox && nameDisplay) {
+                        nameDisplay.textContent = `Especialmente para: ${name}`;
+                        greetingBox.classList.remove('hidden');
+                    }
+                }
+
+                // Hide extra buttons when guest is explicitly personalized
+                const btnMusic = document.getElementById('btnOpenMusic');
+                const btnScreen = document.getElementById('btnOpenScreen');
+                if (btnMusic) btnMusic.style.display = 'none';
+                if (btnScreen) btnScreen.style.display = 'none';
+            }
+        })();
+    </script>
 </body>
+
 </html>

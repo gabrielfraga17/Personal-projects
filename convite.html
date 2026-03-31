@@ -1,174 +1,358 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-
+<html class="light" lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=1080, initial-scale=1.0" />
-    <title>Convite Larah 15 Anos</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <title>Larah | 15 Anos - O Arquivo Etéreo</title>
+    <!-- WhatsApp / Social Media Meta Tags -->
+    <meta content="Larah | 15 Anos" property="og:title"/>
+    <meta content="Você está convidado para o início de um novo capítulo. O Arquivo Etéreo de Larah." property="og:description"/>
+    <meta content="website" property="og:type"/>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Parisienne&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;family=Montserrat:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#d88c9a",
+                        "secondary-fixed": "#dae4ec",
+                        "on-surface": "#191c1d",
+                        "on-surface-variant": "#524345",
+                        "primary": "#8b4b58",
+                        "on-primary": "#ffffff",
+                    },
+                    fontFamily: {
+                        "headline": ["Parisienne", "cursive"],
+                        "body": ["Plus Jakarta Sans", "sans-serif"],
+                        "display": ["Montserrat", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Parisienne&display=swap');
-
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
         body {
-            margin: 0;
-            background: #fdf2f8;
-            font-family: 'Montserrat', sans-serif;
+            background-color: #f8f9fa;
+            min-height: 100svh;
+            /* Disable pull-to-refresh on mobile */
+            overscroll-behavior-y: none;
         }
-
-        /* Canvas fixo */
-        .card {
-            width: 1080px;
-            height: 1920px;
-            margin: 0 auto;
+        .mesh-gradient {
+            background: radial-gradient(at 0% 0%, #ffd9de 0px, transparent 50%),
+                        radial-gradient(at 100% 0%, #d88c9a 0px, transparent 50%),
+                        radial-gradient(at 100% 100%, #dae4ec 0px, transparent 50%),
+                        radial-gradient(at 0% 100%, #f8f9fa 0px, transparent 50%);
+            background-size: 200% 200%;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+        .organic-mask-1 { clip-path: circle(45% at 50% 50%); }
+        .organic-mask-2 { clip-path: ellipse(40% 48% at 50% 50%); }
+        
+        /* Modal CSS preserved and updated to Tailwind values */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
             background: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Área das fotos */
-        .photos {
-            position: relative;
-            margin-top: 60px;
-            height: 720px;
             width: 100%;
-            display: flex;
-            justify-content: center;
+            max-width: 400px;
+            padding: 30px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
-
-        /* Foto principal — NÃO TOCADA */
-        .photo-main {
-            width: 600px;
-            height: 720px;
-            border-radius: 22px;
-            border: 8px solid #fff;
-            object-fit: cover;
-            object-position: center top;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
-            transform: rotate(2deg);
-            z-index: 1;
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #fbcfe8;
+            border-radius: 12px;
+            margin-top: 6px;
+            margin-bottom: 12px;
+            font-family: inherit;
+            background-color: #fdf2f8;
+            font-size: 14px;
         }
-
-        /* Foto secundária — REENQUADRAMENTO FINAL */
-        .photo-small {
-            position: absolute;
-            width: 360px;
-            /* levemente menor */
-            height: 245px;
-            right: 40px;
-            /* empurra para a borda */
-            top: 460px;
-            /* desce bem para fora da área central */
-            border-radius: 18px;
-            border: 6px solid #fff;
-            object-fit: cover;
-            object-position: center;
-            box-shadow: 0 16px 30px rgba(0, 0, 0, 0.22);
-            transform: rotate(-3deg);
-            z-index: 2;
-        }
-
-        /* Título */
-        .neon {
-            font-family: 'Parisienne', cursive;
-            font-size: 110px;
-            margin-top: 32px;
-            color: #fff;
-            text-shadow:
-                0 0 8px #fff,
-                0 0 16px #f9a8d4,
-                0 0 28px #f472b6;
-        }
-
-        /* Botão */
-        .btn-confirm {
-            margin-top: 26px;
-            background: #db2777;
-            color: #fff;
-            height: 56px;
-            padding: 0 48px;
-            border-radius: 999px;
-            font-size: 20px;
+        .label-modal {
+            display: block;
+            text-align: left;
+            font-size: 10px;
             font-weight: 700;
-            letter-spacing: 0.08em;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            text-transform: uppercase;
+            color: #db2777;
+            margin-left: 4px;
         }
-
-        @media print {
-            @page {
-                size: 1080px 1920px;
-                margin: 0;
-            }
-
-            body {
-                margin: 0;
-            }
+        .submit-btn {
+            background: #db2777;
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
     </style>
 </head>
+<body class="font-body text-on-surface">
 
-<body>
-    <div class="card">
-
-        <div class="mt-10 text-[18px] tracking-[0.35em] text-pink-500">
-            LARAH 15 ANOS
+    <main class="relative min-h-[100svh] w-full flex flex-col items-center justify-center mesh-gradient overflow-hidden pb-12">
+        <div class="absolute inset-0 opacity-20 pointer-events-none">
+            <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-primary-container rounded-full blur-[100px]"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary-fixed rounded-full blur-[120px]"></div>
         </div>
 
-        <div class="photos">
-            <img src="./assets/adolescente.jpg" class="photo-main" />
-            <img src="./assets/crianca.jpg" class="photo-small" />
+        <div class="relative w-full max-w-md px-6 flex-1 flex flex-col justify-center mt-8">
+            <div class="relative aspect-[4/5] w-full">
+                <!-- Teen Image -->
+                <div class="absolute inset-0 z-20 organic-mask-2 overflow-hidden shadow-2xl">
+                    <img alt="Larah Hoje" class="w-full h-full object-cover object-[center_15%] scale-105" src="./assets/adolescente.jpg" />
+                </div>
+                <!-- Child Image -->
+                <div class="absolute -top-4 -left-4 w-40 h-40 z-30 organic-mask-1 overflow-hidden shadow-xl border-4 border-white/40 glass-panel">
+                    <img alt="Larah Criança" class="w-full h-full object-cover" src="./assets/crianca.jpg" />
+                </div>
+                <!-- Floating Label -->
+                <div class="absolute bottom-12 -right-2 z-40">
+                    <div class="glass-panel px-6 py-2 rounded-full shadow-lg border border-white/20">
+                        <span class="font-headline text-primary text-4xl">15 Anos</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center space-y-2">
+                <p class="font-display text-on-surface-variant uppercase tracking-[0.3em] text-[10px] font-semibold">O Início de um Novo Capítulo</p>
+                <h2 class="font-headline text-primary text-6xl drop-shadow-sm">Larah</h2>
+                
+                <div id="guest-greeting" class="hidden mt-2 inline-block px-4 py-1 glass-panel border border-primary/20 rounded-full">
+                    <p class="text-xs font-semibold tracking-widest text-[#8b4b58] uppercase" id="guest-name-display"></p>
+                </div>
+            </div>
         </div>
 
-        <div class="neon">Happy Birthday</div>
-
-        <div class="mt-5 text-[40px] font-bold">
-            19 de Abril de 2026
+        <div class="w-full max-w-md px-8 mt-4 grid grid-cols-3 gap-4">
+            <div class="text-center">
+                <p class="font-display text-[9px] uppercase tracking-widest text-on-surface-variant mb-1">Data</p>
+                <p class="font-bold text-primary">19.04.26</p>
+            </div>
+            <div class="text-center border-x border-outline/20 px-2">
+                <p class="font-display text-[9px] uppercase tracking-widest text-on-surface-variant mb-1">Horário</p>
+                <p class="font-bold text-primary">13h — 19h</p>
+            </div>
+            <div class="text-center">
+                <p class="font-display text-[9px] uppercase tracking-widest text-on-surface-variant mb-1">Local</p>
+                <a href="https://maps.app.goo.gl/soDiev1dnF6TGAmZ6" target="_blank" rel="noopener noreferrer" class="font-bold text-primary text-[10px] leading-tight hover:underline active:opacity-70 block">SÍTIO DAS ZITAS</a>
+            </div>
         </div>
 
-        <div class="text-[18px] tracking-widest uppercase text-pink-400">
-            Das 13h às 19h
+        <div class="w-full max-w-md px-8 mt-8 flex flex-col gap-4 items-center relative z-50">
+            <!-- IMPORTANT: preserved RSVP button ID for the URL script logic -->
+            <a id="btn-confirm-rsvp" href="https://api.whatsapp.com/send/?phone=5521986448525&text=Ol%C3%A1%21+Confirmo+minha+presen%C3%A7a+no+evento+%EF%BF%BD&type=phone_number&app_absent=0" target="_blank" rel="noopener noreferrer" class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-full font-display font-semibold uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2 group relative overflow-hidden">
+                <span class="material-symbols-outlined text-sm">celebration</span>
+                <span class="relative z-10">Confirmar Presença</span>
+                <div class="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </a>
+
+            <div class="flex w-full gap-3">
+                <button id="btnOpenMusic" class="flex-1 py-3 px-2 glass-panel border border-primary/20 rounded-full text-primary font-display font-medium text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-transform">
+                    <span class="material-symbols-outlined text-sm">music_note</span>
+                    Sugerir Música
+                </button>
+                <button id="btnOpenScreen" class="flex-1 py-3 px-2 glass-panel border border-primary/20 rounded-full text-primary font-display font-medium text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-transform">
+                    <span class="material-symbols-outlined text-sm">chat_bubble</span>
+                    Mensagem
+                </button>
+            </div>
         </div>
+    </main>
 
-        <div class="w-20 h-[3px] bg-pink-200 my-4"></div>
-
-        <div class="text-[30px] font-bold uppercase">
-            Sítio das Zitas
-        </div>
-
-        <div class="text-[16px] italic text-gray-400 mt-0.5">
-            Vargem Grande – Rio de Janeiro
-        </div>
-
-        <div class="mt-6 text-[14px] tracking-[0.18em] uppercase text-gray-400">
-            Piscina • Vôlei • Futebol • Música
-        </div>
-
-        <div class="mt-2 text-[18px] font-semibold uppercase text-pink-600">
-            Traje: leve + roupa de banho
-        </div>
-
-        <a id="btn-confirm" class="btn-confirm">
-            👉 CLIQUE AQUI PARA CONFIRMAR
-        </a>
-
-        <div class="mt-3 text-[14px] text-pink-500 font-semibold text-center">
-            Digite o nome completo seu e dos acompanhantes<br>
-            <span class="text-[12px] text-gray-400 font-normal">
-                (válido somente para convidados)
-            </span>
+    <!-- Modais -->
+    <div id="modalMusic" class="modal">
+        <div class="modal-content">
+            <h3 class="font-display text-[#8b4b58] font-bold mb-1 text-lg">Sugerir Música</h3>
+            <p class="text-[10px] text-gray-500 mb-4 uppercase tracking-wider">Qual o hit da festa?</p>
+            <span class="label-modal text-[#8b4b58]">Música e Artista</span>
+            <input type="text" id="musicInput" placeholder="Ex: Dancing Queen - ABBA">
+            <button id="submitMusic" class="submit-btn bg-[#8b4b58]">Enviar Sugestão</button>
+            <button id="closeMusic" class="mt-6 text-[10px] text-gray-400 uppercase font-bold tracking-widest hover:text-[#8b4b58] transition-colors">Voltar</button>
         </div>
     </div>
 
+    <div id="modalScreen" class="modal">
+        <div class="modal-content">
+            <h3 class="font-display text-[#8b4b58] font-bold mb-1 text-lg">Recado no Telão</h3>
+            <p class="text-[10px] text-gray-500 mb-4 uppercase tracking-wider">Deixe seu carinho aqui</p>
+            <span class="label-modal text-[#8b4b58]">Seu Nome</span>
+            <input type="text" id="authorInput" placeholder="Seu nome">
+            <span class="label-modal text-[#8b4b58]">Mensagem (máx 190 carac.)</span>
+            <textarea id="messageInput" maxlength="190" rows="3" placeholder="Sua mensagem..."></textarea>
+            <span class="label-modal text-[#8b4b58]">Sugerir trilha para o recado?</span>
+            <input type="text" id="screenMusicInput" placeholder="Música - Artista (Opcional)">
+            <button id="submitScreen" class="submit-btn bg-[#8b4b58]">Mandar para o Telão</button>
+            <button id="closeScreen" class="mt-6 text-[10px] text-gray-400 uppercase font-bold tracking-widest hover:text-[#8b4b58] transition-colors">Voltar</button>
+        </div>
+    </div>
+
+    <!-- Firebase Logic Preserved EXACTLY as in pdf.html -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const toggleModal = (id, show) => {
+            const modal = document.getElementById(id);
+            if (modal) modal.style.display = show ? 'flex' : 'none';
+        };
+
+        document.getElementById('btnOpenMusic').onclick = () => toggleModal('modalMusic', true);
+        document.getElementById('btnOpenScreen').onclick = () => toggleModal('modalScreen', true);
+        document.getElementById('closeMusic').onclick = () => toggleModal('modalMusic', false);
+        document.getElementById('closeScreen').onclick = () => toggleModal('modalScreen', false);
+
+        // Firebase Setup
+        const userFirebaseConfig = {
+            apiKey: "AIzaSyCBoDIUR9nNhRi9baH87H8pHwqXk6mWASc",
+            authDomain: "plan15anos.firebaseapp.com",
+            projectId: "plan15anos",
+            storageBucket: "plan15anos.firebasestorage.app",
+            messagingSenderId: "839344814995",
+            appId: "1:839344814995:web:7c968d334d12aeb3844666"
+        };
+
+        const app = initializeApp(userFirebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+
+        const initAuth = async () => {
+            try {
+                await signInAnonymously(auth);
+            } catch (err) {
+                console.error("Auth error:", err.message);
+                window.firebaseAuthError = err.message;
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+        });
+
+        initAuth();
+
+        const saveData = async (collName, data, btnId) => {
+            if (!currentUser) {
+                await initAuth();
+                await new Promise(r => setTimeout(r, 800));
+            }
+
+            if (!currentUser) {
+                const erroMsg = window.firebaseAuthError || "Possível bloqueio de rede ou CORS.";
+                alert("Não foi possível ligar à base de dados.\n\nDetalhe técnico: " + erroMsg);
+                return;
+            }
+
+            const btn = document.getElementById(btnId);
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "A enviar...";
+
+            try {
+                const path = `artifacts/plan15anos/public/data/${collName}`;
+                await addDoc(collection(db, path), {
+                    ...data,
+                    timestamp: serverTimestamp(),
+                    uid: currentUser.uid
+                });
+
+                btn.innerText = "Sucesso! ✨";
+                btn.style.backgroundColor = "#10b981";
+
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = "";
+                    toggleModal(btnId === 'submitMusic' ? 'modalMusic' : 'modalScreen', false);
+
+                    if (btnId === 'submitMusic') document.getElementById('musicInput').value = '';
+                    else {
+                        document.getElementById('authorInput').value = '';
+                        document.getElementById('messageInput').value = '';
+                        document.getElementById('screenMusicInput').value = '';
+                    }
+                }, 2000);
+            } catch (err) {
+                console.error("Erro ao salvar:", err);
+                alert("Erro ao gravar dados: " + err.message);
+                btn.innerText = "Tentar novamente";
+                btn.style.backgroundColor = "#ef4444";
+                btn.disabled = false;
+            }
+        };
+
+        document.getElementById('submitMusic').onclick = () => {
+            const music = document.getElementById('musicInput').value;
+            if (music.trim()) saveData('playlist_suggestions', { suggestion: music }, 'submitMusic');
+        };
+
+        document.getElementById('submitScreen').onclick = () => {
+            const author = document.getElementById('authorInput').value;
+            const msg = document.getElementById('messageInput').value;
+            const music = document.getElementById('screenMusicInput').value;
+            if (author.trim() && msg.trim()) {
+                saveData('telao_messages', { author, message: msg, music: music || "Nenhuma" }, 'submitScreen');
+            }
+        };
+    </script>
+
     <script>
-        const params = new URLSearchParams(window.location.search);
-        let query = params.toString();
-        document.getElementById('btn-confirm').href = query ? `./rsvp.html?${query}` : './rsvp.html';
+        // Personalization logic
+        (function () {
+            const params  = new URLSearchParams(window.location.search);
+            const name    = params.get('name')     || '';
+            const guestId = params.get('guest_id') || '';
+
+            if (name || guestId) {
+                if (name) {
+                    const greetingBox = document.getElementById('guest-greeting');
+                    const nameDisplay = document.getElementById('guest-name-display');
+                    if (greetingBox && nameDisplay) {
+                        nameDisplay.textContent = `Especialmente para: ${name}`;
+                        greetingBox.classList.remove('hidden');
+                    }
+                }
+                
+                // Hide extra buttons when guest is explicitly personalized
+                const btnMusic = document.getElementById('btnOpenMusic');
+                const btnScreen = document.getElementById('btnOpenScreen');
+                if (btnMusic) btnMusic.style.display = 'none';
+                if (btnScreen) btnScreen.style.display = 'none';
+            }
+        })();
     </script>
 </body>
-
 </html>
