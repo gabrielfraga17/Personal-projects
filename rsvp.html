@@ -5,22 +5,19 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
     <title>Larah | 15 Anos - O Arquivo Etéreo</title>
-    <!-- WhatsApp / Social Media Meta Tags -->
     <meta content="Larah | 15 Anos" property="og:title" />
-    <meta content="Você é meu convidado especial! 💖Te espero lá! 🌸" property="og:description" />
+    <meta content="Você é meu convidado especial! 💖 Te espero lá! 🌸" property="og:description" />
     <meta content="website" property="og:type" />
     <meta property="og:image" content="https://plan15years.netlify.app/assets/adolescente.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <link
-        href="https://fonts.googleapis.com/css2?family=Parisienne&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;family=Montserrat:wght@300;400;500;600&amp;display=swap"
+        href="https://fonts.googleapis.com/css2?family=Parisienne&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap"
         rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script id="tailwind-config">
@@ -53,7 +50,8 @@
         body {
             background-color: #f8f9fa;
             min-height: 100svh;
-            /* Disable pull-to-refresh on mobile */
+            /* Evita scroll desnecessário no mobile */
+            overflow-y: hidden;
             overscroll-behavior-y: none;
         }
 
@@ -146,89 +144,99 @@
 <body class="font-body text-on-surface">
 
     <main
-        class="relative min-h-[100svh] w-full flex flex-col items-center justify-center mesh-gradient overflow-hidden pb-12">
+        class="relative h-[100svh] w-full flex flex-col items-center justify-center mesh-gradient overflow-hidden py-4">
+
         <div class="absolute inset-0 opacity-20 pointer-events-none">
             <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-primary-container rounded-full blur-[100px]"></div>
             <div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary-fixed rounded-full blur-[120px]"></div>
         </div>
 
-        <div class="relative w-full max-w-md px-6 flex-1 flex flex-col justify-center mt-8">
-            <div class="relative aspect-[4/5] w-full">
-                <!-- Teen Image -->
+        <div class="relative w-full flex justify-center mt-2 z-10">
+            <div class="relative h-[38vh] min-h-[250px] aspect-[4/5]">
+
                 <div class="absolute inset-0 z-20 organic-mask-2 overflow-hidden shadow-2xl">
-                    <img alt="Larah Hoje" class="w-full h-full object-cover object-[center_15%] scale-105"
+                    <img alt="Larah Hoje" class="w-full h-full object-cover object-center"
                         src="./assets/adolescente.jpg" />
                 </div>
-                <!-- Child Image -->
+
                 <div
-                    class="absolute -top-4 -left-4 w-40 h-40 z-30 organic-mask-1 overflow-hidden shadow-xl border-4 border-white/40 glass-panel">
-                    <img alt="Larah Criança" class="w-full h-full object-cover" src="./assets/crianca.jpg" />
+                    class="absolute top-[10%] -left-[15%] w-[48%] h-[48%] z-30 organic-mask-1 overflow-hidden shadow-xl border-4 border-white/40 glass-panel">
+                    <img alt="Larah Criança"
+                        class="w-[110%] h-[110%] object-cover object-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-none"
+                        src="./assets/crianca.jpg" />
                 </div>
-                <!-- Floating Label -->
-                <div class="absolute bottom-12 -right-2 z-40">
-                    <div class="glass-panel px-6 py-2 rounded-full shadow-lg border border-white/20">
-                        <span class="font-headline text-primary text-4xl">15 Anos</span>
+
+                <div class="absolute bottom-6 -right-2 z-40">
+                    <div class="glass-panel px-5 py-1.5 rounded-full shadow-lg border border-white/20">
+                        <span class="font-headline text-primary text-3xl">15 Anos</span>
                     </div>
-                </div>
-            </div>
-
-            <div class="mt-8 text-center space-y-2">
-                <p class="font-display text-on-surface-variant uppercase tracking-[0.3em] text-[10px] font-semibold">O
-                    Início de um Novo Capítulo</p>
-                <h2 class="font-headline text-primary text-6xl drop-shadow-sm">Larah</h2>
-
-                <div id="guest-greeting"
-                    class="hidden mt-2 inline-block px-4 py-1 glass-panel border border-primary/20 rounded-full">
-                    <p class="text-xs font-semibold tracking-widest text-[#8b4b58] uppercase" id="guest-name-display">
-                    </p>
                 </div>
             </div>
         </div>
 
-        <div class="w-full max-w-md px-8 mt-4 grid grid-cols-3 gap-4">
+        <div class="mt-4 text-center space-y-1 z-10">
+            <p class="font-display text-on-surface-variant uppercase tracking-[0.3em] text-[9px] font-semibold">
+                O Início de um Novo Capítulo
+            </p>
+            <h2 class="font-headline text-primary text-5xl sm:text-6xl drop-shadow-sm leading-none">Larah</h2>
+
+            <div id="guest-greeting"
+                class="hidden mt-1 inline-block px-4 py-1 glass-panel border border-primary/20 rounded-full">
+                <p class="text-[10px] font-semibold tracking-widest text-[#8b4b58] uppercase" id="guest-name-display">
+                </p>
+            </div>
+        </div>
+
+        <div class="w-full max-w-[320px] px-4 mt-4 grid grid-cols-3 gap-2 z-10">
             <div class="text-center">
                 <p class="font-display text-[9px] uppercase tracking-widest text-on-surface-variant mb-1">Data</p>
-                <p class="font-bold text-primary">19.04.26</p>
+                <p class="font-bold text-primary text-[11px]">19.04.26</p>
             </div>
-            <div class="text-center border-x border-outline/20 px-2">
+            <div class="text-center border-x border-outline/20 px-1">
                 <p class="font-display text-[9px] uppercase tracking-widest text-on-surface-variant mb-1">Horário</p>
-                <p class="font-bold text-primary">13h — 19h</p>
+                <p class="font-bold text-primary text-[11px]">13h — 19h</p>
             </div>
             <div class="text-center">
                 <p class="font-display text-[9px] uppercase tracking-widest text-on-surface-variant mb-1">Local</p>
                 <a href="https://maps.app.goo.gl/soDiev1dnF6TGAmZ6" target="_blank" rel="noopener noreferrer"
-                    class="font-bold text-primary text-[10px] leading-tight hover:underline active:opacity-70 block">SÍTIO
-                    DAS ZITAS</a>
+                    class="font-bold text-primary hover:underline active:opacity-70 flex flex-col items-center gap-0.5">
+                    <span class="material-symbols-outlined text-sm">place</span>
+                    <span class="text-[10px] leading-tight">SÍTIO DAS ZITAS</span>
+                </a>
             </div>
         </div>
 
-        <div class="w-full max-w-md px-8 mt-8 flex flex-col gap-4 items-center relative z-50">
-            <!-- IMPORTANT: preserved RSVP button ID for the URL script logic -->
+        <div class="text-center mt-4 space-y-1 z-10">
+            <p class="font-display text-[9px] font-bold text-on-surface-variant uppercase tracking-[0.2em]">Piscina •
+                Vôlei • Futebol • Música</p>
+            <p class="font-display text-[10px] text-primary font-bold uppercase">Traje: leve + roupa de banho</p>
+        </div>
+
+        <div class="w-full max-w-[320px] px-4 mt-4 flex flex-col gap-3 items-center relative z-50">
             <a id="btn-confirm-rsvp"
                 href="https://api.whatsapp.com/send/?phone=5521986448525&text=Ol%C3%A1%21+Estou+confirmando+minha+presen%C3%A7a+no+evento.+Meu+nome+%C3%A9%3A+%5BSeu+nome%5D.+Os+convidados+vinculados+ao+meu+convite+s%C3%A3o%3A+%5BNome+dos+convidados%5D.&type=phone_number&app_absent=0"
                 target="_blank" rel="noopener noreferrer"
-                class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-full font-display font-semibold uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2 group relative overflow-hidden">
+                class="w-full py-3.5 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-full font-display font-semibold uppercase tracking-widest text-[11px] shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2 group relative overflow-hidden">
                 <span class="material-symbols-outlined text-sm">celebration</span>
                 <span class="relative z-10">Confirmar Presença</span>
                 <div class="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </a>
 
-            <div class="flex w-full gap-3">
+            <div class="flex w-full gap-2">
                 <button id="btnOpenMusic"
-                    class="flex-1 py-3 px-2 glass-panel border border-primary/20 rounded-full text-primary font-display font-medium text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-transform">
-                    <span class="material-symbols-outlined text-sm">music_note</span>
+                    class="flex-1 py-2.5 px-2 glass-panel border border-primary/20 rounded-full text-primary font-display font-medium text-[9px] uppercase tracking-wider flex items-center justify-center gap-1.5 active:scale-95 transition-transform">
+                    <span class="material-symbols-outlined text-xs">music_note</span>
                     Sugerir Música
                 </button>
                 <button id="btnOpenScreen"
-                    class="flex-1 py-3 px-2 glass-panel border border-primary/20 rounded-full text-primary font-display font-medium text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-transform">
-                    <span class="material-symbols-outlined text-sm">chat_bubble</span>
+                    class="flex-1 py-2.5 px-2 glass-panel border border-primary/20 rounded-full text-primary font-display font-medium text-[9px] uppercase tracking-wider flex items-center justify-center gap-1.5 active:scale-95 transition-transform">
+                    <span class="material-symbols-outlined text-xs">chat_bubble</span>
                     Mensagem
                 </button>
             </div>
         </div>
     </main>
 
-    <!-- Modais -->
     <div id="modalMusic" class="modal">
         <div class="modal-content">
             <h3 class="font-display text-[#8b4b58] font-bold mb-1 text-lg">Sugerir Música</h3>
@@ -257,7 +265,6 @@
         </div>
     </div>
 
-    <!-- Firebase Logic Preserved EXACTLY as in pdf.html -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -273,7 +280,6 @@
         document.getElementById('closeMusic').onclick = () => toggleModal('modalMusic', false);
         document.getElementById('closeScreen').onclick = () => toggleModal('modalScreen', false);
 
-        // Firebase Setup
         const userFirebaseConfig = {
             apiKey: "AIzaSyCBoDIUR9nNhRi9baH87H8pHwqXk6mWASc",
             authDomain: "plan15anos.firebaseapp.com",
@@ -370,7 +376,6 @@
     </script>
 
     <script>
-        // Personalization logic
         (function () {
             const params = new URLSearchParams(window.location.search);
             const name = params.get('name') || '';
@@ -386,7 +391,6 @@
                     }
                 }
 
-                // Hide extra buttons when guest is explicitly personalized
                 const btnMusic = document.getElementById('btnOpenMusic');
                 const btnScreen = document.getElementById('btnOpenScreen');
                 if (btnMusic) btnMusic.style.display = 'none';
